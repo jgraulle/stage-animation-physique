@@ -5,6 +5,7 @@
 
 #include "Joint.h"
 
+#include <string.h>
 
 //////////////////////////////////////////////////
 // PROC:   Joint::Joint(string nomJoint, int nchannels, bool transJoint, float offset[3], string chtype[6], int chOffset)
@@ -13,31 +14,31 @@
 Joint::Joint(string nomJoint, int nchannels, bool transJoint, float offset[3], string chtype[6], int id) {
     // Cree la liste des enfants
     this->enfants = new list<Joint*>();
-    
-    // Fixe les paramètres
+
+    // Fixe les paramï¿½tres
     this->parent = NULL;
    	this->name = nomJoint;
-   	this->nchannels = nchannels;   	
-   	this->transJoint = transJoint;  
-    this->endSite = false;   	 	
-   	memcpy(this->offset, offset, sizeof(float)*3);   	
-   	//memcpy(this->endLength, endLength, sizeof(float)*3);   	
-   	//memcpy(this->chtype, chtype, sizeof(string)*6);   	
+   	this->nchannels = nchannels;
+   	this->transJoint = transJoint;
+    this->endSite = false;
+   	memcpy(this->offset, offset, sizeof(float)*3);
+   	//memcpy(this->endLength, endLength, sizeof(float)*3);
+   	//memcpy(this->chtype, chtype, sizeof(string)*6);
    	for (int i=0; i<6; i++)
        	this->chtype[i] = chtype[i];
-   	//this->chOffset = chOffset;   
-       
-    //sphereSize = 1;	
- 	
+   	//this->chOffset = chOffset;
+
+    //sphereSize = 1;
+
     static int idProgressing = 1;
-    // Si l'id n'a pas été spécifié, on en génére
+    // Si l'id n'a pas ï¿½tï¿½ spï¿½cifiï¿½, on en gï¿½nï¿½re
     if (id == -1)
         this->id = idProgressing++;
-    else 
+    else
         this->id = id;
 
 
-   	
+
 }
 
 //////////////////////////////////////////////////
@@ -46,25 +47,25 @@ Joint::Joint(string nomJoint, int nchannels, bool transJoint, float offset[3], s
 //////////////////////////////////////////////////
 Joint::Joint(const Joint &copie) {
     id = copie.id;
-    
+
 	name = copie.name;
 	memcpy(offset,copie.offset,sizeof(float)*3);
 	nchannels = copie.nchannels;
 	memcpy(chtype,copie.chtype,sizeof(string)*6);
 	parent = NULL;
-	transJoint = copie.transJoint;  
-     
+	transJoint = copie.transJoint;
+
 	enfants = new list<Joint*>();
  	list<Joint*>::iterator it = copie.enfants->begin();
 	while (it != copie.enfants->end()) {
 		Joint * unEnfant = *(it++);
 		addChildJoint(new Joint(*unEnfant));
 		//enfants->push_back(new Joint(*unEnfant));
-	}              
+	}
 	//enfants = new list<Joint*>(*(copie.enfants));;
-    		
-	endSite = copie.endSite;   
-	memcpy(endLength,copie.endLength,sizeof(float)*3);                    
+
+	endSite = copie.endSite;
+	memcpy(endLength,copie.endLength,sizeof(float)*3);
 
 }
 
@@ -78,12 +79,12 @@ Joint::~Joint() {
 	for (list<Joint*>::iterator it = enfants->begin();it != enfants->end(); it++) {
 		Joint * unEnfant = *it;
 		delete unEnfant;
-	}   
-	
-	
+	}
+
+
 	// Detruit la liste des enfants
 	delete enfants;
-	
+
 
 }
 
@@ -92,7 +93,7 @@ Joint::~Joint() {
 // DOES:   Renvoie le joint parent (NULL si aucun parent)
 //////////////////////////////////////////////////
 Joint * Joint::getParentJoint() {
-    return parent;   
+    return parent;
 }
 
 //////////////////////////////////////////////////
@@ -112,10 +113,10 @@ void Joint::addChildJoint(Joint * joint) {
 //////////////////////////////////////////////////
 void Joint::addEndSite(float endLength[3]) {
     // Copie de la position du terminal
-    memcpy(this->endLength, endLength, sizeof(float)*3); 
-    
-    // Indique la présence du terminal
-    endSite = true;      
+    memcpy(this->endLength, endLength, sizeof(float)*3);
+
+    // Indique la prï¿½sence du terminal
+    endSite = true;
 }
 
 //////////////////////////////////////////////////
@@ -123,12 +124,12 @@ void Joint::addEndSite(float endLength[3]) {
 // DOES:   retourne l'id du joint
 //////////////////////////////////////////////////
 int Joint::getId() {
-    return id;   
+    return id;
 }
 
 //////////////////////////////////////////////////
 // PROC:   Joint::getOffsetPos()
-// DOES:   renvoie l'offset défini en dur dans le Bvh entre 2 joints
+// DOES:   renvoie l'offset dï¿½fini en dur dans le Bvh entre 2 joints
 //////////////////////////////////////////////////
 float Joint::getOffsetPos(char axe) {
 
@@ -149,7 +150,7 @@ float Joint::getOffsetPos(char axe) {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::setOffsetPos()
-// DOES:   Défini l'offset en dur dans le Bvh entre 2 joints
+// DOES:   Dï¿½fini l'offset en dur dans le Bvh entre 2 joints
 //////////////////////////////////////////////////
 void Joint::setOffsetPos(float valeur, char axe) {
 	switch(axe) {
@@ -168,7 +169,7 @@ void Joint::setOffsetPos(float valeur, char axe) {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::getOffsetEndPos()
-// DOES:   renvoie l'offset défini en dur dans le Bvh entre 2 joints dans le cas
+// DOES:   renvoie l'offset dï¿½fini en dur dans le Bvh entre 2 joints dans le cas
 //			d'un joint terminal seulement
 //////////////////////////////////////////////////
 float Joint::getOffsetEndPos(char axe) {
@@ -191,7 +192,7 @@ float Joint::getOffsetEndPos(char axe) {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::SetOffsetEndPos()
-// DOES:   Défini l'offset en dur dans le Bvh entre 2 joints dans le cas
+// DOES:   Dï¿½fini l'offset en dur dans le Bvh entre 2 joints dans le cas
 //			d'un joint terminal seulement
 //////////////////////////////////////////////////
 void Joint::setOffsetEndPos(float valeur, char axe) {
@@ -211,8 +212,8 @@ void Joint::setOffsetEndPos(float valeur, char axe) {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::getOffsetPosChannel()
-// DOES:   renvoie l'offset dans la frame du joint de la donnée de position d'un des axe
-//			En général, X en premier (Offset=0), Y en deuxieme, Z en 3ieme
+// DOES:   renvoie l'offset dans la frame du joint de la donnï¿½e de position d'un des axe
+//			En gï¿½nï¿½ral, X en premier (Offset=0), Y en deuxieme, Z en 3ieme
 //////////////////////////////////////////////////
 int Joint::getOffsetTransChannel(char axe) {
 
@@ -232,17 +233,17 @@ int Joint::getOffsetTransChannel(char axe) {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::getOffsetRotChannel()
-// DOES:   renvoie l'offset dans la frame du joint de la donnée de rotation d'un des axe
-//			En général, Z en premier (Offset=0), X en deuxieme, Y en 3ieme
+// DOES:   renvoie l'offset dans la frame du joint de la donnï¿½e de rotation d'un des axe
+//			En gï¿½nï¿½ral, Z en premier (Offset=0), X en deuxieme, Y en 3ieme
 //////////////////////////////////////////////////
 int Joint::getOffsetRotChannel(char axe) {
 
-	// Enregistre le décalage de 3 en offset si le joint à des champs de position (rare à part la racine)
+	// Enregistre le dï¿½calage de 3 en offset si le joint ï¿½ des champs de position (rare ï¿½ part la racine)
 	int debut=0;
 	if (transJoint) {
 		debut = 3;
 	}
-	
+
 	// Parcours l'ensemble des rotations du joint
 	for (int r=debut; r<nchannels; r++) {
 		if (chtype[r][0] == axe) {
@@ -272,8 +273,8 @@ bool Joint::isTerminal() {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::isTransJoint()
-// DOES:   Indique sur le joint possède des attributs 
-//         de translation (en général, seulement le root)
+// DOES:   Indique sur le joint possï¿½de des attributs
+//         de translation (en gï¿½nï¿½ral, seulement le root)
 //////////////////////////////////////////////////
 bool Joint::isTransJoint() {
 	return transJoint;
@@ -286,12 +287,12 @@ bool Joint::isTransJoint() {
 /*
 void Joint::check_channel_names()
 {
-     
+
 	int startChannel = 0;
 	if (transJoint)                // translations already checked
 		startChannel = 3;
 	for (int c=startChannel; c<nchannels; c++) {
-		if (chtype[c] == "Xrotation" && 
+		if (chtype[c] == "Xrotation" &&
 			chtype[c] =="Yrotation" &&
 			chtype[c] == "Zrotation")
 			printf("Unrecognized channel type: '%s'\n",chtype[c]);
@@ -318,7 +319,7 @@ int Joint::getNbChannels() {
 
 //////////////////////////////////////////////////
 // PROC:   Joint::getChannelsType()
-// DOES:   renvoie le type des channels sous forme de chaine de caractère
+// DOES:   renvoie le type des channels sous forme de chaine de caractï¿½re
 //////////////////////////////////////////////////
 string Joint::getChannelsType() {
 

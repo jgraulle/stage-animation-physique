@@ -11,7 +11,7 @@
 //////////////////////////////////////////////////
 
 
-#include "bvh.h"
+#include "Bvh.h"
 
 #include "misc.h"
 
@@ -64,10 +64,10 @@ Bvh::Bvh(const string nomFichier)
     // Lecture du fichier
 	read(nomFichier);
 
-	// Création de l'actor render
+	// Crï¿½ation de l'actor render
 	//actorRender = new ActorRenderSkin(mocapData, skeletalData, skinData);
 
-    // Une fois que toutes les données sont chargées
+    // Une fois que toutes les donnï¿½es sont chargï¿½es
     mocapManipulator = new MocapManipulator(mocapData, skeletalData);
 
 }
@@ -151,7 +151,7 @@ int Bvh::read(const string fname)
 	// Initialise les variable globales de l'objet pour une lecture
 	init();
 
-    // Création du loader approprié
+    // Crï¿½ation du loader appropriï¿½
     MocapLoader * mocapLoader = MocapLoader::getInstanceOfAppriopriateLoader(fname);
 
     // Chargement
@@ -210,7 +210,7 @@ string Bvh::getJambeGauche() {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::canWalk()
-// DOES:   Indique si le personnage peut marcher (si les 2 jambes sont nommées en fait)
+// DOES:   Indique si le personnage peut marcher (si les 2 jambes sont nommï¿½es en fait)
 //////////////////////////////////////////////////
 bool Bvh::canWalk() {
     return (jambeDroite != "" && jambeGauche != "");
@@ -218,7 +218,7 @@ bool Bvh::canWalk() {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::fixerTailleSquelette()
-// DOES:   Change l'echelle de l'animation et du squelette (réduction, augmentation)
+// DOES:   Change l'echelle de l'animation et du squelette (rï¿½duction, augmentation)
 //          valeur = 1.0 => aucun effet
 //                 < 1.0 => diminution
 //                 > 1.0 => augmentation
@@ -273,8 +273,8 @@ void Bvh::fixerTailleSquelette(float valeur) {
             Joint * jointCourant = it->second;
 
             for (int k =1; k<3; k++){
-                // La mocapData à retailler:
-                // Les données de l'animation ET la posture de référence contenue dans le skinData
+                // La mocapData ï¿½ retailler:
+                // Les donnï¿½es de l'animation ET la posture de rï¿½fï¿½rence contenue dans le skinData
                 MocapData * mocapData;
                 switch (k) {
                     case 1: mocapData = this->mocapData; break;
@@ -292,7 +292,7 @@ void Bvh::fixerTailleSquelette(float valeur) {
                 }
 
                 if (jointCourant->isTransJoint()) {
-                    // On récupere les 3 paramètres
+                    // On rï¿½cupere les 3 paramï¿½tres
                     float tX = mocapData->getTrans(numeroFrame, 'X', jointCourant);
                     float tY = mocapData->getTrans(numeroFrame, 'Y', jointCourant);
                     float tZ = mocapData->getTrans(numeroFrame, 'Z', jointCourant);
@@ -313,25 +313,25 @@ void Bvh::fixerTailleSquelette(float valeur) {
 
         }
     }
-    // On n'oublie pas de retailler le skin aussi (si présent)
+    // On n'oublie pas de retailler le skin aussi (si prï¿½sent)
     if (skinData)
         skinData->resizeSkin(valeur);
 }
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::centerAnimation()
-// DOES:   centre l'animation de départ en (0,?,0)
+// DOES:   centre l'animation de dï¿½part en (0,?,0)
 //////////////////////////////////////////////////
 void Bvh::centrerAnimation()
 {
-	// Détermine X et Z de la racine
+	// Dï¿½termine X et Z de la racine
 	float Xroot, Zroot;
 	//Xroot = data[root->getOffsetTransChannel('X')];
 	//Zroot = data[root->getOffsetTransChannel('Z')];
 	Xroot = mocapData->getTrans(0,'X',getRootSqueleton());
 	Zroot = mocapData->getTrans(0,'Z',getRootSqueleton());
 
-	// Decale l'animation en conséquence
+	// Decale l'animation en consï¿½quence
 	for (int f=0; f<getNbFrame(); f++) {
 		//int i = f*nchannels;
 
@@ -345,17 +345,17 @@ void Bvh::centrerAnimation()
 //////////////////////////////////////////////////
 // PROC:   Bvh::fixerAnimation()
 // DOES:   fixe la racine de l'animation en (0,?,0)
-//			en dépit des déplacements relatifs
+//			en dï¿½pit des dï¿½placements relatifs
 //////////////////////////////////////////////////
 void Bvh::fixerAnimation()
 {
-	// Détermine X et Z de la racine
+	// Dï¿½termine X et Z de la racine
 	float Xroot, Zroot;
 	Xroot = mocapData->getTrans(0,'X',getRootSqueleton()) - getRootSqueleton()->getOffsetPos('X');
 	Zroot = mocapData->getTrans(0,'Z',getRootSqueleton()) - getRootSqueleton()->getOffsetPos('Z');
 
 
-	// Calcul de la droite de régression (méthodes des moindres carrés)
+	// Calcul de la droite de rï¿½gression (mï¿½thodes des moindres carrï¿½s)
 	// Le nuage de point est l'ensemble des positions de la racine au cours du temps
 	// On obtiendra en sortie la direction globale de l'animation
 	// Z = bo + b1 X
@@ -376,7 +376,7 @@ void Bvh::fixerAnimation()
 		/ (getNbFrame() * sommeXkC - sommeXk * sommeXk);
 
 
-	// Decale l'animation en conséquence
+	// Decale l'animation en consï¿½quence
 	for (int f=0; f<getNbFrame(); f++) {
 		//int i = f*nchannels;
 
@@ -392,7 +392,7 @@ void Bvh::fixerAnimation()
 		//					   0,
 		//					   mocapData->getTrans((f+1)%getNbFrame(), 'Z', root));
 
-        // On calcule la distance du point courant à la droite de regression
+        // On calcule la distance du point courant ï¿½ la droite de regression
 		//float d = fabs((b1 * pi.getX() - pi.getZ() + b0) / sqrt(b1*b1 + 1));
 		//if (b1 * pi.getX() - pi.getZ() + b0 <0)
 		//  distance = - distance;
@@ -446,7 +446,7 @@ void Bvh::fixerAltitudeMarche(float altitude, string  nomPied)
 		delete posPied;
 	}
 
-	// Decale l'animation en conséquence
+	// Decale l'animation en consï¿½quence
 	for (int f=0; f<getNbFrame(); f++) {
 		//int i = f*nchannels;
 
@@ -460,12 +460,12 @@ void Bvh::fixerAltitudeMarche(float altitude, string  nomPied)
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::getVitesseDeplacement()
-// DOES:   Calcule la vitesse de déplacement de l'animation de marche (si celà en est une)
+// DOES:   Calcule la vitesse de dï¿½placement de l'animation de marche (si celï¿½ en est une)
 //		   Le principe est de mesurer l'intervalle de temps entre la pose du premier pied et la pose du deuxieme pied
 //////////////////////////////////////////////////
 float Bvh::getVitesseDeplacement(string  nomPremierPied, string  nomDeuxiemePied)
 {
-	// Détection de la phase de support
+	// Dï¿½tection de la phase de support
 	detecterSupportPied(nomPremierPied,nomDeuxiemePied);
 
 	// Calcul de la vitesse
@@ -484,7 +484,7 @@ float Bvh::getVitesseDeplacement(string  nomPremierPied, string  nomDeuxiemePied
 //////////////////////////////////////////////////
 // PROC:   Bvh::fixerGlissementPied()
 // DOES:   Fixe le flissement de chaque pied
-//		   Attention, on suppose qu'un appel a detecterSupportPied a été fait avant, sinon aucun effet
+//		   Attention, on suppose qu'un appel a detecterSupportPied a ï¿½tï¿½ fait avant, sinon aucun effet
 //////////////////////////////////////////////////
 void Bvh::fixerGlissementPied(int numeroFrame, float xPers, float yPers, float direction, string  nomHautJambe1, string  nomHautJambe2) {
 
@@ -496,7 +496,7 @@ void Bvh::fixerGlissementPied(int numeroFrame, float xPers, float yPers, float d
 		detecterSupportPied(getEndJointName(nomHautJambe1), getEndJointName(nomHautJambe2));
 	}
 
-	// Si aucun support n'a été trouvé, on ne fait rien
+	// Si aucun support n'a ï¿½tï¿½ trouvï¿½, on ne fait rien
 	if (frameDebutSupport == -1 ||frameFinSupport == -1) return;
 
 	bvhGlissementPied1->fixerGlissementPied(numeroFrame, frameDebutSupport, frameFinSupport, xPers, yPers, direction);
@@ -508,15 +508,15 @@ void Bvh::fixerGlissementPied(int numeroFrame, float xPers, float yPers, float d
 //////////////////////////////////////////////////
 // PROC:   Bvh::detecterSupportPied()
 // DOES:   Le principe est de trouver l'intervalle de temps entre la pose du premier pied et la pose du deuxieme pied
-//		   En sortie, 2 variable sont mise à jour
+//		   En sortie, 2 variable sont mise ï¿½ jour
 //////////////////////////////////////////////////
 void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
     /*
-	// Variation d'altitude autorisée du pied durant la phase de support
+	// Variation d'altitude autorisï¿½e du pied durant la phase de support
 	const float epsilonAltitude = 0.2;
 	const float epsilonVitesse = 0.2;
 
-	// Invalidation des résultats
+	// Invalidation des rï¿½sultats
 	this->frameDebutSupport = -1;
 	this->frameFinSupport = -1;
 
@@ -547,7 +547,7 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
 	}
 
 
-	// La frame de début du support du pied
+	// La frame de dï¿½but du support du pied
 	int frameDebutSupport = -1;
 	int frameFinSupport = -1;
 	bool pied1First = false;
@@ -580,7 +580,7 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
 		} else if ((frameDebutSupport != -1) & (!secondPeriodReady)) {
 
 
-			// Selon la situation, on teste si un des 2 pieds se relève
+			// Selon la situation, on teste si un des 2 pieds se relï¿½ve
 			if ((posPied->getY() - minYpied1 > epsilonAltitude)
 				& (fabs(posPied->getZ() - posPiedOld->getZ())> epsilonVitesse/2)
 				& (!pied1First)) {
@@ -615,7 +615,7 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
 	}
 
 
-	// Mise à jour des variables globales
+	// Mise ï¿½ jour des variables globales
 	this->frameDebutSupport = frameDebutSupport;
 	this->frameFinSupport = frameFinSupport;
     */
@@ -655,18 +655,18 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
         delete posPied2;
 	}
 
-    // On considère que le mouvement a été rendu cyclique par notre module
-    // Donc forcément le début de la mocap est une phase de support du pied initiateur
-    // Il suffit alors de déterminer quel est le pied initiateur pour déterminer l'ordre
-    // de début/fin support
-    // En effet frameDebutSupport est toujours le début du support du pied1 (qu'il soit gauche ou droite)
+    // On considï¿½re que le mouvement a ï¿½tï¿½ rendu cyclique par notre module
+    // Donc forcï¿½ment le dï¿½but de la mocap est une phase de support du pied initiateur
+    // Il suffit alors de dï¿½terminer quel est le pied initiateur pour dï¿½terminer l'ordre
+    // de dï¿½but/fin support
+    // En effet frameDebutSupport est toujours le dï¿½but du support du pied1 (qu'il soit gauche ou droite)
 
 
     const float epsilonDeplacement = 0.2;
     const float epsilonAltitude = 0.2;
 
-    // On détermine alors à quel moment le premier pied fini sa phase
-    // (pas forcément en milieu de l'animation cyclique pour une marche
+    // On dï¿½termine alors ï¿½ quel moment le premier pied fini sa phase
+    // (pas forcï¿½ment en milieu de l'animation cyclique pour une marche
     // d'une personne qui boite par exemple)
     int finSupportPremierPied=20;
 
@@ -702,7 +702,7 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
     //if (finSupportPremierPied == 0)
     //    finSupportPremierPied = (getNbFrame()-1)/2;
 
-    // On fixe alors le début et la fin de la phase de support du pied1
+    // On fixe alors le dï¿½but et la fin de la phase de support du pied1
     if (progressionPied1 < progressionPied2) {
         // Alors le pied2 est le premier pied de support
     	this->frameDebutSupport = finSupportPremierPied;
@@ -714,16 +714,16 @@ void Bvh::detecterSupportPied(string  nomPremierPied, string  nomDeuxiemePied) {
     }
     */
 
-    // Bon finalement je zappe, on prend la moitié et c tout
+    // Bon finalement je zappe, on prend la moitiï¿½ et c tout
     this->frameDebutSupport = 1;
     this->frameFinSupport = (getNbFrame()-1)/2;
 }
 
 void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 
-	// Etape 1: détecter un cycle de marche (pose d'un pied, puis du second)
+	// Etape 1: dï¿½tecter un cycle de marche (pose d'un pied, puis du second)
 
-	// Variation d'altitude autorisée du pied durant la phase de support
+	// Variation d'altitude autorisï¿½e du pied durant la phase de support
 	const float epsilonAltitude = 0.2;
 	const float epsilonVitesse = 0.05;
 
@@ -753,12 +753,12 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 	}
 
 
-	int numeroFrame = 1; // On part à la frame 1 pour pouvoir calculer la vitesse
-	bool pied1Last = true; // On considere à tort ou a raison que le pied1 touche le sol en premier
-	int tabFrameCle[4]; // Tableau contenant les indexs des frames clés
+	int numeroFrame = 1; // On part ï¿½ la frame 1 pour pouvoir calculer la vitesse
+	bool pied1Last = true; // On considere ï¿½ tort ou a raison que le pied1 touche le sol en premier
+	int tabFrameCle[4]; // Tableau contenant les indexs des frames clï¿½s
 	int indexTabFrameCle = 0; // Variable d'index du tableau ci-dessus
 
-	// Pour les 4 frames clés que l'on veut trouver:
+	// Pour les 4 frames clï¿½s que l'on veut trouver:
 	for (int k=0; k<4; k++) {
 		// On recherche la pose d'un des 2 pieds
 		while (numeroFrame < getNbFrame()) {
@@ -796,7 +796,7 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 		indexTabFrameCle++;
 		numeroFrame++;
 
-		// On attends qu'un des deux pieds se relève
+		// On attends qu'un des deux pieds se relï¿½ve
 		while (numeroFrame < getNbFrame()) {
 			// Recupere la position du pied
 			Point3D * posPied = getPositionJointByNameInFrame(numeroFrame, nomPremierPied, true);
@@ -805,7 +805,7 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 			Point3D * posPied2Old = getPositionJointByNameInFrame(numeroFrame-1, nomDeuxiemePied, true);
 
 
-			// Selon la situation, on teste si un des 2 pieds se relève
+			// Selon la situation, on teste si un des 2 pieds se relï¿½ve
 			if ((posPied->getY() - minYpied1 > epsilonAltitude)
 				& (posPied->distanceVers(*posPiedOld)> epsilonVitesse)
 				& (!pied1Last)) {
@@ -830,41 +830,41 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 
 
 
-	// A ce stade, notre cycle de marche non corrigé se situe entre les frames
-	// tabFrameCle[1] et tabFrameCle[3]. La frame tabFrameCle[2] correspond à
-	// la pose du pied intermédiaire (autre que celui de départ)
-	// On ignore volontairement tabFrameCle[0] car la première pose du pied
-	// peut correspondre au passage d'un état statique à la marche
-	// ce qui donne un mauvais résultat pour produire un cycle
+	// A ce stade, notre cycle de marche non corrigï¿½ se situe entre les frames
+	// tabFrameCle[1] et tabFrameCle[3]. La frame tabFrameCle[2] correspond ï¿½
+	// la pose du pied intermï¿½diaire (autre que celui de dï¿½part)
+	// On ignore volontairement tabFrameCle[0] car la premiï¿½re pose du pied
+	// peut correspondre au passage d'un ï¿½tat statique ï¿½ la marche
+	// ce qui donne un mauvais rï¿½sultat pour produire un cycle
 
 
-	// Etape 2: Extraire le cycle non corrigé de l'animation initiale
+	// Etape 2: Extraire le cycle non corrigï¿½ de l'animation initiale
 	alignerAnimationSensDeMarche();
 	fixerAnimation();
 
     mocapData->cropData(tabFrameCle[1]+1, tabFrameCle[3]-1);
 
 
-	// Etape 3: mélange entre le début et la fin de l'animation pour assurer
+	// Etape 3: mï¿½lange entre le dï¿½but et la fin de l'animation pour assurer
 	// la transition cyclique
 
-	// On commence le mélange sur une portion égale a 40% de la fin de l'animation
+	// On commence le mï¿½lange sur une portion ï¿½gale a 40% de la fin de l'animation
 	int frameDebutMelange = (int)(0.6 * getNbFrame());
 
-	// Mélange degressif de la fin vers frameDebutMelange
+	// Mï¿½lange degressif de la fin vers frameDebutMelange
 	for (numeroFrame=getNbFrame()-1; numeroFrame>=frameDebutMelange; numeroFrame--) {
-		// Poids du mélange
+		// Poids du mï¿½lange
 		float poids = 0.8*(float)(numeroFrame-frameDebutMelange) / (getNbFrame()-frameDebutMelange-1.);
 		//float poids = (float)(numeroFrame*numeroFrame-frameDebutMelange*frameDebutMelange)
 		//			/ ((nframes-1.)*(nframes-1.) -frameDebutMelange*frameDebutMelange);
 
-		// Pour chaque paramètre de la frame courante
+		// Pour chaque paramï¿½tre de la frame courante
 		/*
 		for (int i=0; i<getNchannels(); i++) {
 			//int indexCourant = numeroFrame*nchannels+i;
-			// Avant d'effectuer le mélange, on vérifie qu'il ne s'agit
-			// pas de 2 angles <-90° et >90° dont le mélange donnerait une mauvaise valeur
-			// Exemple: -179 + 179° donnerait 0° alors que le résultat doit être 180°
+			// Avant d'effectuer le mï¿½lange, on vï¿½rifie qu'il ne s'agit
+			// pas de 2 angles <-90ï¿½ et >90ï¿½ dont le mï¿½lange donnerait une mauvaise valeur
+			// Exemple: -179 + 179ï¿½ donnerait 0ï¿½ alors que le rï¿½sultat doit ï¿½tre 180ï¿½
 			//float donnee1 = data[indexCourant];
 			float donnee1 = mocapData->getRawData(numeroFrame, i );
 
@@ -890,7 +890,7 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 
 			}
 
-			// On effectue le mélange avec la frame qui la succede
+			// On effectue le mï¿½lange avec la frame qui la succede
 			//data[indexCourant] = ((1.-poids) * donnee1 + poids * donnee2 );
 			mocapData->setRawData((1.-poids) * donnee1 + (poids * donnee2), numeroFrame, i);
 
@@ -906,26 +906,26 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 
             char axes[] = {'X', 'Y', 'Z'};
 
-            // - Mélange des 3 translations si elle existent
+            // - Mï¿½lange des 3 translations si elle existent
             if (jointCourant->isTransJoint()) {
 
                 for (int k=0; k<3; k++) {
                     float trans1 = mocapData->getTrans(numeroFrame, axes[k], jointCourant);
                     float trans2 = mocapData->getTrans((numeroFrame+1)%getNbFrame(), axes[k], jointCourant);
 
-                    // Mélange
+                    // Mï¿½lange
                     mocapData->setTrans((1.-poids) * trans1 + poids * trans2, numeroFrame, axes[k], jointCourant);
                 }
             }
 
-            // - Mélange des 3 rotations
+            // - Mï¿½lange des 3 rotations
             for (int k=0; k<3; k++) {
                 float rot1 = mocapData->getRot(numeroFrame, axes[k], jointCourant);
                 float rot2 = mocapData->getRot((numeroFrame+1)%getNbFrame(), axes[k], jointCourant);
 
-                // Avant d'effectuer le mélange, on vérifie qu'il ne s'agit
-    			// pas de 2 angles <-90° et >90° dont le mélange donnerait une mauvaise valeur
-    			// Exemple: -179 + 179° donnerait 0° alors que le résultat doit être 180°
+                // Avant d'effectuer le mï¿½lange, on vï¿½rifie qu'il ne s'agit
+    			// pas de 2 angles <-90ï¿½ et >90ï¿½ dont le mï¿½lange donnerait une mauvaise valeur
+    			// Exemple: -179 + 179ï¿½ donnerait 0ï¿½ alors que le rï¿½sultat doit ï¿½tre 180ï¿½
     			if ( ((rot1<-90)&&(rot2>90)) || ((rot1>90)&&(rot2<-90)) ) {
 
 
@@ -944,7 +944,7 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 
     			}
 
-    			// On effectue le mélange avec la frame qui suit
+    			// On effectue le mï¿½lange avec la frame qui suit
     			float rotMelange = (1.-poids) * rot1 + (poids * rot2);
 
     			// Stockage de la valeur
@@ -961,14 +961,14 @@ void Bvh::rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied) {
 /*
 void Bvh::cropAnimation(int frame1, int frame2) {
 
-	// Test de validité
+	// Test de validitï¿½
 	if ((frame1 >= frame2) || (frame1 <0) || (frame2>=nframes))
 		return;
 
-	// On déplace le pointeur data
+	// On dï¿½place le pointeur data
 	data += frame1*nchannels;
 
-	// On déplace la fin des données
+	// On dï¿½place la fin des donnï¿½es
 	nframes = frame2-frame1;
 
 }
@@ -977,7 +977,7 @@ void Bvh::cropAnimation(int frame1, int frame2) {
 //////////////////////////////////////////////////
 // PROC:   Bvh::getAngleOrientation()
 // DOES:   Renvoie la rotation globale de l'animation
-//	       par rapport à l'axe Y
+//	       par rapport ï¿½ l'axe Y
 //////////////////////////////////////////////////
 float Bvh::getAngleOrientation()
 {
@@ -990,17 +990,17 @@ float Bvh::getAngleOrientation()
 // DOES:   change l'orientation de l'animation par rotation autour de l'axe Y (la verticale)
 //////////////////////////////////////////////////
 void Bvh::turnAroundY(float angle) {
-	// On fixe le départ de l'animation en (0,?,0);
+	// On fixe le dï¿½part de l'animation en (0,?,0);
 	centrerAnimation();
 
 	// Correction de la trajectoire
 	for (int f=0; f<getNbFrame(); f++) {
 
-		// Etape 0: On recalcule les 3 angles d'euler de la racine en ayant effectué
+		// Etape 0: On recalcule les 3 angles d'euler de la racine en ayant effectuï¿½
 		// auparavant une rotation sur l'axe Y (la rotation devient P'=YXZY' P)
 
 		// Transformation effective d'un point par la matrice de vue d'opengl
-		// pour récuperer les coordonnées du point du terminal
+		// pour rï¿½cuperer les coordonnï¿½es du point du terminal
 		// Ensemble des transformations
 		//float rotZ = getRotJoint(f, root,  'Z');
 		//float rotX = getRotJoint(f, root,  'X');
@@ -1016,16 +1016,16 @@ void Bvh::turnAroundY(float angle) {
 		glRotatef(rotX, 1., 0., 0.);
 		glRotatef(rotY, 0., 1., 0.);
 
-		// Recupere la matrice de rotation associé à la vue courante
+		// Recupere la matrice de rotation associï¿½ ï¿½ la vue courante
 		GLfloat *buf2 = new GLfloat[16];
 		glGetFloatv(GL_MODELVIEW_MATRIX, buf2);
 
-		// Recupère les 3 nouveau angles d'euler associés
+		// Recupï¿½re les 3 nouveau angles d'euler associï¿½s
 		float a = asinf(buf2[6]);
 		float b = atan2(buf2[8], buf2[10]);
 		float c = atan2(-buf2[4], buf2[5]);
 
-		// Libération mémoire et restauration
+		// Libï¿½ration mï¿½moire et restauration
 		delete buf2;
 		glPopMatrix();
 
@@ -1071,10 +1071,10 @@ void Bvh::turnAroundY(float angle) {
 		//float Zroot = data[f * nchannels + root->getOffsetTransChannel('Z')];
 		float Xroot = mocapData->getTrans(f, 'X', getRootSqueleton());
 		float Zroot = mocapData->getTrans(f, 'Z', getRootSqueleton());
-		// Translation pour départ en (0,0)
+		// Translation pour dï¿½part en (0,0)
 		//Xroot -= XrootInitO;
 		//Zroot -= ZrootInitO;
-		// Rotation des coordonnées de la racine dans le plan XZ (axe Y)
+		// Rotation des coordonnï¿½es de la racine dans le plan XZ (axe Y)
 
 		//data[f * nchannels + root->getOffsetTransChannel('X')] =
 		//	(Xroot * cosf(angle) - Zroot*sinf(angle));
@@ -1093,7 +1093,7 @@ void Bvh::turnAroundY(float angle) {
 //////////////////////////////////////////////////
 void Bvh::alignerAnimationSensDeMarche()
 {
-	// Calcul de la droite de régression (méthodes des moindres carrés)
+	// Calcul de la droite de rï¿½gression (mï¿½thodes des moindres carrï¿½s)
 	// Le nuage de point est l'ensemble des positions de la racine au cours du temps
 	// On obtiendra en sortie la direction globale de l'animation
 	// Z = bo + b1 X
@@ -1113,9 +1113,9 @@ void Bvh::alignerAnimationSensDeMarche()
 	b1 = (getNbFrame() * sommeXkYk - sommeXk * sommeYk)
 		/ (getNbFrame() * sommeXkC - sommeXk * sommeXk);
 
-	// Recherche de l'angle de la trajectoire sur la totalité du chemin
+	// Recherche de l'angle de la trajectoire sur la totalitï¿½ du chemin
 
-	// On recupère la positon de la racine en début et en fin de parcours
+	// On recupï¿½re la positon de la racine en dï¿½but et en fin de parcours
 	//float XrootInitO = data[root->getOffsetTransChannel('X')];
     float XrootInitO = mocapData->getTrans(0, 'X', getRootSqueleton());
 	//float ZrootInitO = data[root->getOffsetTransChannel('Z')];
@@ -1124,21 +1124,21 @@ void Bvh::alignerAnimationSensDeMarche()
     float XrootTermO = mocapData->getTrans(getNbFrame()-1, 'X', getRootSqueleton());
 	//float ZrootTermO = (nframes-1) * nchannels + root->getOffsetTransChannel('Z')];
 
-	// On calcule la position en début et en fin de parcours sur la droite de régression
+	// On calcule la position en dï¿½but et en fin de parcours sur la droite de rï¿½gression
 	float XrootInit = XrootInitO;
 	//float ZrootInit = b0 + b1*XrootInit;
 	float XrootTerm = XrootTermO;
 	//float ZrootTerm = b0 + b1*XrootTerm;
 
-	// Angle de la trajectoire par rapport à l'axe X
+	// Angle de la trajectoire par rapport ï¿½ l'axe X
 	//float angle = acosf(fabs(ZrootInit - ZrootTerm)
 	//			/ sqrt((ZrootTerm - ZrootInit) * (ZrootTerm - ZrootInit)
 	//				+ (XrootTerm - XrootInit) * (XrootTerm - XrootInit) ));
 	float angle =  - atanf(b1);
 
 
-	// On lève l'indétermination de la valeur renvoyé par la fonction tangente inverse
-	// en vérifiant que la progression sur l'axe X se fera dans le sens croissant
+	// On lï¿½ve l'indï¿½termination de la valeur renvoyï¿½ par la fonction tangente inverse
+	// en vï¿½rifiant que la progression sur l'axe X se fera dans le sens croissant
 	if (XrootInit > XrootTerm)
 		angle = M_PI + angle;
 
@@ -1278,16 +1278,16 @@ list<Point3D*>  * Bvh::getPositionTerminauxAnimation(int numeroFrame) {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::getPositionTerminaux
-// DOES:   Renvoie la liste complete des positions des terminaux à partir d'un joint de référence
+// DOES:   Renvoie la liste complete des positions des terminaux ï¿½ partir d'un joint de rï¿½fï¿½rence
 //////////////////////////////////////////////////
 list<Point3D*> * Bvh::getPositionTerminaux(float* frameData, Joint * referenceJoint) {
 
 	glPushMatrix();
 
-	// Pour sauver les résultats
+	// Pour sauver les rï¿½sultats
 	list<Point3D> *listeResult = new list<Point3D>();
 
-	// Récupere la liste des enfants du joint de départ (la référence passée en paramètre)
+	// Rï¿½cupere la liste des enfants du joint de dï¿½part (la rï¿½fï¿½rence passï¿½e en paramï¿½tre)
 	list<Joint*> * listeCourante = referenceJoint->getListeEnfants();
 
 	// On applique les transformation du noeud
@@ -1296,14 +1296,14 @@ list<Point3D*> * Bvh::getPositionTerminaux(float* frameData, Joint * referenceJo
 	// Si aucun enfant, alors c'est un terminal)
 	if (referenceJoint->isTerminal()) {
 
-		// On translate sur la fin réelle du terminal
+		// On translate sur la fin rï¿½elle du terminal
 		glTranslatef(referenceJoint->getOffsetEndPos('X'),
 					referenceJoint->getOffsetEndPos('Y'),
 					referenceJoint->getOffsetEndPos('Z'));
 
 
 		// Transformation effective d'un point par la matrice de vue d'opengl
-		// pour récuperer les coordonnées du point du terminal
+		// pour rï¿½cuperer les coordonnï¿½es du point du terminal
 		Point3D p = Point3D(0,0,0);
 		GLfloat * buf = new GLfloat[16];
 		glGetFloatv(GL_MODELVIEW_MATRIX,buf);
@@ -1318,7 +1318,7 @@ list<Point3D*> * Bvh::getPositionTerminaux(float* frameData, Joint * referenceJo
 		glPopMatrix();
 
 
-		// On ajoute la position du terminal à la liste
+		// On ajoute la position du terminal ï¿½ la liste
 		listeResult->push_back(result);
 
 	} else {
@@ -1351,7 +1351,7 @@ Point3D * Bvh::getPositionJointByNameInFrame(int numeroFrame, string nomJoint, b
 }
 //////////////////////////////////////////////////
 // PROC:   Bvh::getPositionJointByName()
-// DOES:   renvoie la position d'un joint par son nom à partir d'un joint de reference
+// DOES:   renvoie la position d'un joint par son nom ï¿½ partir d'un joint de reference
 //////////////////////////////////////////////////
 
 //Point3D * Bvh::getPositionJointByName(int numeroFrame, string nomJoint, bool getEndSite, float *matRot) {
@@ -1363,7 +1363,7 @@ Point3D * Bvh::getPositionJointByNameInFrame(int numeroFrame, string nomJoint, b
 	// Le resultat
 	Point3D * resultat = NULL;
 
-	// Récupere la liste des enfants du joint de départ (la référence passée en paramètre)
+	// Rï¿½cupere la liste des enfants du joint de dï¿½part (la rï¿½fï¿½rence passï¿½e en paramï¿½tre)
 	list<Joint*> * listeCourante = referenceJoint->getListeEnfants();
 
 	// On applique les transformation du noeud
@@ -1375,26 +1375,26 @@ Point3D * Bvh::getPositionJointByNameInFrame(int numeroFrame, string nomJoint, b
 
 		// Cas particulier pour un terminal
 		if (referenceJoint->isTerminal() && getEndSite) {
-			// On translate sur la fin réelle du terminal
+			// On translate sur la fin rï¿½elle du terminal
 			glTranslatef(referenceJoint->getOffsetEndPos('X'),
 						referenceJoint->getOffsetEndPos('Y'),
 						referenceJoint->getOffsetEndPos('Z'));
 		}
 
 		// Transformation effective d'un point par la matrice de vue d'opengl
-		// pour récuperer les coordonnées du point du terminal
+		// pour rï¿½cuperer les coordonnï¿½es du point du terminal
 		Point3D ptemp = Point3D(0,0,0);
 		GLfloat * buf = new GLfloat[16];
 		glGetFloatv(GL_MODELVIEW_MATRIX,buf);
 		ptemp.multVecteurMatrice(buf);
 
-		// Sauvegarde la matrice de rotation trouvée si nécessaire
+		// Sauvegarde la matrice de rotation trouvï¿½e si nï¿½cessaire
 		if (matRot !=  NULL) {
 			memcpy(matRot, buf, sizeof(GLfloat)*16);
 		}
 		delete buf;
 
-		// On renvoie le résultat
+		// On renvoie le rï¿½sultat
 		resultat = new Point3D(ptemp);
 
 	} else {
@@ -1453,7 +1453,7 @@ void Bvh::clearOptimisation() {
 string Bvh::getEndJointName(string nomJoint) {
 	Joint * terminal = getJointByName(nomJoint);
 
-	// Ici on considére que la chaine est simple (sans dédoublement)
+	// Ici on considï¿½re que la chaine est simple (sans dï¿½doublement)
 	// Recupere le terminal de la chaine et compte la longueur de la chaine
 	// On enregistre par la meme occasion la chaine dans une liste pour un
 	// parcours en sens inverse ensuite
@@ -1469,14 +1469,14 @@ string Bvh::getEndJointName(string nomJoint) {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::getChaineJointVersTerminal()
-// DOES:   Renvoie la chaine entier vers un terminal à partir d'un joint
+// DOES:   Renvoie la chaine entier vers un terminal ï¿½ partir d'un joint
 //////////////////////////////////////////////////
 list<Joint*> * Bvh::getChaineJointVersTerminal(string nomJoint) {
 
 	// Valeur par defaut du terminal
 	Joint * terminal = getJointByName(nomJoint);
 
-	// Ici on considére que la chaine est simple (sans dédoublement)
+	// Ici on considï¿½re que la chaine est simple (sans dï¿½doublement)
 	// Recupere le terminal de la chaine et compte la longueur de la chaine
 	// On enregistre par la meme occasion la chaine dans une liste pour un
 	// parcours en sens inverse ensuite
@@ -1488,32 +1488,32 @@ list<Joint*> * Bvh::getChaineJointVersTerminal(string nomJoint) {
 	}
 	chaine->push_front(terminal);
 
-	// Retourne le résultat
+	// Retourne le rï¿½sultat
 	return chaine;
 
 }
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::majListeJoints(JointListIndexedByName & listeJoints, Joint * referenceJoint)
-// DOES:   Met à jour / construit la liste des joint "listeJoints"
+// DOES:   Met ï¿½ jour / construit la liste des joint "listeJoints"
 //////////////////////////////////////////////////
 /*
 void Bvh::majListeJoints(JointListIndexedByName & listeJoints, Joint * referenceJoint) {
 
-    // Ajoute le joint de référence dans la liste
+    // Ajoute le joint de rï¿½fï¿½rence dans la liste
     listeJoints[referenceJoint->getName()] = referenceJoint;
 
-	// Récupere la liste des enfants du joint de départ (la référence passée en paramètre)
+	// Rï¿½cupere la liste des enfants du joint de dï¿½part (la rï¿½fï¿½rence passï¿½e en paramï¿½tre)
 	list<Joint*> * listeCourante = referenceJoint->getListeEnfants();
 	// on parcours ses enfants pour recommencer le processus
 	for (list<Joint*>::iterator it = listeCourante->begin(); it != listeCourante->end(); it++) {
-		// Recupération de l'enfant
+		// Recupï¿½ration de l'enfant
 		Joint * unEnfant = *it;
 
 		// Insertion de l'enfant dans la liste
 		//listeJoints[unEnfant->getName()] = unEnfant;
 
-		// Appel récursif
+		// Appel rï¿½cursif
 		majListeJoints(listeJoints, unEnfant);
 	}
 
@@ -1521,7 +1521,7 @@ void Bvh::majListeJoints(JointListIndexedByName & listeJoints, Joint * reference
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::majListeJoints()
-// DOES:   Met à jour / construit la liste des joint "listeJoints"
+// DOES:   Met ï¿½ jour / construit la liste des joint "listeJoints"
 //////////////////////////////////////////////////
 Bvh::JointListIndexedByName Bvh::majListeJoints() {
 
@@ -1530,7 +1530,7 @@ Bvh::JointListIndexedByName Bvh::majListeJoints() {
 
     JointListIndexedByName listeJoints;
 
-    // Commence la mise à jour par la racine
+    // Commence la mise ï¿½ jour par la racine
     majListeJoints(listeJoints, root);
 
     return listeJoints;
@@ -1538,10 +1538,10 @@ Bvh::JointListIndexedByName Bvh::majListeJoints() {
 */
 //////////////////////////////////////////////////
 // PROC:   Bvh::getListAllJoint(Joint * referenceJoint)
-// DOES:   Utilisée pour la récursivité de la méthode publique getListAllJoint()
+// DOES:   Utilisï¿½e pour la rï¿½cursivitï¿½ de la mï¿½thode publique getListAllJoint()
 //////////////////////////////////////////////////
 map<string, void*> * Bvh::getListAllJoint(Joint * referenceJoint) {
-	// Création de la liste résultat
+	// Crï¿½ation de la liste rï¿½sultat
 	map<string, void*>  * listeResult = new map<string, void*>();
 
 
@@ -1551,18 +1551,18 @@ map<string, void*> * Bvh::getListAllJoint(Joint * referenceJoint) {
 		return listeResult;
 	}
 
-	// Récupere la liste des enfants du joint de départ (la référence passée en paramètre)
+	// Rï¿½cupere la liste des enfants du joint de dï¿½part (la rï¿½fï¿½rence passï¿½e en paramï¿½tre)
 	list<Joint*> * listeCourante = referenceJoint->getListeEnfants();
 	// on parcours ses enfants pour recommencer le processus
 	for (list<Joint*>::iterator it = listeCourante->begin(); it != listeCourante->end(); it++) {
-		// Recupération de l'enfant
+		// Recupï¿½ration de l'enfant
 		Joint * unenfant = *it;
 
 		// Appel de la fonction sur le sous branche de l'enfant
-		// et recupération de la liste des noeud
+		// et recupï¿½ration de la liste des noeud
 		map<string, void*> * listeNoeud = getListAllJoint(unenfant);
 
-		// Insertion de cette branche dans l'arbre résultat
+		// Insertion de cette branche dans l'arbre rï¿½sultat
 		(*listeResult)[unenfant->getName()] = listeNoeud;
 
 	}
@@ -1572,13 +1572,13 @@ map<string, void*> * Bvh::getListAllJoint(Joint * referenceJoint) {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::getListAllJoint()
-// DOES:   Renvoie une stl::map d'association clé-valeur contenant l'arbre du squelette du personnage
-//			clé = nom du joint, valeur = pointeur sur une valeur de type map
-//			si clé = NULL, alors il s'agit d'une feuille
+// DOES:   Renvoie une stl::map d'association clï¿½-valeur contenant l'arbre du squelette du personnage
+//			clï¿½ = nom du joint, valeur = pointeur sur une valeur de type map
+//			si clï¿½ = NULL, alors il s'agit d'une feuille
 //////////////////////////////////////////////////
 map<string, void*> * Bvh::getListAllJoint() {
 
-	// On lance l'appel récursif sur la liste des joints
+	// On lance l'appel rï¿½cursif sur la liste des joints
 	// On n'oublie pas d'inclure la racine
 	map<string, void*>  * listeResult = new map<string, void*>();
 	(*listeResult)[getRootSqueleton()->getName()] = getListAllJoint(getRootSqueleton());
@@ -1589,9 +1589,9 @@ map<string, void*> * Bvh::getListAllJoint() {
 
 //////////////////////////////////////////////////
 // PROC:   Bvh::appliquerIkCcd()
-// DOES:   Ik par ccd sur une chaine simple (pas de dédoublement)
-//		   Fournir le numéro de la frame à traiter, le nom du joint désignant le début de la chaine,
-//		   la position voulue pour la fin de cette chaine, et le nombre d'itération maximum
+// DOES:   Ik par ccd sur une chaine simple (pas de dï¿½doublement)
+//		   Fournir le numï¿½ro de la frame ï¿½ traiter, le nom du joint dï¿½signant le dï¿½but de la chaine,
+//		   la position voulue pour la fin de cette chaine, et le nombre d'itï¿½ration maximum
 //		   (pour borner l'algorithme)
 //////////////////////////////////////////////////
 void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulue, int nbIterationsMax) {
@@ -1609,7 +1609,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 		return;
 	}
 
-	// On récupère le terminal de la chaine
+	// On rï¿½cupï¿½re le terminal de la chaine
 	Joint * terminal = *(chaine->begin());
 	//chaine->pop_front();
 
@@ -1617,7 +1617,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 	float * matRotTerm = new float[16];
 	float * matRotDepart = new float[16];
 
-	// On repete la passe d'optimisation autant de fois que nécessaire
+	// On repete la passe d'optimisation autant de fois que nï¿½cessaire
 	for (int precision=0; precision<nbIterationsMax; precision++) {
 
 
@@ -1629,8 +1629,8 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 			// Recupere le joint courant
 			Joint * curseur = *(it);
 
-			// Calcul de la positon du terminal et recupération de la matrice de rotation
-			// Pour plus de précision il faut déplacer ce bloc dans la boucle de parcours de la chaine (fait)
+			// Calcul de la positon du terminal et recupï¿½ration de la matrice de rotation
+			// Pour plus de prï¿½cision il faut dï¿½placer ce bloc dans la boucle de parcours de la chaine (fait)
 
 			Point3D * posTerm = getPositionJointByNameInFrame(numeroFrame, terminal->getName(), true, matRotTerm);
 
@@ -1644,27 +1644,27 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 			// Position de la racine en cours et matrice de rotation
 			Point3D * posDepart = getPositionJointByNameInFrame(numeroFrame, curseur->getName(), true, matRotDepart);
 
-			// Calcul de Pic: vecteur de distance entre départ et terminal
+			// Calcul de Pic: vecteur de distance entre dï¿½part et terminal
 			Point3D Pic = Point3D((posTerm->getX() - posDepart->getX()),
 									(posTerm->getY() - posDepart->getY()),
 									(posTerm->getZ() - posDepart->getZ()));
 
-			// Calcul de Pid: vecteur de distance entre départ et la position voulue
+			// Calcul de Pid: vecteur de distance entre dï¿½part et la position voulue
 			Point3D Pid = Point3D((positionVoulue.getX() - posDepart->getX()),
 									(positionVoulue.getY() - posDepart->getY()),
 									(positionVoulue.getZ() - posDepart->getZ()));
 
 
 
-			// Mise à jour des paramètres des coefficients k
+			// Mise ï¿½ jour des paramï¿½tres des coefficients k
 			float ro = min(Pid.norme(), Pic.norme()) / max(Pid.norme(), Pic.norme());
 			float wp = alpha*(1+ro);
 
 
 			// Orientation du terminal (uc) et orientation voulue en fin d'optimisation (ud)
-			// On applique la matrice de vue du terminal à X Y Z
-			// puis on soustraint la position du terminal, pour obtenir le nouveau repere X' Y' Z' bien orienté
-			// selon les 3 degrés de liberté du joint
+			// On applique la matrice de vue du terminal ï¿½ X Y Z
+			// puis on soustraint la position du terminal, pour obtenir le nouveau repere X' Y' Z' bien orientï¿½
+			// selon les 3 degrï¿½s de libertï¿½ du joint
 			Point3D axe1 = Point3D(1,0,0);
 			axe1.multVecteurMatrice(matRotTerm);
 			Point3D axe2 = Point3D(0,1,0);
@@ -1680,9 +1680,9 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 			Point3D ud[3] = {uc[0],uc[1],uc[2]};
 
 
-			// Calcul des 3 axes (on applique la matrice de vue de départ à X Y Z)
-			// puis on soustraint la position de départ, pour obtenir le nouveau repere X' Y' Z' bien orienté
-			// selon les 3 degrés de liberté du joint
+			// Calcul des 3 axes (on applique la matrice de vue de dï¿½part ï¿½ X Y Z)
+			// puis on soustraint la position de dï¿½part, pour obtenir le nouveau repere X' Y' Z' bien orientï¿½
+			// selon les 3 degrï¿½s de libertï¿½ du joint
 			Point3D axed1 = Point3D(1,0,0);
 			axed1.multVecteurMatrice(matRotDepart);
 			axed1 = axed1.add(posDepart->inverse());
@@ -1697,7 +1697,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 
 
 			// K2
-			// NOTE: le calcul de K2 ne dépend pas de l'axe courant (voir dans la boucle suivante)
+			// NOTE: le calcul de K2 ne dï¿½pend pas de l'axe courant (voir dans la boucle suivante)
 			float k2 = 0;
 			for (int j = 0; j<3; j++) {
 				k2 += ud[j].produitf32(uc[j]);
@@ -1739,7 +1739,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 				k3 = axis.produitf32(temp);
 
 				//TETA
-				//Le deplacement de l'angle optimisé
+				//Le deplacement de l'angle optimisï¿½
 				float teta;
 				if (k2-k1 != 0) {
 					teta = atanf(k3/(k2-k1)) *57.29;//* 180/M_PI;
@@ -1777,7 +1777,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 
 			}
 
-			// Liberation mémoire
+			// Liberation mï¿½moire
 			/*
 			delete matRotTerm;
 			delete matRotDepart;
@@ -1798,7 +1798,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positio
 
 
 
-/* Ancienne version pas du tout optimisée */
+/* Ancienne version pas du tout optimisï¿½e */
 /*
 void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulue, int nbIterationsMax) {
 	// Constantes de l'algortihme
@@ -1811,7 +1811,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 	//int longueurChaine = 0;
 	Joint * terminal = getJointByName(nomJoint);
 
-	// Ici on considére que la chaine est simple (sans dédoublement)
+	// Ici on considï¿½re que la chaine est simple (sans dï¿½doublement)
 	// Recupere le terminal de la chaine et compte la longueur de la chaine
 	// On enregistre par la meme occasion la chaine dans une liste pour un
 	// parcours en sens inverse ensuite
@@ -1825,7 +1825,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 	//chaine->push_front(terminal); // => A DEBUGUER LE TRAITEMENT DU TERMINAL
 
 
-	// On repete la passe d'optimisation autant de fois que nécessaire
+	// On repete la passe d'optimisation autant de fois que nï¿½cessaire
 	for (int precision=0; precision<nbIterationsMax; precision++) {
 
 		// Une passe: parcours entier de la chaine et optimisation de chaque rotation
@@ -1837,7 +1837,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 			for (int axe = 1; axe <=3; axe++) {
 				// Determination de l'axe
 
-				// Calcul de la positon du terminal et recupération de la matrice de rotation
+				// Calcul de la positon du terminal et recupï¿½ration de la matrice de rotation
 				float * matRotTerm = new float[16];
 				Point3D * posTerm = getPositionJointByNameInFrame(numeroFrame, terminal->getName(), true, matRotTerm);
 
@@ -1851,27 +1851,27 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 				float * matRotDepart = new float[16];
 				Point3D * posDepart = getPositionJointByNameInFrame(numeroFrame, curseur->getName(), false, matRotDepart);
 
-				// Calcul de Pic: vecteur de distance entre départ et terminal
+				// Calcul de Pic: vecteur de distance entre dï¿½part et terminal
 				Point3D Pic = Point3D((posTerm->getX() - posDepart->getX()),
 										(posTerm->getY() - posDepart->getY()),
 										(posTerm->getZ() - posDepart->getZ()));
 
-				// Calcul de Pid: vecteur de distance entre départ et la position voulue
+				// Calcul de Pid: vecteur de distance entre dï¿½part et la position voulue
 				Point3D Pid = Point3D((positionVoulue.getX() - posDepart->getX()),
 										(positionVoulue.getY() - posDepart->getY()),
 										(positionVoulue.getZ() - posDepart->getZ()));
 
 
 
-				// Mise à jour des paramètres des coefficients k
+				// Mise ï¿½ jour des paramï¿½tres des coefficients k
 				float ro = min(Pid.norme(), Pic.norme()) / max(Pid.norme(), Pic.norme());
 				float wp = alpha*(1+ro);
 
 
 				// Orientation du terminal (uc) et orientation voulue en fin d'optimisation (ud)
-				// On applique la matrice de vue du terminal à X Y Z
-				// puis on soustraint la position du terminal, pour obtenir le nouveau repere X' Y' Z' bien orienté
-				// selon les 3 degrés de liberté du joint
+				// On applique la matrice de vue du terminal ï¿½ X Y Z
+				// puis on soustraint la position du terminal, pour obtenir le nouveau repere X' Y' Z' bien orientï¿½
+				// selon les 3 degrï¿½s de libertï¿½ du joint
 				Point3D axe1 = Point3D(1,0,0);
 				axe1.multVecteurMatrice(matRotTerm);
 				Point3D axe2 = Point3D(0,1,0);
@@ -1889,9 +1889,9 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 				// Optimisation du joint courant sur l'axe courant
 				Point3D axis;
 
-				// Calcul des 3 axes (on applique la matrice de vue de départ a X Y Z
-				// puis on soustraint la position de départ, pour obtenir le nouveau repere X' Y' Z' bien orienté
-				// selon les 3 degrés de liberté du joint
+				// Calcul des 3 axes (on applique la matrice de vue de dï¿½part a X Y Z
+				// puis on soustraint la position de dï¿½part, pour obtenir le nouveau repere X' Y' Z' bien orientï¿½
+				// selon les 3 degrï¿½s de libertï¿½ du joint
 				Point3D axed1 = Point3D(1,0,0);
 				axed1.multVecteurMatrice(matRotDepart);
 				axed1 = axed1.add(posDepart->inverse());
@@ -1938,7 +1938,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 				k3 = axis.produitf32(temp);
 
 				//TETA
-				//Le deplacement de l'angle optimisé
+				//Le deplacement de l'angle optimisï¿½
 				float teta;
 				if (k2-k1 != 0) {
 					teta = atanf(k3/(k2-k1));
@@ -1973,7 +1973,7 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 				//list<Joint*> * listeCourante = curseur->getListeEnfants();
 				//curseur = *(listeCourante->begin());
 
-				// Liberation mémoire
+				// Liberation mï¿½moire
 				delete matRotTerm;
 				delete matRotDepart;
 				delete posDepart;
@@ -2005,11 +2005,11 @@ void Bvh::appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulu
 //////////////////////////////////////////////////
 // PROC:   Bvh::interpoler()
 // DOES:   Interpolation entre deux animations
-//		   Aucun retimage effectué
+//		   Aucun retimage effectuï¿½
 //////////////////////////////////////////////////
 Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
 
-    // Déclaration de l'animation finale
+    // Dï¿½claration de l'animation finale
     Bvh * bvhResult;
 
     // On part de la copie de la mocap la plus petite
@@ -2021,29 +2021,29 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
 
     //bvhResult->fixerTailleSquelette(
 
-    // Calcul et stockage de la longueur totale de la mocap résultante
+    // Calcul et stockage de la longueur totale de la mocap rï¿½sultante
     //int longueurTotale = (int)(poids * bvh1->getNbFrame() + (1-poids) * bvh2->getNbFrame());
     int longueurTotale = bvh1->getNbFrame()>bvh2->getNbFrame()?bvh1->getNbFrame():bvh2->getNbFrame();
     bvhResult->getMocapData()->setNewFrameNumber(longueurTotale);
 
     // RETIMING + Interp
-    // (bon pour l'instant on considère que la durée des frames est la même des 2 cotés)
+    // (bon pour l'instant on considï¿½re que la durï¿½e des frames est la mï¿½me des 2 cotï¿½s)
 
 
 	// Pour chaque joint de l'animation
 	SkeletalData::JointListIndexedByName listeJointsBvh1 =  bvh1->getSkeletalData()->getListeJointsByName();
 	SkeletalData::JointListIndexedByName listeJointsBvh2 =  bvh2->getSkeletalData()->getListeJointsByName();
 	for (SkeletalData::JointListIndexedByName::iterator it = listeJointsBvh1.begin(); it != listeJointsBvh1.end(); it++) {
-        // On récupere le joint courant
+        // On rï¿½cupere le joint courant
         Joint * jointCourantBvh1 = it->second;
 
-        // On récupere le joint associé dans l'anim2
+        // On rï¿½cupere le joint associï¿½ dans l'anim2
         Joint * jointCourantBvh2 = bvh2->getSkeletalData()->getJointByName(jointCourantBvh1->getName());
         if (jointCourantBvh2 == NULL) return NULL;
 
-        // On récupere le joint concerné (le joint résultat)
-        // On n'effectue aucune vérification de présence du joint, car l'animation étant produite à partir
-        // d'une des deux anims à interpoler, le joint existe FORCEMENT
+        // On rï¿½cupere le joint concernï¿½ (le joint rï¿½sultat)
+        // On n'effectue aucune vï¿½rification de prï¿½sence du joint, car l'animation ï¿½tant produite ï¿½ partir
+        // d'une des deux anims ï¿½ interpoler, le joint existe FORCEMENT
         Joint * jointResult = bvhResult->getSkeletalData()->getJointByName(jointCourantBvh1->getName());
 
 
@@ -2064,20 +2064,20 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
         }
 
 
-        // Pour chaque frame de l'animation résultante
+        // Pour chaque frame de l'animation rï¿½sultante
         for (int numeroFrame=0; numeroFrame<longueurTotale; numeroFrame++) {
 
-            // On récupere les données de l'anim1 et 2 en respectant les poids du mélange
+            // On rï¿½cupere les donnï¿½es de l'anim1 et 2 en respectant les poids du mï¿½lange
             MocapData::JointData jointData1 =
                 bvh1->getMocapData()->getJointData(numeroFrame * (bvh1->getNbFrame()-1) / (longueurTotale-1), jointCourantBvh1);
 
             MocapData::JointData jointData2 =
                 bvh2->getMocapData()->getJointData(numeroFrame * (bvh2->getNbFrame()-1) / (longueurTotale-1), jointCourantBvh2);
 
-            // On effectue le mélange
+            // On effectue le mï¿½lange
             MocapData::JointData jointDataResult;
 
-            // Mélange des rotations
+            // Mï¿½lange des rotations
             float rotXYZ1[] = {0, 0, 0};
             float rotXYZ2[] = {0, 0, 0};
 
@@ -2129,7 +2129,7 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
             jointDataResult.rotZ = poids * jointData1.rotZ + (1-poids) * jointData2.rotZ;
             */
 
-            // Mélange des translations
+            // Mï¿½lange des translations
             if (jointResult->isTransJoint()) {
                 jointDataResult.transX = poids * jointData1.transX + (1-poids) * jointData2.transX;
                 jointDataResult.transY = poids * jointData1.transY + (1-poids) * jointData2.transY;
@@ -2137,7 +2137,7 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
             }
 
 
-            // On stocke le résultat
+            // On stocke le rï¿½sultat
             bvhResult->getMocapData()->setJointData(jointDataResult, numeroFrame, jointResult);
 
 
@@ -2146,16 +2146,16 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
     }
 
 
-    // Renvoie le résultat
+    // Renvoie le rï¿½sultat
     return bvhResult;
 
     /*
-	// On commence le mélange sur une portion égale a 40% de la fin de l'animation
+	// On commence le mï¿½lange sur une portion ï¿½gale a 40% de la fin de l'animation
 	int frameDebutMelange = (int)(0.6 * getNbFrame());
 
-	// Mélange degressif de la fin vers frameDebutMelange
+	// Mï¿½lange degressif de la fin vers frameDebutMelange
 	for (numeroFrame=getNbFrame()-1; numeroFrame>=frameDebutMelange; numeroFrame--) {
-		// Poids du mélange
+		// Poids du mï¿½lange
 		float poids = 0.8*(float)(numeroFrame-frameDebutMelange) / (getNbFrame()-frameDebutMelange-1.);
 		// Pour chaque joint de la frame
 		SkeletalData::JointListIndexedByName listeJoints =  skeletalData->getListeJointsByName();
@@ -2164,26 +2164,26 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
 
             char axes[] = {'X', 'Y', 'Z'};
 
-            // - Mélange des 3 translations si elle existent
+            // - Mï¿½lange des 3 translations si elle existent
             if (jointCourant->isTransJoint()) {
 
                 for (int k=0; k<3; k++) {
                     float trans1 = mocapData->getTrans(numeroFrame, axes[k], jointCourant);
                     float trans2 = mocapData->getTrans((numeroFrame+1)%getNbFrame(), axes[k], jointCourant);
 
-                    // Mélange
+                    // Mï¿½lange
                     mocapData->setTrans((1.-poids) * trans1 + poids * trans2, numeroFrame, axes[k], jointCourant);
                 }
             }
 
-            // - Mélange des 3 rotations
+            // - Mï¿½lange des 3 rotations
             for (int k=0; k<3; k++) {
                 float rot1 = mocapData->getRot(numeroFrame, axes[k], jointCourant);
                 float rot2 = mocapData->getRot((numeroFrame+1)%getNbFrame(), axes[k], jointCourant);
 
-                // Avant d'effectuer le mélange, on vérifie qu'il ne s'agit
-    			// pas de 2 angles <-90° et >90° dont le mélange donnerait une mauvaise valeur
-    			// Exemple: -179 + 179° donnerait 0° alors que le résultat doit être 180°
+                // Avant d'effectuer le mï¿½lange, on vï¿½rifie qu'il ne s'agit
+    			// pas de 2 angles <-90ï¿½ et >90ï¿½ dont le mï¿½lange donnerait une mauvaise valeur
+    			// Exemple: -179 + 179ï¿½ donnerait 0ï¿½ alors que le rï¿½sultat doit ï¿½tre 180ï¿½
     			if ( ((rot1<-90)&&(rot2>90)) || ((rot1>90)&&(rot2<-90)) ) {
 
 
@@ -2202,7 +2202,7 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
 
     			}
 
-    			// On effectue le mélange avec la frame qui suit
+    			// On effectue le mï¿½lange avec la frame qui suit
     			float rotMelange = (1.-poids) * rot1 + (poids * rot2);
 
     			// Stockage de la valeur
@@ -2218,10 +2218,10 @@ Bvh::Bvh * Bvh::interpoler(Bvh* bvh1, Bvh * bvh2, float poids) {
 /*
 //////////////////////////////////////////////////
 // PROC:   Bvh::genererMocap()
-// DOES:   Génere une mocap différente (en construction, pour tests seulement)
+// DOES:   Gï¿½nere une mocap diffï¿½rente (en construction, pour tests seulement)
 //////////////////////////////////////////////////
 void Bvh::genererMocap() {
-	// Paramètres random
+	// Paramï¿½tres random
 	srand(time(NULL));
 	float rdBz = (rand()%100)/90.0;
 	float rdBx = (rand()%100)/60.0-0.4;
@@ -2255,7 +2255,7 @@ void Bvh::genererMocap() {
 	}
 
 
-	// Sauvegarde du mouvement généré
+	// Sauvegarde du mouvement gï¿½nï¿½rï¿½
 	time_t temps = time(NULL);
     ostringstream oss;
     oss << "./gen/" << temps << ".bvh";
@@ -2279,16 +2279,16 @@ bool Bvh::isFirstFootSupportPeriod(int frameCourante) {
 // DOES: Change le premier pied de support
 //////////////////////////////////////////////////
 void Bvh::changerPremierPiedSupport() {
-    // On détecte les phase de support de chaque pied (si ce n'est pas déjà fait)
+    // On dï¿½tecte les phase de support de chaque pied (si ce n'est pas dï¿½jï¿½ fait)
     detecterSupportPied(jambeDroite, jambeGauche);
 
-    // L'idée est de déplacer l'ensemble des frames de la premiere phase de support vers la phase de retour
+    // L'idï¿½e est de dï¿½placer l'ensemble des frames de la premiere phase de support vers la phase de retour
     // et inversement
 
     // Pour chaque joint de la frame
 	SkeletalData::JointListIndexedByName listeJoints =  skeletalData->getListeJointsByName();
 	for (SkeletalData::JointListIndexedByName::iterator it = listeJoints.begin(); it != listeJoints.end(); it++) {
-        // Récupération du joint courant
+        // Rï¿½cupï¿½ration du joint courant
         Joint * jointCourant = it->second;
 
 
@@ -2296,36 +2296,36 @@ void Bvh::changerPremierPiedSupport() {
         int totalElementDeplace = 0;
         int dernierIndexDeplace = 0;
 
-        // Tant que l'on n'a pas déplacé autant d'élément (de jointData pour le joint courant) que le nombre de frames
+        // Tant que l'on n'a pas dï¿½placï¿½ autant d'ï¿½lï¿½ment (de jointData pour le joint courant) que le nombre de frames
     	while (totalElementDeplace < getNbFrame()) {
 
-            // jointDataNew est l'élément en cours de déplacement
-            // Au départ de l'algorithme, il s'agit du premier élément (situé à dernierIndexDeplace)
+            // jointDataNew est l'ï¿½lï¿½ment en cours de dï¿½placement
+            // Au dï¿½part de l'algorithme, il s'agit du premier ï¿½lï¿½ment (situï¿½ ï¿½ dernierIndexDeplace)
             MocapData::JointData jointDataNew = mocapData->getJointData(dernierIndexDeplace, jointCourant);
             // On calcule alors le prochaine index ou ira jointDataNew
             dernierIndexDeplace = (dernierIndexDeplace + (getNbFrame()-frameFinSupport-1)) % getNbFrame();
 
-            // Tant que l'on n'a pas fait un tour complet, c'est à dire que l'on n'est pas revenu
-            // à l'index de départ
+            // Tant que l'on n'a pas fait un tour complet, c'est ï¿½ dire que l'on n'est pas revenu
+            // ï¿½ l'index de dï¿½part
             int sauvLastIndex=dernierIndexDeplace;
             do {
 
-                // On récupere les données à l'index ou l'on va écrire
+                // On rï¿½cupere les donnï¿½es ï¿½ l'index ou l'on va ï¿½crire
                 MocapData::JointData jointDataTemp = mocapData->getJointData(dernierIndexDeplace, jointCourant);
 
-                // On y place les données du joint sauvegardé dans jointDataNew
+                // On y place les donnï¿½es du joint sauvegardï¿½ dans jointDataNew
                 mocapData->setJointData(jointDataNew,
                                         dernierIndexDeplace,
                                         jointCourant);
 
-                // Finalement on place les données sauvegardées à l'index qui vient d'être écrasé
+                // Finalement on place les donnï¿½es sauvegardï¿½es ï¿½ l'index qui vient d'ï¿½tre ï¿½crasï¿½
                 // dans jointDataNew (et on boucle l'algo)
                 jointDataNew = jointDataTemp;
 
-                // On totaliste un élément de plus déplacé pour ce joint
+                // On totaliste un ï¿½lï¿½ment de plus dï¿½placï¿½ pour ce joint
                 totalElementDeplace++;
 
-                // Mise à jour index
+                // Mise ï¿½ jour index
                 int nouvelIndex = (dernierIndexDeplace + (getNbFrame()-frameFinSupport-1)) % getNbFrame();
                 dernierIndexDeplace = nouvelIndex;
 
@@ -2334,14 +2334,14 @@ void Bvh::changerPremierPiedSupport() {
 
             //totalElementDeplace += frameFinSupport - frameDebutSupport;
 
-            // On passe à l'index suivant (si utile, si encore des éléments à déplacer)
+            // On passe ï¿½ l'index suivant (si utile, si encore des ï¿½lï¿½ments ï¿½ dï¿½placer)
             dernierIndexDeplace +=1;
 
         }
 
     }
 
-    // On final, on échange aussi les marqueurs des joints des jambes
+    // On final, on ï¿½change aussi les marqueurs des joints des jambes
     string jambeDroiteTemp = this->getJambeDroite();
     this->setJambeDroite(this->getJambeGauche());
     this->setJambeGauche(jambeDroiteTemp);
@@ -2368,7 +2368,7 @@ BvhGlissementPied::BvhGlissementPied(Bvh * bvh, string nomHautJambe) {
 	// Initialisation de l'objet
 	init();
 
-	// Création et sauvegarde des chaines représentant les jambes
+	// Crï¿½ation et sauvegarde des chaines reprï¿½sentant les jambes
 	chaine = bvh->getChaineJointVersTerminal(nomHautJambe);
 
 	// On stocke le nom du pied
@@ -2393,8 +2393,8 @@ void BvhGlissementPied::init() {
 //////////////////////////////////////////////////
 // PROC:   BvhGlissementPied::fixerGlissementPied()
 // DOES:   Fixe le glissement d'un pied
-//		   Il faut donner la position du personnage, sa direction, le nom de la partie supérieure de la jambe
-//		   Ainsi que les frames de début et de fin de support du pied, et le numéro de la frame à traiter
+//		   Il faut donner la position du personnage, sa direction, le nom de la partie supï¿½rieure de la jambe
+//		   Ainsi que les frames de dï¿½but et de fin de support du pied, et le numï¿½ro de la frame ï¿½ traiter
 //////////////////////////////////////////////////
 void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSupport, int frameFinSupport, float xPers, float yPers, float direction){
 
@@ -2403,7 +2403,7 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 
     //#define DEBUG_IKCCD
 
-	// Test de faisabilité (par exemple, si le mouvement n'est pas de la marche)
+	// Test de faisabilitï¿½ (par exemple, si le mouvement n'est pas de la marche)
 	if (frameDebutSupport==-1 ||frameFinSupport==-1) return;
 
 	// DEBUT: premier support du pied du cycle
@@ -2439,12 +2439,12 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 
 		&& pointPiedDebutMonde) {
 
-		// On va alors calculer la position fixe du pied dans le repere personnage apres que le personnage ait bougé
+		// On va alors calculer la position fixe du pied dans le repere personnage apres que le personnage ait bougï¿½
 
-		// On part de la position du pied dans le repere monde auquel on soustrait les coordonées du personnage
+		// On part de la position du pied dans le repere monde auquel on soustrait les coordonï¿½es du personnage
 		Point3D pointPiedFixePers = Point3D(-pointPiedDebutMonde->getX()+xPers,pointPiedDebutMonde->getY(),-pointPiedDebutMonde->getZ()+yPers);
 
-		// On corrige l'éventuelle rotation du personnage, et on se retrouve dans le repere personnage
+		// On corrige l'ï¿½ventuelle rotation du personnage, et on se retrouve dans le repere personnage
 		float x = pointPiedFixePers.getX();
 		float z = pointPiedFixePers.getZ();
 		float alpha = M_PI*(direction)/180.;
@@ -2452,7 +2452,7 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 		pointPiedFixePers.setZ(x * sinf(alpha) + z*cosf(alpha));
 
 
-		// DEBUG: affichage zone de contact fixée
+		// DEBUG: affichage zone de contact fixï¿½e
         #ifdef DEBUG_IKCCD
 		glPushMatrix();
 
@@ -2471,11 +2471,11 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 		glPopMatrix();
 		#endif
 
-		// On applique la méthode CCD sur le point déterminé
+		// On applique la mï¿½thode CCD sur le point dï¿½terminï¿½
 		//bvh->appliquerIkCcd(numeroFrame, nomHautJambe, pointPiedFixePers, nbrIteration);
 		bvh->appliquerIkCcd(numeroFrame, chaine, pointPiedFixePers, nbrIteration);
 
-		// Force la remise à jour de A et B dans la deuxieme phase
+		// Force la remise ï¿½ jour de A et B dans la deuxieme phase
 		delete A;
 		delete B;
 		A = NULL;
@@ -2483,20 +2483,20 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 
 
 	}
-	// DEUXIEME PHASE: retour cohérent du pied
+	// DEUXIEME PHASE: retour cohï¿½rent du pied
 	else {
 
 		// Phase de retour du pied
 		if ((pointPiedDebutPers && numeroFrame != frameDebutSupport)
 		    & (numeroFrame != derniereFrameTraitee)){
 
-			// Sauvegarde de la dernière frame traitée
-			// Ceci permet de ne pas affecter la trajectoire de retour du pied, même
+			// Sauvegarde de la derniï¿½re frame traitï¿½e
+			// Ceci permet de ne pas affecter la trajectoire de retour du pied, mï¿½me
 			// si le personnage est en train de bouger (et que donc on apelle la fonction
-			// pour mettre à jour la position du pied au sol)
+			// pour mettre ï¿½ jour la position du pied au sol)
 			derniereFrameTraitee = numeroFrame;
 
-			// Si on n'a pas détecter la fin du mouvement et les 2 positions des pieds (avant et apres correction)
+			// Si on n'a pas dï¿½tecter la fin du mouvement et les 2 positions des pieds (avant et apres correction)
 			if (!A || !B) {
 				//detecterSupportPied(getEndJointName(nomHautJambe1),getEndJointName(nomHautJambe2));
 
@@ -2505,8 +2505,8 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 				// La position sans correction juste apres la fin de pose
 				A = bvh->getPositionJointByNameInFrame((frameFinSupport+1)%bvh->getNbFrame(), nomPied, true);
 
-				// On place A et B dans le répere centré sur pointPosPied (là ou on a posé le pied en début de support
-				// dans le repere centré sur le personnage)
+				// On place A et B dans le rï¿½pere centrï¿½ sur pointPosPied (lï¿½ ou on a posï¿½ le pied en dï¿½but de support
+				// dans le repere centrï¿½ sur le personnage)
 				A->setZ(A->getZ() - pointPiedDebutPers->getZ());
 				A->setY(A->getY() - pointPiedDebutPers->getY());
 				B->setZ(B->getZ() - pointPiedDebutPers->getZ());
@@ -2516,7 +2516,7 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 
 
 			// Optimisation: on arrete le traitement si A et B sont proches
-			// (aucune correction du retour du pied à faire)
+			// (aucune correction du retour du pied ï¿½ faire)
 			if (A->distanceVers(*B)<0.05) return;
 
 			// Calcul de alpha: rotation pour aligner A et B
@@ -2527,7 +2527,7 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 			float alpha;
 
 
-            // Inversion de signe selon la différence de niveau en début et fin de support
+            // Inversion de signe selon la diffï¿½rence de niveau en dï¿½but et fin de support
             if (pointPiedDebutPers->getY() < B->getY())
                 alpha = angleA - angleB;
             else
@@ -2542,22 +2542,22 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 			Point3D pointCorrige = Point3D(0,0,0);
 			pointCorrige.setY((B->norme()/ A->norme()) * (P->getY() * cosf(alpha) - P->getZ() * sinf(alpha)) );
 			pointCorrige.setZ((B->norme()/ A->norme()) * (P->getY() * sinf(alpha) + P->getZ() * cosf(alpha)) );
-			pointCorrige.setX(B->getX());  // On garde le meme écartement de la jambe qu'à la fin de la phase de pose
+			pointCorrige.setX(B->getX());  // On garde le meme ï¿½cartement de la jambe qu'ï¿½ la fin de la phase de pose
 
-			// Replace le point dans le repère personnage
+			// Replace le point dans le repï¿½re personnage
 			pointCorrige.setZ(pointCorrige.getZ() + pointPiedDebutPers->getZ());
 			pointCorrige.setY(pointCorrige.getY() + pointPiedDebutPers->getY());
 
-			// Applique finalement la méthode CCD
+			// Applique finalement la mï¿½thode CCD
 			//bvh->appliquerIkCcd(numeroFrame, nomHautJambe, pointCorrige, nbrIteration);
 			bvh->appliquerIkCcd(numeroFrame, chaine, pointCorrige, nbrIteration);
 
 
-			// Libération mémoire
+			// Libï¿½ration mï¿½moire
 			delete P;
 
 
-			//DEBUG: affichage du point de contact du pied prévu en début de support
+			//DEBUG: affichage du point de contact du pied prï¿½vu en dï¿½but de support
 			#ifdef DEBUG_IKCCD
 			glPushMatrix();
 			//glScalef(0.2,0.2,0.2);
@@ -2574,7 +2574,7 @@ void BvhGlissementPied::fixerGlissementPied(int numeroFrame, int frameDebutSuppo
 
 
 
-			//DEBUG: affichage du point de contact du pied prévu en début de support
+			//DEBUG: affichage du point de contact du pied prï¿½vu en dï¿½but de support
 			glPushMatrix();
 
 			glRotatef(90.0, 0.0, 1.0, 0.0);
