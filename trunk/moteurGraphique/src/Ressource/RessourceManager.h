@@ -27,7 +27,7 @@ private:
 
 public:
 	// retourne la seule instance du manager de ressource
-	static RessourceManager * RessourceManager::getInstance() {
+	static RessourceManager * getInstance() {
 		static RessourceManager instance;
 		return &instance;
 	}

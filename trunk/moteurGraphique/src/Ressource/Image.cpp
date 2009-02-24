@@ -11,6 +11,9 @@
 
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 
 // constructeur
 Image::Image(const string & fileName)
@@ -21,7 +24,9 @@ Image::Image(const string & fileName)
 	// creation et ouverture d'une image
 	ilGenImages(1, &handle);
 	ilBindImage(handle);
-	if (!ilLoadImage(fileName.c_str()))
+	char tampon[80];
+	strcpy(tampon, fileName.c_str());
+	if (!ilLoadImage(tampon))
 		throw ErreurFileNotFound(fileName, iluErrorString(ilGetError()));
 	// lire la dimension de l'image
 	largeur = ilGetInteger(IL_IMAGE_WIDTH);

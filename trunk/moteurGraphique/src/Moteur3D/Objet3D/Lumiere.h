@@ -1,7 +1,7 @@
 /*
  * Lumiere.h
  *
- *  Created on: 6 févr. 2009
+ *  Created on: 6 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -22,7 +22,7 @@ public:
 	static const Couleur DIFFUSE_SPECULAR_DEFAUT;
 
 	Lumiere(const Vector3 & position = Vector3(), const Couleur & c = DIFFUSE_SPECULAR_DEFAUT, f32 attnConstant = 1.0f, f32 attnLinear = 0.0f, f32 attnQuadratic = 0.0f, u8 exposant = 0, f32 angle = 180.0f, const Vector3 & direction = Vector3(0.0f, 0.0f, -1.0f));
-	Lumiere(const Vector3 & position = Vector3(), const Couleur & ambientColor, const Couleur & diffuseColor,  const Couleur & specularColor, f32 attnConstant = 1.0f, f32 attnLinear = 0.0f, f32 attnQuadratic = 0.0f, u8 exposant = 0, f32 angle = 180.0f, const Vector3 & direction = Vector3(0.0f, 0.0f, -1.0f));
+	Lumiere(const Vector3 & position, const Couleur & ambientColor, const Couleur & diffuseColor,  const Couleur & specularColor, f32 attnConstant = 1.0f, f32 attnLinear = 0.0f, f32 attnQuadratic = 0.0f, u8 exposant = 0, f32 angle = 180.0f, const Vector3 & direction = Vector3(0.0f, 0.0f, -1.0f));
 	Lumiere(const Vector3 & position, const Quaternion & rotation);
 	virtual ~Lumiere();
 
