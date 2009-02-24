@@ -1,21 +1,22 @@
 #include "MocapData.h"
 
+#include <stdlib.h>
 
 MocapData::MocapData(int nframes, int nchannels, float dureeFrame) {
-    
-    // Stocke le nombre de frame et de channels pour l'animation entière
+
+    // Stocke le nombre de frame et de channels pour l'animation entiï¿½re
     this->nframes = nframes;
     this->nchannels = nchannels;
     this->dureeFrame = dureeFrame;
     this->drawScale = 1;
-    
-    // Valeur par defaut
-    freeIndex = 0; // On commence au début du tableau
-    
 
-    
-    // Utilise les données passées en paramètres ou alors
-    // Alloue un espace mémoire suffisant pour stocker l'ensemble des paramètres
+    // Valeur par defaut
+    freeIndex = 0; // On commence au dï¿½but du tableau
+
+
+
+    // Utilise les donnï¿½es passï¿½es en paramï¿½tres ou alors
+    // Alloue un espace mï¿½moire suffisant pour stocker l'ensemble des paramï¿½tres
     this->data = (float *) malloc(nframes*nchannels*sizeof(float));
     //if (data) {
     //    memcpy(this->data, data, nframes*nchannels*sizeof(float));
@@ -24,26 +25,26 @@ MocapData::MocapData(int nframes, int nchannels, float dureeFrame) {
 }
 
 MocapData::MocapData(const MocapData &copie) {
- 
+
     //MocapData(copie.nframes, copie.nchannels, copie.dureeFrame, copie.data);
-    
+
     this->nframes = copie.nframes;
     this->nchannels = copie.nchannels;
     this->dureeFrame = copie.dureeFrame;
     this->freeIndex = copie.freeIndex;
     this->drawScale = copie.drawScale;
-    
+
     this->listeIndex = copie.listeIndex;
-    
-    // Utilise les données passées en paramètres ou alors
-    // Alloue un espace mémoire suffisant pour stocker l'ensemble des paramètres
+
+    // Utilise les donnï¿½es passï¿½es en paramï¿½tres ou alors
+    // Alloue un espace mï¿½moire suffisant pour stocker l'ensemble des paramï¿½tres
     this->data = (float *) malloc(copie.nframes*copie.nchannels*sizeof(float));
     memcpy(this->data, copie.data, copie.nframes*copie.nchannels*sizeof(float));
 }
 
 MocapData::~MocapData() {
     if (data)
-        free(data); 
+        free(data);
 }
 
 int MocapData::getOffsetRotChannel(Joint * joint, char axe) {
@@ -54,37 +55,37 @@ int MocapData::getOffsetRotChannel(Joint * joint, char axe) {
    switch (axe) {
         case 'X': return debut+0;
         case 'Y': return debut+1;
-        case 'Z': return debut+2;   
-        default: return 0; // Aucune verif si l'axe est invalide (rapidité)      
-   } 
+        case 'Z': return debut+2;
+        default: return 0; // Aucune verif si l'axe est invalide (rapiditï¿½)
+   }
 }
 
 int MocapData::getOffsetTransChannel(char axe) {
    switch (axe) {
         case 'X': return 0;
         case 'Y': return 1;
-        case 'Z': return 2; 
-        default: return 0; // Aucune verif si l'axe est invalide (rapidité)    
-   }     
+        case 'Z': return 2;
+        default: return 0; // Aucune verif si l'axe est invalide (rapiditï¿½)
+   }
 }
-    
+
 
 void MocapData::setNewFrameNumber(int nframes) {
     data = (float *) realloc(data, nframes*nchannels*sizeof(float));
     this->nframes = nframes;
 }
 
-// Découpe l'animation
+// Dï¿½coupe l'animation
 void MocapData::cropData(int numeroFrameDebut, int numeroFrameFin) {
- 	// Test de validité
+ 	// Test de validitï¿½
 	if ((numeroFrameDebut >= numeroFrameFin) || (numeroFrameDebut <0) || (numeroFrameFin>=getNbFrames()))
 		return;
 
-	// On déplace le pointeur data
+	// On dï¿½place le pointeur data
 	data += numeroFrameDebut*getNChannels();
 
-	// On déplace la fin des données
-	nframes = numeroFrameFin-numeroFrameDebut;   
+	// On dï¿½place la fin des donnï¿½es
+	nframes = numeroFrameFin-numeroFrameDebut;
 }
 
 
@@ -105,19 +106,19 @@ void MocapData::setEchelle(float echelle) {
 }
 
 float MocapData::getEchelle() {
-    return drawScale;  
-}	
-	
-	
+    return drawScale;
+}
+
+
 void MocapData::addJoint(Joint * joint) {
-    // Si le joint n'existe pas déjà
+    // Si le joint n'existe pas dï¿½jï¿½
     if (listeIndex.find(joint->getId()) == listeIndex.end()) {
         // On enregistre l'index du joint
         listeIndex[joint->getId()] = freeIndex;
 
-        
-        // On décale le prochain index libre de la taille occupée par le joint
-        // C'est à dire le nombre de channels du joints (rotation + eventuelle translation, 3 ou 6 en général)
+
+        // On dï¿½cale le prochain index libre de la taille occupï¿½e par le joint
+        // C'est ï¿½ dire le nombre de channels du joints (rotation + eventuelle translation, 3 ou 6 en gï¿½nï¿½ral)
         freeIndex += joint->getNbChannels();
         /*
         if (joint->isTransJoint()) {
@@ -127,14 +128,14 @@ void MocapData::addJoint(Joint * joint) {
         }
         */
     }
-    
-    
+
+
 }
 
 
 MocapData::JointData MocapData::getJointData(int numeroFrame, Joint * joint) {
-    
-    // Création du conteneur
+
+    // Crï¿½ation du conteneur
     JointData jointData;
 
     // Translations
@@ -143,40 +144,40 @@ MocapData::JointData MocapData::getJointData(int numeroFrame, Joint * joint) {
         jointData.transY = getTrans(numeroFrame, 'Y', joint);
         jointData.transZ = getTrans(numeroFrame, 'Z', joint);
     }
-    
+
     // Rotations
     jointData.rotX = getRot(numeroFrame, 'X', joint);
     jointData.rotY = getRot(numeroFrame, 'Y', joint);
     jointData.rotZ = getRot(numeroFrame, 'Z', joint);
-    
-    
+
+
     return jointData;
 }
 
 void MocapData::setJointData(const MocapData::JointData &jointData, int numeroFrame, Joint * joint) {
-        
+
     // Translations
     if (joint->isTransJoint()) {
         setTransXYZ(jointData.transX, jointData.transY, jointData.transZ, numeroFrame, joint);
     }
-    
+
     // Rotations
     setRotXYZ(jointData.rotX, jointData.rotY, jointData.rotZ, numeroFrame, joint);
 
 }
 
 float MocapData::getRot(int numeroFrame, char axe, Joint * joint) {
-   //return data[numeroFrame*getNChannels() + joint->getOffsetRotChannel(axe)]; 
-   return data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)]; 
+   //return data[numeroFrame*getNChannels() + joint->getOffsetRotChannel(axe)];
+   return data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)];
 }
 
 
 float MocapData::getTrans(int numeroFrame, char axe, Joint * joint) {
-   return data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)]; 
-}   
+   return data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)];
+}
 
 void MocapData::setRot(float valeur, int numeroFrame, char axe, Joint * joint) {
-   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)] = valeur; 
+   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)] = valeur;
 }
 
 void MocapData::setRotXYZ(float valeurX, float valeurY, float valeurZ, int numeroFrame, Joint * joint) {
@@ -184,9 +185,9 @@ void MocapData::setRotXYZ(float valeurX, float valeurY, float valeurZ, int numer
     setRot(valeurY, numeroFrame, 'Y', joint);
     setRot(valeurZ, numeroFrame, 'Z', joint);
 }
-   
+
 void MocapData::setTrans(float valeur, int numeroFrame, char axe, Joint * joint) {
-   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)] = valeur; 
+   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)] = valeur;
 }
 
 void MocapData::setTransXYZ(float valeurX, float valeurY, float valeurZ, int numeroFrame, Joint * joint) {
@@ -196,10 +197,10 @@ void MocapData::setTransXYZ(float valeurX, float valeurY, float valeurZ, int num
 }
 
 void MocapData::addRot(float valeur, int numeroFrame, char axe, Joint * joint) {
-   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)] += valeur; 
+   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetRotChannel(joint,axe)] += valeur;
 }
 
 
 void MocapData::addTrans(float valeur, int numeroFrame, char axe, Joint * joint) {
-   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)] += valeur; 
+   data[numeroFrame*getNChannels() + listeIndex[joint->getId()] + getOffsetTransChannel(axe)] += valeur;
 }
