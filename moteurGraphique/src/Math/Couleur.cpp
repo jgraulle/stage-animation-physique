@@ -1,11 +1,13 @@
 /*
  * Couleur.cpp
  *
- *  Created on: 6 févr. 2009
+ *  Created on: 6 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
 #include "Couleur.h"
+
+#include <assert.h>
 
 const Couleur Couleur::BLANC = Couleur(1.0f, 1.0f, 1.0f, 1.0f);
 const Couleur Couleur::NOIR = Couleur(0.0f, 0.0f, 0.0f, 1.0f);

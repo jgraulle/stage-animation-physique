@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-# Déclaration du nom du projet
+# Declaration du nom du projet
 PROJECT(moteurGraphique)
 
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -28,7 +28,7 @@ IF (WIN32)
 	# TODO rechercher dossier minGW
 	SET(GLFW_INCLUDE C:/MinGW/include)
 ELSE (WIN32)
-	# TODO dpkg
+	# TODO verifier que la lib est installe
 	SET(GLFW_INCLUDE /usr/include /usr/local/include)
 ENDIF (WIN32)
 INCLUDE_DIRECTORIES(${GLFW_INCLUDE})
@@ -38,7 +38,7 @@ IF (WIN32)
 	# TODO rechercher dossier minGW
 	SET(DEVIL_INCLUDE C:/MinGW/include)
 ELSE (WIN32)
-	# TODO dpkg
+	# TODO verifier que la lib est installe
 	SET(DEVIL_INCLUDE /usr/include /usr/local/include)
 ENDIF (WIN32)
 INCLUDE_DIRECTORIES(${DEVIL_INCLUDE})

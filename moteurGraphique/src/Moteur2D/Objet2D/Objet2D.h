@@ -1,7 +1,7 @@
 /*
  * Objet2D.h
  *
- *  Created on: 6 févr. 2009
+ *  Created on: 6 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -12,7 +12,7 @@
 #include "../../Type.h"
 #include "../../Ressource/Texture.h"
 
-#include <String>
+#include <string>
 
 using namespace std;
 

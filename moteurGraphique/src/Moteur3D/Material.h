@@ -11,6 +11,8 @@
 #include "../Math/Couleur.h"
 #include "../Ressource/Texture.h"
 
+#include <assert.h>
+
 class Material {
 public:
 	static const Couleur AMBIENT_DEFAUT;

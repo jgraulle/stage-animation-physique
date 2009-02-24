@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Matrix3.h"
 
 #include <math.h>
+#include <string.h>
 
 // Adapted from Matrix math by Wild Magic http://www.magic-software.com
 
