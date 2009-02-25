@@ -52,7 +52,7 @@ using namespace std;
 
 // gestion du drag and drop de la souris
 void gestionSouris(Camera & camera) {
-	// coordonn�e de la souris courrante
+	// coordonnee de la souris courrante
 	int x, y;
 	glfwGetMousePos(&x, &y);
 	int cran = glfwGetMouseWheel();
@@ -60,22 +60,22 @@ void gestionSouris(Camera & camera) {
 	// variables conservant l'ancienne position de la souris
 	static int sourisX=x, sourisY=y, cranAnc = cran;
 
-	// si la souris a boug�
+	// si la souris a bouge
 	if (sourisX!=x || sourisY!=y) {
-		// si le bouton gauche est press�
+		// si le bouton gauche est presse
 		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS) {
 			camera.addRot((double)(x-sourisX), (double)(y-sourisY));
 		}
-		// si le bouton droit est press�
+		// si le bouton droit est presse
 		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS) {
 			camera.moveCentreObser(Vector3((double)(x-sourisX)/10, 0.0, (double)(y-sourisY)/10));
 		}
-		// si le bouton du milieu est press�
+		// si le bouton du milieu est presse
 		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)==GLFW_PRESS) {
 			camera.moveCentreObser(Vector3(0.0, (double)(sourisY-y)/10, 0.0));
 		}
 	}
-	// si la molette de la souris a tourn�
+	// si la molette de la souris a tourne
 	if (cranAnc != cran) {
 		camera.addDistance((double)(cranAnc-cran));
 	}
