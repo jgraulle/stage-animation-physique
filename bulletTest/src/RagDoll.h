@@ -3,6 +3,8 @@
  *
  *  Created on: 25 fevr. 2009
  *      Author: jeremie GRAULLE
+ *
+ *  largement inspire de l'exemple de ragDoll fournit dans bullet
  */
 
 #ifndef RAGDOLL_H_
