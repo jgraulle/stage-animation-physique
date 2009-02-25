@@ -4,6 +4,7 @@
 
 #include "Parser.h"
 
+#include <ctype.h>
 
 //////////////////////////////////////////////////
 // PROC:   Constructeur
@@ -24,7 +25,7 @@ Parser::Parser(const string nomFichier) {
 		if (nomFichier != "") 
             clog << "Fichier introuvable: \"" << nomFichier << "\"" << endl;
     } else {
-		// Pas d'erreur par défaut
+		// Pas d'erreur par dï¿½faut
 		parseError = false;	
 		clog << "Ouverture du fichier \"" << nomFichier << "\"" << endl;
     }
@@ -67,7 +68,7 @@ string Parser::getstring()
 string Parser::getstringBetween(char token) {
     // On saute les espaces et retour ligne jusqu'au token (y compris)
     char next = fichier->peek();
-    while (next == ' ' || next == '\n' || next == token) {
+    while (isspace(next) || next == token) {
         fichier->get();
         next = fichier->peek();
     }     
@@ -99,7 +100,7 @@ bool Parser::isEOF() {
 
 //////////////////////////////////////////////////
 // PROC:   Parser::skipTo()
-// DOES:   avance dans le flux jusqu'à la rencontre du caractère
+// DOES:   avance dans le flux jusqu'ï¿½ la rencontre du caractï¿½re
 //////////////////////////////////////////////////
 void Parser::skipTo(char c,  streamsize max) {
     fichier->ignore(max, c);
@@ -113,7 +114,7 @@ void Parser::skipTo(char c,  streamsize max) {
 bool Parser::nextIsNumber() {
     // On saute les espaces et retour ligne
     char next = fichier->peek();
-    while (next == ' ' || next == '\n') {
+    while (isspace(next)) {
         fichier->get();
         next = fichier->peek();
     }
@@ -147,7 +148,7 @@ bool Parser::nextIsEOL() {
 
 //////////////////////////////////////////////////
 // PROC:   Parser::expect()
-// DOES:   essaye de lire le paramètre dans le fichier
+// DOES:   essaye de lire le paramï¿½tre dans le fichier
 //////////////////////////////////////////////////
 int Parser::expect(const char * word)
 {
@@ -197,7 +198,7 @@ int Parser::getInt()
 
 //////////////////////////////////////////////////
 // PROC:   Parser::isAnError()
-// DOES:   Indique si la dernière opération à provoquée une erreur
+// DOES:   Indique si la derniï¿½re opï¿½ration ï¿½ provoquï¿½e une erreur
 //////////////////////////////////////////////////
 bool Parser::isAnError() {
 

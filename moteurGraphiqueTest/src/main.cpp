@@ -1,7 +1,7 @@
 /*
  * main.cpp
  *
- *  Created on: 5 f�vr. 2009
+ *  Created on: 5 fevr. 2009
  *      Author: jeremie
  */
 
@@ -18,7 +18,7 @@
 class Personnage: public Objet3D {
 public:
 	Personnage(Material material, const string fileName, Transform transform = Transform())
-	: Objet3D(material, NULL, transform) {
+	: Objet3D(material, NULL, transform), tempsAnim(0.0), numFrame(0) {
 		// chargement de la mocap
 		bvh = new Bvh(fileName);
 	    actorRenderSkin = new ActorRenderSkin(bvh->getMocapData(), bvh->getSkeletalData(), bvh->getSkinData());
@@ -115,9 +115,9 @@ int main(int argc, char **argv) {
 //		monde3D->add("lumiere1", new Lumiere(Vector3(0.0,0.0,3.0), Couleur::ROUGE, 1.0f, 0.0f, 0.0f, 0, 20.0f, Vector3(0.0f, 0.0f, -1.0f)));
 
 		// chargement des ressources
-		const Image * im = ImagesManager::getInstance()->add(new Image("cube.png"));
-		TexturesManager::getInstance()->add(new Texture("cube.png", true));
-		Material mat("cube.png");
+		const Image * im = ImagesManager::getInstance()->add(new Image("data/cube.png"));
+		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
+		Material mat("data/cube.png");
 		MeshManager::getInstance()->add(new Cube("cube"));
 		MeshManager::getInstance()->add(new Sphere("sphere", 16, 8));
 		f32 positions[][3] = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 			}
 		}
 		monde3D->add("testMesh", new Objet3D(mat, "testMesh", Transform(Vector3(4.0,0.0,0.0))));
-		monde3D->add("perso", new Personnage(mat, "./carl_anim.smd", Transform(Vector3(4.0,0.0,2.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
+		monde3D->add("perso", new Personnage(mat, "data/carl_anim.smd", Transform(Vector3(4.0,0.0,2.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
 //		monde2D->add("care", 1, new Objet2D("cube.png", Vecteur2(100.0f, 100.0f), Vecteur2(100.0f, 100.0f)));
 
 		// affichage du monde

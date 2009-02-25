@@ -34,7 +34,7 @@ IF (WIN32)
 ELSE (WIN32)
 	# TODO verifier que la lib est bien installe
 	SET(GLFW_INCLUDE /usr/include /usr/local/include)
-	SET(GLFW_LIBRARY_NAME glfw X11 pthread m)
+	SET(GLFW_LIBRARY_NAME pthread glfw X11 Xrandr)
 ENDIF (WIN32)
 INCLUDE_DIRECTORIES(${GLFW_INCLUDE})
 #link_directories(${GLFW_LIBRARY_DIR})
