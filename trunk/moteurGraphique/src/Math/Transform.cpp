@@ -1,7 +1,7 @@
 /*
  * Transform.cpp
  *
- *  Created on: 6 févr. 2009
+ *  Created on: 6 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -57,6 +57,24 @@ void Transform::translate(const Vector3 & v) {
 }
 void Transform::translate(f32 x, f32 y, f32 z) {
 	this->position += Vector3(x, y, z);
+}
+Transform Transform::operator + (const Vector3 & v) const {
+	Transform t = *this;
+	t.translate(v);
+	return t;
+}
+const Transform & Transform::operator += (const Vector3 & v) {
+	translate(v);
+	return *this;
+}
+Transform Transform::operator - (const Vector3 & v) const {
+	Transform t = *this;
+	t.translate(-v);
+	return t;
+}
+const Transform & Transform::operator -= (const Vector3 & v) {
+	translate(-v);
+	return *this;
 }
 
 // tourner la camera

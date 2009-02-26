@@ -15,7 +15,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "../../moteurGraphique/src/MoteurGraphique.h"
 
-class RagDoll {
+class RagDoll : public Objet3D {
 public :
 	enum {
 		BODYPART_PELVIS = 0,
@@ -56,23 +56,31 @@ public :
 		JOINT_COUNT
 	};
 
-	RagDoll (const string & name, Monde3D * monde3D, btDynamicsWorld* ownerWorld, const Material & mat, const btVector3& positionOffset);
+	RagDoll(const Material & mat, Transform transform, btDiscreteDynamicsWorld * m_ownerWorld);
 
-	virtual	~RagDoll ();
+	virtual	~RagDoll();
 
-	void applyForce();
+	// affichage
+	virtual void display() const;
+
+	// fonction de mise a jour de l'objet
+	virtual void update(f32 elapsed);
+
+	// calcule et renvoie la matrice correspondant a la position de la camera
+	virtual const Transform & getTransform() const;
+	virtual Transform & getTransform();
 
 private :
-	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, int bodyPart, const Material & mat);
+	btRigidBody * localCreateRigidBody(btScalar mass, const Transform & startTransform, int bodyPart, const Material & mat);
 
-	btDynamicsWorld* m_ownerWorld;
-	Monde3D * monde3D;
-	btCollisionShape* m_shapes[BODYPART_COUNT];
+	// physique
+	btCollisionShape * m_shapes[BODYPART_COUNT];
+	btRigidBody * m_bodies[BODYPART_COUNT];
+	btTypedConstraint * m_joints[JOINT_COUNT];
+	btDiscreteDynamicsWorld * m_ownerWorld;
+	// graphique
 	Mesh * meshes[BODYPART_COUNT];
-	btRigidBody* m_bodies[BODYPART_COUNT];
-	Objet3D* objet3Ds[BODYPART_COUNT];
-	btTypedConstraint* m_joints[JOINT_COUNT];
-	string name;
+	Objet3D * objet3Ds[BODYPART_COUNT];
 };
 
 #endif /* RAGDOLL_H_ */

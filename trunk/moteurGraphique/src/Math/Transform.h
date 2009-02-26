@@ -1,7 +1,7 @@
 /*
  * Transform.h
  *
- *  Created on: 6 févr. 2009
+ *  Created on: 6 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -43,6 +43,10 @@ public:
 	virtual void setPosition(f32 x, f32 y, f32 z);
 	virtual void translate(const Vector3 &);
 	virtual void translate(f32 x, f32 y, f32 z);
+	virtual Transform operator + (const Vector3 &) const;
+	virtual const Transform & operator += (const Vector3 &);
+	virtual Transform operator - (const Vector3 &) const;
+	virtual const Transform & operator -= (const Vector3 &);
 
 	// tourner un objet
 	virtual void setRotation(const Quaternion &);
