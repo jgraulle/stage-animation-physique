@@ -12,7 +12,7 @@ Perso::Perso(const string & bvhFileName, Material material, Transform transform)
 	// chargement du fichier bvh
 	if(motion_load_bvh(&motion, bvhFileName.c_str()) < 0)
 		throw ErreurFileNotFound(bvhFileName, "");
-	// creation de la premiere frame
+	// initialisation de la structure frame
 	frame = motion_frame_init(NULL, motion);
 }
 
