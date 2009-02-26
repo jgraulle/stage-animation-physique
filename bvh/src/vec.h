@@ -1,6 +1,10 @@
 #ifndef _VEC_H
 #define _VEC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <math.h>
 #include <stdio.h>
 
@@ -366,6 +370,10 @@ static inline void vec3_printf(const float *vec)
 {
     printf("[%f %f %f]\n", vec[0], vec[1], vec[2]);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
