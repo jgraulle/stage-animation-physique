@@ -1,7 +1,7 @@
 /*
 	parser.c
-	
-	TODO : ecrire un  vrai parser 
+
+	TODO : ecrire un  vrai parser
  */
 
 #include <stdio.h>
@@ -12,11 +12,11 @@
 
 #include "parser.h"
 
-PARSER *parser_init_open(PARSER *parser, char *filename)
+PARSER *parser_init_open(PARSER *parser, const char *filename)
 {
 	FILE *in;
 	int i;
-	
+
 	in= fopen(filename, "rt");
 	if(in==NULL)
 	{
@@ -29,7 +29,7 @@ PARSER *parser_init_open(PARSER *parser, char *filename)
 		parser= (PARSER *) malloc(sizeof(PARSER));
 		assert(parser!=NULL);
 	}
-	
+
 	parser->in= in;
 	parser->filename= strdup(filename);
         parser->string= NULL;
@@ -45,7 +45,7 @@ PARSER *parser_init_open(PARSER *parser, char *filename)
 		else
 			parser->lex[i]= parser_undef;
 	}
-	
+
 	return parser;
 }
 
@@ -55,7 +55,7 @@ void parser_close(PARSER *parser)
 
 	if(parser->filename!=NULL)
 		free(parser->filename);
-	
+
 	if(parser->unget!=NULL)
 		free(parser->unget);
 
@@ -65,9 +65,9 @@ void parser_close(PARSER *parser)
 void parser_set_tokens(PARSER *parser, char *tokens)
 {
 	int i;
-	
+
 	assert(parser!=NULL);
-	
+
 	for(i= 0; tokens[i]!=0; i++)
 		parser->lex[(unsigned int) tokens[i]]= parser_lex;
 }
@@ -75,9 +75,9 @@ void parser_set_tokens(PARSER *parser, char *tokens)
 void parser_set_separators(PARSER *parser, char *separators)
 {
 	int i;
-	
+
 	assert(parser!=NULL);
-	
+
 	for(i= 0; separators[i]!=0; i++)
 		parser->lex[(unsigned int) separators[i]]= parser_separator;
 }
@@ -85,7 +85,7 @@ void parser_set_separators(PARSER *parser, char *separators)
 void parser_set_string(PARSER *parser, char *tmp, int tmp_size)
 {
     assert(parser!=NULL);
-    
+
     parser->string= tmp;
     parser->string_size= tmp_size;
 }
@@ -95,7 +95,7 @@ static inline int is_token(PARSER *parser, char c)
 {
 	if(c < 0)
 		return 0;
-	
+
 	return (parser->lex[(unsigned int) c]==parser_lex);
 }
 
@@ -116,18 +116,18 @@ int parser_get_token(PARSER *parser)
 	assert(parser!=NULL);
 	assert(parser->in!=NULL);
 	assert(parser->string!=NULL);
-	
+
 	if(parser->unget!=NULL)
 	{
 		strncpy(parser->string, parser->unget, parser->string_size);
 		parser->string[parser->string_size -1]= 0;
-		
+
 		free(parser->unget);
 		parser->unget= NULL;
-		
+
 		return 0;
 	}
-	
+
 	// sauter les blancs
 	c= fgetc(parser->in);
 	while(c!=EOF && (c==' ' || c=='\t'))
@@ -137,13 +137,13 @@ int parser_get_token(PARSER *parser)
 	while(c!=EOF && is_token(parser, c))
 	{
 		parser->string[i++]= c;
-		
+
 		if(i>=parser->string_size)
 		{
 			printf("parser : line length > %d\n", parser->string_size);
 			return EOF;
 		}
-		
+
 		c= fgetc(parser->in);
 	}
 
@@ -155,24 +155,24 @@ int parser_get_token(PARSER *parser)
 		else
 			ungetc(c, parser->in);
 	}
-	
+
 	// terminer la chaine
 	parser->string[i]= 0;
 
 	// indiquer la fin de la ligne ou du fichier
 	if(i==0)
 		return c;
-	
+
 	// forcer une fin de ligne avant la fin du fichier
 	if(c==EOF)
 		ungetc('\n', parser->in);
-		
+
 	else if(c=='\n')
 		ungetc(c, parser->in);
 
 	if(c=='\r' || c=='\n')
 		parser->line+= 1;
-	
+
 	return 0;
 }
 
@@ -180,10 +180,10 @@ int parser_get_token(PARSER *parser)
 void parser_unget_token(PARSER *parser, char *tmp)
 {
 	assert(parser!=NULL);
-	
+
 	if(parser->unget!=NULL)
 		free(parser->unget);
-	
+
 	parser->unget= strdup(tmp);
 }
 
@@ -191,10 +191,10 @@ void parser_unget_token(PARSER *parser, char *tmp)
 int parser_scan_token(PARSER *parser, char *token)
 {
 	int tok;
-    
+
 	assert(parser!=NULL);
 	assert(parser->string!=NULL);
-    
+
 	tok= parser_get_token(parser);
 	while(tok!=EOF)
 	{
@@ -202,7 +202,7 @@ int parser_scan_token(PARSER *parser, char *token)
 			break;
 		tok= parser_get_token(parser);
 	}
-	
+
 	if(tok==EOF)
 		return -1;
 	else
@@ -212,7 +212,7 @@ int parser_scan_token(PARSER *parser, char *token)
 int parser_casescan_token(PARSER *parser, char *token)
 {
 	int tok;
-	
+
 	assert(parser!=NULL);
 	assert(parser->string!=NULL);
 
@@ -223,7 +223,7 @@ int parser_casescan_token(PARSER *parser, char *token)
 			break;
 		tok= parser_get_token(parser);
 	}
-	
+
 	if(tok==EOF)
 		return -1;
 	else

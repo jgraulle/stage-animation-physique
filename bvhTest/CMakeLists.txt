@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 # Declaration du nom du projet
 PROJECT(testBvh)
 
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
 IF (NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE "Release")
