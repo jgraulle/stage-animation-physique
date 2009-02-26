@@ -5,8 +5,8 @@
  *      Author: jeremie GRAULLE
  */
 
-#include <motion.h>
-#include <bvh.h>
+#include "Perso.h"
+
 #include <MoteurGraphique.h>
 #include <GL/glfw.h>
 
@@ -57,15 +57,6 @@ void gestionSouris(Camera & camera) {
 }
 
 int main() {
-	MOTION * motion;
-	if(motion_load_bvh(&motion, "data/walk.bvh") < 0) {
-		printf("failed.\n");
-		return 1;
-	}
-	printf("time %f\n", motion_get_time(motion));
-
-	motion_free(motion, 1);
-
 	try {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
@@ -92,6 +83,8 @@ int main() {
 		// ajout des objets aux mondes
 		monde3D->add("cube", new Objet3D(mat, "cube", Transform(Vector3(-2.0,0.0,0.0))));
 		monde3D->add("sphere", new Objet3D(mat, "sphere", Transform(Vector3(2.0,0.0,0.0), Quaternion(), Vector3(1.0, 1.0, 1.0))));
+		monde3D->add("perso1", new Perso("data/Example1.bvh", mat, Transform(Vector3(-2.0,0.0,0.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
+		monde3D->add("perso2", new Perso("data/walk.bvh", mat, Transform(Vector3(2.0,0.0,0.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
 
 		// affichage du monde
 		do {

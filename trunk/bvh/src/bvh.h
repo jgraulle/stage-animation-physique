@@ -7,7 +7,7 @@ extern "C" {
 
 #include "motion.h"
 
-int motion_load_bvh(MOTION **pmotion, char *filename);
+int motion_load_bvh(MOTION **pmotion, const char *filename);
 
 #ifdef __cplusplus
 }

@@ -10,7 +10,7 @@ extern "C" {
 typedef struct
 {
 	signed char lex[256];
-	
+
 	char *filename;
 	FILE *in;
 
@@ -23,7 +23,7 @@ typedef struct
 
 enum {parser_undef= 0, parser_lex= 1, parser_separator= 2};
 
-PARSER *parser_init_open(PARSER *parser, char *filename);
+PARSER *parser_init_open(PARSER *parser, const char *filename);
 void parser_close(PARSER *parser);
 
 void parser_set_tokens(PARSER *parser, char *tokens);

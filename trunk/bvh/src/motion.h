@@ -12,7 +12,7 @@ typedef struct
 	char *name;
 	int child;
 	int next;
-	
+
 	VEC3 offset;
 
 	float channels[6];
@@ -31,12 +31,12 @@ typedef struct
 typedef struct
 {
 	char *filename;
-	
+
 	JOINT *joints;
 	int joints_size;
 	int joints_n;
 	int root_id;
-	
+
 	float frame_time;
 	float **frames;
 	int frames_n;
@@ -49,14 +49,14 @@ typedef struct
 	int id;
 	float time;
 	float motion_time;
-	
+
 	JOINT *joints;
 	int joints_n;
 	int root_id;
 } MFRAME;
 
 
-MOTION *motion_new(char *filename);
+MOTION *motion_new(const char *filename);
 void motion_free(MOTION *motion, int alloc);
 int motion_add(MOTION *motion);
 
