@@ -1,9 +1,17 @@
 #ifndef _BVH_H
 #define _BVH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "motion.h"
 
-extern int motion_load_bvh(MOTION **pmotion, char *filename);
+int motion_load_bvh(MOTION **pmotion, char *filename);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

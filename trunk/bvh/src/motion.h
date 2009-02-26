@@ -1,6 +1,10 @@
 #ifndef _MOTION_H
 #define _MOTION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "vec.h"
 
 typedef struct
@@ -52,36 +56,40 @@ typedef struct
 } MFRAME;
 
 
-extern MOTION *motion_new(char *filename);
-extern void motion_free(MOTION *motion, int alloc);
-extern int motion_add(MOTION *motion);
+MOTION *motion_new(char *filename);
+void motion_free(MOTION *motion, int alloc);
+int motion_add(MOTION *motion);
 
-extern JOINT *joint_init(JOINT *joint, char *name);
+JOINT *joint_init(JOINT *joint, char *name);
 
-extern void motion_print(MOTION *motion);
-extern float motion_get_time(MOTION *motion);
+void motion_print(MOTION *motion);
+float motion_get_time(MOTION *motion);
 
-extern MFRAME *motion_frame_init(MFRAME *frame, MOTION *motion);
-extern int motion_get_frame(MFRAME *frame, MOTION *motion, int f);
-extern void motion_frame_free(MFRAME *frame, int alloc);
+MFRAME *motion_frame_init(MFRAME *frame, MOTION *motion);
+int motion_get_frame(MFRAME *frame, MOTION *motion, int f);
+void motion_frame_free(MFRAME *frame, int alloc);
 
-extern int motion_frame_get_id(MFRAME *frame);
-extern float motion_frame_get_time(MFRAME *frame);
-extern float motion_frame_get_motion_time(MFRAME *frame);
+int motion_frame_get_id(MFRAME *frame);
+float motion_frame_get_time(MFRAME *frame);
+float motion_frame_get_motion_time(MFRAME *frame);
 
-extern int motion_frame_get_root_joint(MFRAME *frame);
-extern int motion_frame_get_joints_n(MFRAME *frame);
+int motion_frame_get_root_joint(MFRAME *frame);
+int motion_frame_get_joints_n(MFRAME *frame);
 
-extern char *joint_get_name(MFRAME *frame, int joint_id);
-extern int joint_get_child(MFRAME *frame, int joint_id);
-extern int joint_get_next(MFRAME *frame, int joint_id);
+char *joint_get_name(MFRAME *frame, int joint_id);
+int joint_get_child(MFRAME *frame, int joint_id);
+int joint_get_next(MFRAME *frame, int joint_id);
 
-extern int joint_get_channel_id(MFRAME *frame, int joint_id, int binding);
-extern int joint_get_offset(MFRAME *frame, int joint_id, VEC3 t);
-extern int joint_get_position(MFRAME *frame, int joint_id, VEC3 t);
-extern int joint_get_orientation(MFRAME *frame, int joint_id, VEC3 r, int bindings[3]);
+int joint_get_channel_id(MFRAME *frame, int joint_id, int binding);
+int joint_get_offset(MFRAME *frame, int joint_id, VEC3 t);
+int joint_get_position(MFRAME *frame, int joint_id, VEC3 t);
+int joint_get_orientation(MFRAME *frame, int joint_id, VEC3 r, int bindings[3]);
 
-extern int joint_get_hierarchy(MFRAME *frame, int joint_id, int *hierarchy, int hierarchy_size);
+int joint_get_hierarchy(MFRAME *frame, int joint_id, int *hierarchy, int hierarchy_size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

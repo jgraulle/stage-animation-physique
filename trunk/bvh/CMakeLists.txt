@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-# Déclaration du nom du projet
+# Declaration du nom du projet
 PROJECT(bvh)
 
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
