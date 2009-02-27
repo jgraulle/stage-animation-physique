@@ -25,7 +25,9 @@
 
 using namespace std;
 
-#define FLT_MAX 10000;
+#ifndef FLT_MAX
+# define FLT_MAX 10000;
+#endif
 
 /////////////////////////////////
 //			CLASSE BVH
@@ -38,13 +40,13 @@ private:
 
 	// ATTRIBUTS
 	//ActorRender * actorRender;             // Rendu du personnage
-	MocapData * mocapData ;                // Les données de l'animation
-    SkeletalData * skeletalData;           // Les donnée du squelette
-    SkinData * skinData;                   // Les données pour le skin (si existant)
+	MocapData * mocapData ;                // Les donnï¿½es de l'animation
+    SkeletalData * skeletalData;           // Les donnï¿½e du squelette
+    SkinData * skinData;                   // Les donnï¿½es pour le skin (si existant)
     MocapManipulator * mocapManipulator;
 
-	int frameDebutSupport, frameFinSupport; // Indique les frames de début et de fin de la phase de support d'un pied
-											// Mis à jour par detecterSupportPied()
+	int frameDebutSupport, frameFinSupport; // Indique les frames de dï¿½but et de fin de la phase de support d'un pied
+											// Mis ï¿½ jour par detecterSupportPied()
 
 	// Optimiseurs anti-glissement pour chaque pied
 	BvhGlissementPied * bvhGlissementPied1, * bvhGlissementPied2;
@@ -55,14 +57,14 @@ private:
 
 	// METHODES
 	void init();			  // Permet d'initialiser les variable pour une nouvelle lecture
-	float getAngleOrientation(); // Renvoie l'angle d'écart selon Y par rapport à la direction de référence (tout droit)
+	float getAngleOrientation(); // Renvoie l'angle d'ï¿½cart selon Y par rapport ï¿½ la direction de rï¿½fï¿½rence (tout droit)
 
-	// Renvoie la position d'un joint par son nom à partir d'un joint de reference
+	// Renvoie la position d'un joint par son nom ï¿½ partir d'un joint de reference
 	//Point3D * getPositionJointByName(int numeroFrame, string nomJoint, bool getEndSite, float *matRot);
-	// Joint par son nom (recherche à la racine par defaut)
+	// Joint par son nom (recherche ï¿½ la racine par defaut)
 	Joint * getJointByName(string nomJoint, Joint * referenceJoint = NULL);
 
-	// Utilisée pour la récursivité de la méthode publique getListAllJoint()
+	// Utilisï¿½e pour la rï¿½cursivitï¿½ de la mï¿½thode publique getListAllJoint()
 	map<string, void*> * getListAllJoint(Joint * referenceJoint);
 
 
@@ -83,7 +85,7 @@ public:
 	int write(const string fname);						// Enregistre l'animation une mocap
 	//void drawFrame(int f);								// Affiche une frame
 	Joint * getRootSqueleton();                         // Renvoie la racine du squelette
-	int getNchannels();									// Renvoie le nombre total de paramètres de l'animation
+	int getNchannels();									// Renvoie le nombre total de paramï¿½tres de l'animation
 	int getNbFrame();									// Renvoie le nombre de frame de l'animation
 	float getDureeFrame();								// Renvoie le temps entre deux frame
 	void setEchelle(float echelle);						// Fixe l'echelle de rendu de l'animation
@@ -92,31 +94,31 @@ public:
 	void setJambeGauche(string nomJambeGauche);
 	string getJambeDroite();
 	string getJambeGauche();
-    bool canWalk();                                     // Vrai si les 2 jambes sont nommées
+    bool canWalk();                                     // Vrai si les 2 jambes sont nommï¿½es
 
 	void centrerAnimation();							// Centre l'animation en X=0, Z=0; Y=?
 	void fixerAnimation();								// Fixe la racine du squelette dans son animation
-	void fixerAltitudeMarche(float altitude, string nomPied); // Fixe l'alitude d'un pied sur un plan défini
-	float getVitesseDeplacement(string nomPremierPied, string nomDeuxiemePied); // Renvoie la vitesse de marche à partir d'un pied en unité de déplacement par seconde
+	void fixerAltitudeMarche(float altitude, string nomPied); // Fixe l'alitude d'un pied sur un plan dï¿½fini
+	float getVitesseDeplacement(string nomPremierPied, string nomDeuxiemePied); // Renvoie la vitesse de marche ï¿½ partir d'un pied en unitï¿½ de dï¿½placement par seconde
 	string getEndJointName(string nomJoint);			// Renvoie le nom du joint terminal en partant d'un joint
 	void clearOptimisation();							// Efface les informations d'optimisations
 	void turnAroundY(float angle);						// Change l'orientation de l'animation par rotation autour de l'axe Y (la verticale)
 	void rendreCyclique(string  nomPremierPied, string  nomDeuxiemePied);
-	void fixerTailleSquelette(float valeur);            // Change l'echelle de l'animation et du squelette (réduction, augmentation)
+	void fixerTailleSquelette(float valeur);            // Change l'echelle de l'animation et du squelette (rï¿½duction, augmentation)
 
-	// Renvoie une stl::map d'association clé-valeur contenant l'arbre du squelette du personnage
-	// clé = nom du joint, valeur = pointeur sur une valeur de type map
-	// si clé = NULL, alors il s'agit d'une feuille
+	// Renvoie une stl::map d'association clï¿½-valeur contenant l'arbre du squelette du personnage
+	// clï¿½ = nom du joint, valeur = pointeur sur une valeur de type map
+	// si clï¿½ = NULL, alors il s'agit d'une feuille
 	map<string, void*> * getListAllJoint();
 
-	// Renvoie la chaine entier vers un terminal à partir d'un joint
+	// Renvoie la chaine entier vers un terminal ï¿½ partir d'un joint
 	list<Joint*> * getChaineJointVersTerminal(string nomJoint);
 
 
 	// Renvoie la position d'un Joint par son nom dans une frame
 	Point3D * getPositionJointByNameInFrame(int numeroFrame, string nomJoint, bool getEndSite = false, float*matRot = NULL, bool withtoutScale = false);
 
-	// Ik par ccd sur une chaine simple (pas de dédoublement)
+	// Ik par ccd sur une chaine simple (pas de dï¿½doublement)
 	void appliquerIkCcd(int numeroFrame, string nomJoint, Point3D positionVoulue, int nbIterationsMax);
 	void appliquerIkCcd(int numeroFrame, list<Joint*> * chaine, Point3D positionVoulue, int nbIterationsMax);
 
@@ -139,15 +141,15 @@ public:
     // Change le premier pied de support
     void changerPremierPiedSupport();
 
-	// Fixe l'éventuel glissement des pieds
-	// Attention, on suppose qu'un appel a detecterSupportPied a été fait avant, sinon aucun effet
+	// Fixe l'ï¿½ventuel glissement des pieds
+	// Attention, on suppose qu'un appel a detecterSupportPied a ï¿½tï¿½ fait avant, sinon aucun effet
 	void fixerGlissementPied(int numeroFrame, float xPers, float yPers, float direction, string nomHautJambe1, string nomHautJambe2);
 
-	// Génere une mocap différente (en construction, pour tests seulement)
+	// Gï¿½nere une mocap diffï¿½rente (en construction, pour tests seulement)
 	//void genererMocap();
 
 	// Interpole deux animations
-	// Attention, l'animation courante est modifiée
+	// Attention, l'animation courante est modifiï¿½e
 	static Bvh * interpoler(Bvh* bvh1, Bvh * bvh2, float poids);
 };
 
@@ -167,7 +169,7 @@ private:
 	Point3D * pointPiedDebutMonde, * pointPiedDebutPers;
 	Point3D *A, *B;
 
-	// Chaine de la jambe, pour éviter de recalculer la liste des Joints constituant la jambe
+	// Chaine de la jambe, pour ï¿½viter de recalculer la liste des Joints constituant la jambe
 	list<Joint*> * chaine;
 
 	// Nom du joint du haut de la jambe
@@ -176,7 +178,7 @@ private:
 	// Nom du pied
 	string nomPied;
 
-	// La dernière frame traitée
+	// La derniï¿½re frame traitï¿½e
 	int derniereFrameTraitee;
 
 
@@ -187,7 +189,7 @@ public:
 	// METHODES
 
 	// Permet de reinitialiser l'objet et les informations d'optimisation de la marche:
-	// a utiliser si on déplace le personnage de façon non naturelle (exemple: téléportation)
+	// a utiliser si on dï¿½place le personnage de faï¿½on non naturelle (exemple: tï¿½lï¿½portation)
 	void init();
 
 	// Fixe le glissement d'un pied

@@ -315,9 +315,11 @@ public:
     inline float invsqrt(float x)
     {
         float half = 0.5f*x;
-        int i = *(int*)&x;
+        void * xAddr = &x;
+        int i = *((int*)xAddr);
         i = 0x5f3759df - (i >> 1);
-        x = *(float*)&i;
+        void * iAddr = &i;
+        x = *(float*)iAddr;
         x = x*(1.5f - half*x*x);
         return x;
     }

@@ -53,6 +53,7 @@ public:
 	virtual void setRotation(f32 angleX, f32 angleY, f32 angleZ);
 	virtual void setRotation(f32 angle, const Vector3 & axe);
 	virtual void setRotation(f32 angle, f32 axeX, f32 axeY, f32 axeZ);
+	virtual void rotate(const Quaternion &);
 	virtual void rotate(f32 angleX, f32 angleY, f32 angleZ);
 	virtual void rotate(f32 angle, const Vector3 & axe);
 	virtual void rotate(f32 angle, f32 axeX, f32 axeY, f32 axeZ);

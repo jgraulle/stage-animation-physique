@@ -75,7 +75,6 @@ int main(int argc, char **argv) {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
 		Monde3D * monde3D = moteur->getMonde3D();
-		Monde2D * monde2D = moteur->getMonde2D();
 
 		// camera
 		Camera * camera = monde3D->getCamera();
@@ -89,7 +88,7 @@ int main(int argc, char **argv) {
 		monde3D->add("lumiere1", new Lumiere(Vector3(-10.0,10.0,-10.0), Couleur::BLANC));
 
 		// chargement des ressources
-		const Image * im = ImagesManager::getInstance()->add(new Image("data/cube.png"));
+		ImagesManager::getInstance()->add(new Image("data/cube.png"));
 		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
 		Material mat("data/cube.png");
 		MeshManager::getInstance()->add(new Cube("cube"));
@@ -111,13 +110,13 @@ int main(int argc, char **argv) {
 		btRigidBody * solPhysique = new btRigidBody(createRigidBodyInfo(0.0, solGraphique->getTransform(), new btBoxShape(btVector3(50.0, 5.0, 50.0)*SCALING)));
 		dynamicsWorld->addRigidBody(solPhysique);
 
-		RagDoll * ragDoll = new RagDoll(mat, Transform(Vector3(0.0,3.0,0.0), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld);
-		monde3D->add("ragDoll", ragDoll);
+		RagDoll * ragDoll = new RagDoll("perso1", mat, Transform(Vector3(0.0,3.0,0.0), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
 
 		// affichage du monde
 		do {
 			moteur->update();
 			dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
+			ragDoll->update(moteur->getElapsed());
 			gestionSouris(*camera);
 			moteur->display();
 			glLoadIdentity();

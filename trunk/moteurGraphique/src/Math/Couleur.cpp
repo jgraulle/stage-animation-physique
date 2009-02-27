@@ -53,6 +53,7 @@ Couleur::~Couleur() {}
 const Couleur & Couleur::operator = (const Couleur & cou) {
 	for (int i=0; i<NBR_COULEUR; i++)
 		c[i] = cou[i];
+	return *this;
 }
 
 // accesseur

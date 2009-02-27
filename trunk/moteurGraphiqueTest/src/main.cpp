@@ -101,7 +101,6 @@ int main(int argc, char **argv) {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
 		Monde3D * monde3D = moteur->getMonde3D();
-		Monde2D * monde2D = moteur->getMonde2D();
 
 		// camera
 		Camera * camera = monde3D->getCamera();
@@ -115,7 +114,7 @@ int main(int argc, char **argv) {
 //		monde3D->add("lumiere1", new Lumiere(Vector3(0.0,0.0,3.0), Couleur::ROUGE, 1.0f, 0.0f, 0.0f, 0, 20.0f, Vector3(0.0f, 0.0f, -1.0f)));
 
 		// chargement des ressources
-		const Image * im = ImagesManager::getInstance()->add(new Image("data/cube.png"));
+		ImagesManager::getInstance()->add(new Image("data/cube.png"));
 		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
 		Material mat("data/cube.png");
 		MeshManager::getInstance()->add(new Cube("cube"));
