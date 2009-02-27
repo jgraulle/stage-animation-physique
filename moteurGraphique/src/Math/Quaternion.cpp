@@ -458,3 +458,8 @@ bool Quaternion::operator== (const Quaternion& rhs) const
 }
 
 
+// ajout de jeremie GRAULLE
+
+Quaternion::Quaternion (const float& rfAngle, const Vector3& rkAxis) {
+	FromAngleAxis(rfAngle, rkAxis);
+}

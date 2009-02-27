@@ -120,6 +120,10 @@ public:
         return o;
     }
 
+// ajout de jeremie GRAULLE
+
+    Quaternion (const float& rfAngle, const Vector3& rkAxis);
+
 };
 
 

@@ -92,8 +92,17 @@ void Transform::setRotation(f32 angle, f32 axeX, f32 axeY, f32 axeZ) {
 	rotation = Quaternion::IDENTITY;
 	rotation.FromAngleAxis(angle, Vector3(axeX, axeY, axeZ));
 }
+void Transform::rotate(const Quaternion & q) {
+	rotation = rotation * q;
+}
 void Transform::rotate(f32 angleX, f32 angleY, f32 angleZ) {
-	rotation = rotation * Quaternion(angleX, angleY, angleZ);
+	Quaternion qx = Quaternion::IDENTITY;
+	qx.FromAngleAxis(angleX, Vector3::UNIT_X);
+	Quaternion qy = Quaternion::IDENTITY;
+	qy.FromAngleAxis(angleY, Vector3::UNIT_Y);
+	Quaternion qz = Quaternion::IDENTITY;
+	qz.FromAngleAxis(angleZ, Vector3::UNIT_Z);
+	rotation = rotation * qx * qy * qz;
 }
 void Transform::rotate(f32 angle, const Vector3 & axe) {
 	Quaternion r = Quaternion::IDENTITY;
