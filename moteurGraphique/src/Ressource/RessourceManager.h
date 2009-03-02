@@ -43,16 +43,16 @@ public:
 	}
 
 	// ajout d'une ressource
-	virtual const T * add(const T * r) {
+	virtual const T * add(const string & name, const T * r) {
 		// chercher ce nom dans la map des ressources
-		iterator it = ressources.find(r->getName());
+		iterator it = ressources.find(name);
 		// si cette ressource existe deja
 		if (it != ressources.end())
 			// lever une exception
-			throw ErreurRessourceAlreadyExist(r->getName());
+			throw ErreurRessourceAlreadyExist(name);
 		// si non
 		// l'ajouter
-		ressources[r->getName()] = r;
+		ressources[name] = r;
 		return r;
 	}
 

@@ -9,8 +9,8 @@
 
 #include <GL/gl.h>
 
-Cylinder::Cylinder(const string & name, int slices)
-: Mesh(name), slices(slices) {
+Cylinder::Cylinder(int slices)
+: slices(slices) {
 	GLUquadric* quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 

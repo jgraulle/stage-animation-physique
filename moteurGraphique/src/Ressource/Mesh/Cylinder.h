@@ -12,7 +12,7 @@
 
 class Cylinder: public Mesh {
 public:
-	Cylinder(const string & name, int slices);
+	Cylinder(int slices);
 	virtual ~Cylinder();
 
 private:

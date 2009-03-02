@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-# D�claration du nom du projet
+# Declaration du nom du projet
 PROJECT(bulletTest)
 
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -81,6 +81,13 @@ SET(MOTEUR_GRAPHIQUE_LIBRARY_DIR ../moteurGraphique/lib)
 INCLUDE_DIRECTORIES(${MOTEUR_GRAPHIQUE_INCLUDE})
 LINK_DIRECTORIES(${MOTEUR_GRAPHIQUE_LIBRARY_DIR})
 
+# recherche de libbvh
+SET(BVH_INCLUDE ../bvh/src)
+SET(BVH_LIBRARY_NAME bvh)
+SET(BVH_LIBRARY_DIR ../bvh/lib)
+INCLUDE_DIRECTORIES(${BVH_INCLUDE})
+LINK_DIRECTORIES(${BVH_LIBRARY_DIR})
+
 # Generation de la liste des fichiers sources
 FILE(GLOB_RECURSE source_files src/*)
 
@@ -90,6 +97,7 @@ ADD_EXECUTABLE(test ${source_files})
 # Ajout des librairies
 target_link_libraries (
 	test
+	${BVH_LIBRARY_NAME} 
 	${BULLET_DYNAMICS_LIBRARY_NAME} ${BULLET_COLLISION_LIBRARY_NAME} ${BULLET_MATH_LIBRARY_NAME} 
 	${MOTEUR_GRAPHIQUE_LIBRARY_NAME}
 	${DEVIL_LIBRARY_NAME} ${ILU_LIBRARY_NAME} ${ILUT_LIBRARY_NAME}

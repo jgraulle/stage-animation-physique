@@ -27,8 +27,8 @@ int Texture::modeConvertion(Mode m) {
 
 // generer une texture a partir d'une image dans la carte 3D
 // l'image peut etre detruit apres generation
-Texture::Texture(const string & name, const Image * image, bool mipmap, Mode modeHauteur, Mode modeLargeur)
-: name(name), image(image) {
+Texture::Texture(const Image * image, bool mipmap, Mode modeHauteur, Mode modeLargeur)
+: image(image) {
 	// generer une texture a partir de l'image
 	// creation d'une texture openGL
 	glGenTextures(1, &idGL);
@@ -52,7 +52,6 @@ Texture::Texture(const string & name, const Image * image, bool mipmap, Mode mod
 // generer une texture a partir d'une image dans la carte 3D
 // l'image peut etre detruit apres generation
 Texture::Texture(const string & imageName, bool mipmap, Mode modeHauteur, Mode modeLargeur) {
-	name = imageName;
 	image = ImagesManager::getInstance()->get(imageName);
 	// generer une texture a partir de l'image
 	// creation d'une texture openGL

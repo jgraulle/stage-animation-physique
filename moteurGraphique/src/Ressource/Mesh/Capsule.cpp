@@ -9,8 +9,8 @@
 
 #include <GL/gl.h>
 
-Capsule::Capsule(const string & name, float rayon, float hauteur, int slices, int stacks)
-: Mesh(name), slices(slices), stacks(stacks) {
+Capsule::Capsule(float rayon, float hauteur, int slices, int stacks)
+: slices(slices), stacks(stacks) {
 	GLUquadric* quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 

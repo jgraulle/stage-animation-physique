@@ -1,0 +1,36 @@
+/*
+ * Perso.h
+ *
+ *  Created on: 26 fevr. 2009
+ *      Author: jeremie GRAULLE
+ */
+
+#ifndef PERSO_H_
+#define PERSO_H_
+
+#include <MoteurGraphique.h>
+#include <bvh.h>
+
+class Perso: public Objet3D {
+public:
+
+	// constructeur
+	Perso(const string & bvhFileName, Material material, Transform transform = Transform());
+
+	// destructeur
+	virtual ~Perso();
+
+	// affichage
+	virtual void display() const;
+	virtual void display(int joinId, const Vector3 &) const;
+
+	// fonction de mise a jour de l'objet
+	virtual void update(f32 elapsed);
+
+private:
+	string bvhFileName;
+	MOTION * motion;
+	MFRAME * frame;
+};
+
+#endif /* PERSO_H_ */
