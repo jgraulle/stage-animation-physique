@@ -73,11 +73,11 @@ int main() {
 		monde3D->add("lumiere0", new Lumiere(Vector3(10.0,10.0,10.0), Couleur::BLANC));
 
 		// chargement des ressources
-		ImagesManager::getInstance()->add(new Image("data/cube.png"));
-		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
-		Material mat("data/cube.png");
-		MeshManager::getInstance()->add(new Cube("cube"));
-		MeshManager::getInstance()->add(new Sphere("sphere", 16, 8));
+		ImagesManager::getInstance()->add("cube", new Image("data/cube.png"));
+		TexturesManager::getInstance()->add("cube", new Texture("cube", true));
+		Material mat("cube");
+		MeshManager::getInstance()->add("cube", new Cube());
+		MeshManager::getInstance()->add("sphere", new Sphere(16, 8));
 
 		// ajout des objets aux mondes
 		monde3D->add("cube", new Objet3D(mat, "cube", Transform(Vector3(-2.0,0.0,0.0))));

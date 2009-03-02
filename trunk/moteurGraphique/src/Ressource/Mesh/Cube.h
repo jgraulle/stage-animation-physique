@@ -1,7 +1,7 @@
 /*
  * Cube.h
  *
- *  Created on: 9 févr. 2009
+ *  Created on: 9 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -12,7 +12,7 @@
 
 class Cube: public Mesh {
 public:
-	Cube(const string & name);
+	Cube();
 	virtual ~Cube();
 };
 

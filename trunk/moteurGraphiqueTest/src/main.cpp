@@ -114,16 +114,16 @@ int main(int argc, char **argv) {
 //		monde3D->add("lumiere1", new Lumiere(Vector3(0.0,0.0,3.0), Couleur::ROUGE, 1.0f, 0.0f, 0.0f, 0, 20.0f, Vector3(0.0f, 0.0f, -1.0f)));
 
 		// chargement des ressources
-		ImagesManager::getInstance()->add(new Image("data/cube.png"));
-		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
-		Material mat("data/cube.png");
-		MeshManager::getInstance()->add(new Cube("cube"));
-		MeshManager::getInstance()->add(new Sphere("sphere", 16, 8));
+		ImagesManager::getInstance()->add("cube", new Image("data/cube.png"));
+		TexturesManager::getInstance()->add("cube", new Texture("cube", true));
+		Material mat("cube");
+		MeshManager::getInstance()->add("cube", new Cube());
+		MeshManager::getInstance()->add("sphere", new Sphere(16, 8));
 		f32 positions[][3] = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
 		f32 normals[][3] = {{0.0f, 0.0f, 1.0f}};
 		f32 texCoords[][2] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}};
 		u16 faces[][3][3] = {{{0,1,2},{0,0,0},{0,1,2}}};
-		MeshManager::getInstance()->add(new Mesh("testMesh", positions, normals, texCoords, faces, 1));
+		MeshManager::getInstance()->add("testMesh", new Mesh(positions, normals, texCoords, faces, 1));
 
 		// ajout des objets aux mondes
 		monde3D->add("cube", new Objet3D(mat, "cube", Transform(Vector3(-4.0,0.0,0.0))));

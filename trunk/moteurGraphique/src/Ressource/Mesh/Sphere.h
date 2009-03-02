@@ -1,7 +1,7 @@
 /*
  * Sphere.h
  *
- *  Created on: 9 févr. 2009
+ *  Created on: 9 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -12,7 +12,7 @@
 
 class Sphere : public Mesh {
 public:
-	Sphere(const string & name, int slices, int stacks);
+	Sphere(int slices, int stacks);
 	virtual ~Sphere();
 private:
 	int slices;	// nombre de tranches

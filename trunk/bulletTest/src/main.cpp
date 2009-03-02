@@ -88,10 +88,10 @@ int main(int argc, char **argv) {
 		monde3D->add("lumiere1", new Lumiere(Vector3(-10.0,10.0,-10.0), Couleur::BLANC));
 
 		// chargement des ressources
-		ImagesManager::getInstance()->add(new Image("data/cube.png"));
-		TexturesManager::getInstance()->add(new Texture("data/cube.png", true));
-		Material mat("data/cube.png");
-		MeshManager::getInstance()->add(new Cube("cube"));
+		ImagesManager::getInstance()->add("cube", new Image("data/cube.png"));
+		TexturesManager::getInstance()->add("cube", new Texture("cube", true));
+		Material mat("cube");
+		MeshManager::getInstance()->add("cube", new Cube());
 
 		// creation du monde physique
 		btDefaultCollisionConfiguration * collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -110,13 +110,15 @@ int main(int argc, char **argv) {
 		btRigidBody * solPhysique = new btRigidBody(createRigidBodyInfo(0.0, solGraphique->getTransform(), new btBoxShape(btVector3(50.0, 5.0, 50.0)*SCALING)));
 		dynamicsWorld->addRigidBody(solPhysique);
 
-		RagDoll * ragDoll = new RagDoll("perso1", mat, Transform(Vector3(0.0,3.0,0.0), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
+//		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(2.0,3.0,0.0), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
+		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-2.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
 
 		// affichage du monde
 		do {
 			moteur->update();
-			dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
-			ragDoll->update(moteur->getElapsed());
+//			dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
+//			ragDoll1->update(moteur->getElapsed());
+			ragDoll2->update(moteur->getElapsed());
 			gestionSouris(*camera);
 			moteur->display();
 			glLoadIdentity();

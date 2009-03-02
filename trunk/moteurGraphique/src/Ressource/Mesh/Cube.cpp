@@ -1,7 +1,7 @@
 /*
  * Cube.cpp
  *
- *  Created on: 9 févr. 2009
+ *  Created on: 9 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -9,8 +9,7 @@
 
 #include <GL/gl.h>
 
-Cube::Cube(const string & name)
-: Mesh(name) {
+Cube::Cube() {
 	idDisplayList = glGenLists(1);
 	glNewList(idDisplayList, GL_COMPILE);
 

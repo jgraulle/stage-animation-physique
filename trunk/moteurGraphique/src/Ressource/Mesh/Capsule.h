@@ -12,7 +12,7 @@
 
 class Capsule: public Mesh {
 public:
-	Capsule(const string & name, float rayon, float hauteur, int slices, int stacks);
+	Capsule(float rayon, float hauteur, int slices, int stacks);
 	virtual ~Capsule();
 
 private:

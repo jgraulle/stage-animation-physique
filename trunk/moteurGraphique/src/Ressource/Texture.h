@@ -22,7 +22,7 @@ public:
 
 	// generer une texture a partir d'une image dans la carte 3D
 	// l'image peut etre detruit apres generation
-	Texture(const string & name, const Image * image, bool mipmap = false, Mode modeHauteur = UNE_FOIS, Mode modeLargeur = UNE_FOIS);
+	Texture(const Image * image, bool mipmap = false, Mode modeHauteur = UNE_FOIS, Mode modeLargeur = UNE_FOIS);
 
 	// generer une texture a partir d'une image dans la carte 3D
 	// l'image peut etre detruit apres generation
@@ -38,9 +38,7 @@ public:
 	const Image * getImage() const;
 	Vecteur2 getTaille() const;
 
-	virtual const string & getName() const {return name;}
 private:
-	string name;
 	const Image * image;
 	int modeConvertion(Mode m);
 	GLuint idGL;

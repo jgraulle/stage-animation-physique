@@ -1,14 +1,13 @@
 /*
  * Mesh.cpp
  *
- *  Created on: 9 févr. 2009
+ *  Created on: 9 fï¿½vr. 2009
  *      Author: jeremie GRAULLE
  */
 
 #include "Mesh.h"
 
-Mesh::Mesh(const string & name, f32 positions[][3], f32 normals[][3], f32 texCoords[][2], Face faces[], int nbrFace)
-: name(name) {
+Mesh::Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], Face faces[], int nbrFace) {
 	idDisplayList = glGenLists(1);
 	glNewList(idDisplayList, GL_COMPILE);
 	glBegin(GL_TRIANGLES);
@@ -31,8 +30,7 @@ Mesh::Mesh(const string & name, f32 positions[][3], f32 normals[][3], f32 texCoo
 	glEndList();
 }
 
-Mesh::Mesh(const string & name, f32 positions[][3], f32 normals[][3], f32 texCoords[][2], u16 faces[][3][3], int nbrFace)
-: name(name) {
+Mesh::Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], u16 faces[][3][3], int nbrFace) {
 	idDisplayList = glGenLists(1);
 	glNewList(idDisplayList, GL_COMPILE);
 	glBegin(GL_TRIANGLES);
@@ -55,8 +53,7 @@ Mesh::Mesh(const string & name, f32 positions[][3], f32 normals[][3], f32 texCoo
 	glEndList();
 }
 
-Mesh::Mesh(const string & name, vector<Vector3> positions, vector<Vector3> normals, vector<Vecteur2> texCoords, vector<Face> faces)
-: name(name) {
+Mesh::Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vecteur2> texCoords, vector<Face> faces) {
 	idDisplayList = glGenLists(1);
 	glNewList(idDisplayList, GL_COMPILE);
 	glBegin(GL_TRIANGLES);
@@ -83,9 +80,6 @@ Mesh::Mesh(const string & name, vector<Vector3> positions, vector<Vector3> norma
 	glEnd();
 	glEndList();
 }
-
-Mesh::Mesh(const string & name)
-: name(name) {}
 
 Mesh::~Mesh() {
 	glDeleteLists(idDisplayList, 1);
