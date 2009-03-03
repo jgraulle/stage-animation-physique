@@ -126,8 +126,8 @@ int main(int argc, char **argv) {
 		btRigidBody * solPhysique = new btRigidBody(createRigidBodyInfo(0.0, solGraphique->getTransform(), new btBoxShape(btVector3(50.0, 5.0, 50.0)*SCALING)));
 		dynamicsWorld->addRigidBody(solPhysique);
 
-		for (f32 x=-3.0f; x<6.0f; x+=1.0f) {
-			for (f32 z=-3.0f; z<6.0f; z+=1.0f) {
+		for (f32 x=-3.0f; x<6.0f; x+=7.0f) {
+			for (f32 z=-3.0f; z<6.0f; z+=7.0f) {
 				stringstream buffer;
 				buffer << "perso[" << x << ',' << z << ']';
 				new RagDoll(buffer.str(), mat, Transform(Vector3(x,Random::getf32(2.9f, 3.1f),z), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
