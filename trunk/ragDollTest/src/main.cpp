@@ -18,6 +18,9 @@
 
 using namespace std;
 
+bool playPhysique = false;
+bool displayPhysique = false;
+
 btRigidBody::btRigidBodyConstructionInfo createRigidBodyInfo(btScalar mass, Transform & transform, btCollisionShape* collisionShape) {
 	btVector3 inertie;
 	collisionShape->calculateLocalInertia(mass, inertie);
@@ -70,6 +73,19 @@ void gestionSouris(Camera & camera) {
 	cranAnc = cran;
 }
 
+void gestionTouche(int touche, int etat) {
+	if (etat==GLFW_PRESS) {
+		switch (touche) {
+		case GLFW_KEY_SPACE:
+				playPhysique=!playPhysique;
+				break;
+		case 'D':
+			displayPhysique=!displayPhysique;
+			break;
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 	try {
 		// creation du monde
@@ -111,22 +127,26 @@ int main(int argc, char **argv) {
 		dynamicsWorld->addRigidBody(solPhysique);
 
 		for (f32 x=-3.0f; x<6.0f; x+=1.0f) {
-					for (f32 z=-3.0f; z<6.0f; z+=1.0f) {
-						stringstream buffer;
-						buffer << "perso[" << x << ',' << z << ']';
-						new RagDoll(buffer.str(), mat, Transform(Vector3(x,Random::getf32(2.9f, 3.1f),z), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
-					}
-				}
+			for (f32 z=-3.0f; z<6.0f; z+=1.0f) {
+				stringstream buffer;
+				buffer << "perso[" << x << ',' << z << ']';
+				new RagDoll(buffer.str(), mat, Transform(Vector3(x,Random::getf32(2.9f, 3.1f),z), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
+			}
+		}
+
+		glfwSetKeyCallback(gestionTouche);
 
 		// affichage du monde
 		do {
 			moteur->update();
-			dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
+			if (playPhysique)
+				dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
 			gestionSouris(*camera);
 			moteur->display();
 			glLoadIdentity();
 			moteur->getMonde3D()->getCamera()->positionner();
-//			dynamicsWorld->debugDrawWorld();
+			if (displayPhysique)
+				dynamicsWorld->debugDrawWorld();
 			moteur->swapBuffer();
 		} while (!glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED));
 
