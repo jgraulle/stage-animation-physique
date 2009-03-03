@@ -68,7 +68,7 @@ public :
 		Os(const Vector3 & debut, const Vector3 & fin, int joint) : debut(debut), fin(fin), joint(joint) {}
 	};
 
-	RagDoll(const string & name, const string & bvhFileName, const Material & mat, Transform transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D);
+	RagDoll(const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D);
 
 	virtual	~RagDoll();
 
@@ -98,6 +98,7 @@ private :
 	MFRAME * frame;
 	vector<Os *> osList;
 	Perso * perso;
+	Quaternion orientationEdition;
 	// physique
 	btCollisionShape * m_shapes[BODYPART_COUNT];
 	btRigidBody * m_bodies[BODYPART_COUNT];

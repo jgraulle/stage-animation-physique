@@ -149,8 +149,8 @@ btTransform RagDoll::contraintesPositions[RagDoll::JOINT_COUNT][2] = {
 	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.18f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.14f, 0.0f))}
 };
 
-RagDoll::RagDoll (const string & name, const string & bvhFileName, const Material & mat, Transform transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
-: name(name), bvhFileName(bvhFileName), m_ownerWorld(m_ownerWorld), monde3D(monde3D) {
+RagDoll::RagDoll (const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
+: name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D) {
 	const int * indexBvh;
 	if (bvhFileName == "data/Example1.bvh")
 		indexBvh = INDEX_EXAMPLE1;
@@ -173,6 +173,7 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 	Vector3 offset;
 	joint_get_offset(frame, rootId, offset);
 
+	// lecture de la position des joints dans le bvh dans la position d'edition
 	osList.resize(motion_frame_get_joints_n(frame), NULL);
 	bvhRecursif(rootId, offset);
 	vector<Os *>::iterator it = osList.begin();
@@ -218,7 +219,9 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 		}
 	}
 */
-	perso = new Perso(bvhFileName, mat, transform);
+	Transform t = transform;
+	t.rotate(orientationEdition);
+	perso = new Perso(bvhFileName, mat, t);
 	stringstream buffer;
 	buffer << name << "-sequellette";
 	monde3D->add(buffer.str(), perso);
@@ -255,6 +258,7 @@ void RagDoll::bvhRecursif(int joinId, const Vector3 & accumulateur) {
 		nbrChild++;
 		// lire la position de ce joint
 		joint_get_offset(frame, childId, offset);
+		offset = orientationEdition * offset;
 
 		moyenne += accumulateur+offset;
 
@@ -273,16 +277,20 @@ void RagDoll::bvhRecursif(int joinId, const Vector3 & accumulateur) {
 btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, const Transform & transform, int bodyPart, const Material & mat) {
 	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
 	f32 scale = transform.getScale().x;
-	// position de la partie
-	Transform startTransform;
-	startTransform.setPosition(transform.getPosition());
-	startTransform.setRotation(transform.getOrientation());
-	startTransform.translate(positions[bodyPart]*transform.getScale());
-	startTransform.rotate(rotations[bodyPart]);
+	// position de la partie dans le repere du ragDoll
+	Transform localTransformPart;
+	localTransformPart.setPosition(positions[bodyPart]*transform.getScale());
+	localTransformPart.setRotation(rotations[bodyPart]);
+	// position du ragDoll dans le repere du monde
+	Transform globalTransformRagDoll;
+	globalTransformRagDoll.setPosition(transform.getPosition());
+	globalTransformRagDoll.setRotation(transform.getOrientation());
+	// position de la partie dans le repere du monde
+	Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
 
 	// forme graphique
 	meshes[bodyPart] = new Capsule(tailles[bodyPart][0]*scale, tailles[bodyPart][1]*scale, 8, 4);
-	objet3Ds[bodyPart] = new Objet3D(mat, meshes[bodyPart], startTransform);
+	objet3Ds[bodyPart] = new Objet3D(mat, meshes[bodyPart], globalTransformPart);
 	stringstream tampon;
 	tampon << name << bodyPart;
 	monde3D->add(tampon.str(), objet3Ds[bodyPart]);

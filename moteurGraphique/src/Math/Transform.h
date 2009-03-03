@@ -58,9 +58,20 @@ public:
 	virtual void rotate(f32 angle, const Vector3 & axe);
 	virtual void rotate(f32 angle, f32 axeX, f32 axeY, f32 axeZ);
 
-	virtual inline Vector3 toLocalSpace(const Vector3& v) const {return getInverseMatrix() * v;}
+	virtual inline Vector3 toLocalSpace(const Vector3 & v) const {return getInverseMatrix() * v;}
 	virtual void multCurrentMatrix(void) const;
-//	virtual inline Vector3 operator*(const Vector3& x) const {return rotation * x + position;}
+	virtual inline Vector3 operator * (const Vector3 & v) const {return getMatrix() * v;}	// TODO optimiser
+	virtual inline const Transform & operator *= (const Transform& t) {
+		position = *this * t.position;
+		rotation = this->getOrientation() * t.rotation;
+		scale = this->scale * t.scale;
+		return *this;
+	}
+	virtual inline Transform operator * (const Transform & t) const {
+		Transform r = *this;
+		r *= t;
+		return r;
+	}
 
 protected:
 	Matrix4 getMatrix(void) const;
