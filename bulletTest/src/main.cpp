@@ -110,14 +110,16 @@ int main(int argc, char **argv) {
 		btRigidBody * solPhysique = new btRigidBody(createRigidBodyInfo(0.0, solGraphique->getTransform(), new btBoxShape(btVector3(50.0, 5.0, 50.0)*SCALING)));
 		dynamicsWorld->addRigidBody(solPhysique);
 
-//		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(2.0,3.0,0.0), Quaternion::IDENTITY, Vector3(1.0, 1.0, 1.0)), dynamicsWorld, monde3D);
-		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-2.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
+		Quaternion q = Quaternion::IDENTITY;
+//		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
+		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
+		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
 
 		// affichage du monde
 		do {
 			moteur->update();
-//			dynamicsWorld->stepSimulation(moteur->getElapsed()*1.0);
-//			ragDoll1->update(moteur->getElapsed());
+			dynamicsWorld->stepSimulation(moteur->getElapsed()*0.2);
+			ragDoll1->update(moteur->getElapsed());
 			ragDoll2->update(moteur->getElapsed());
 			gestionSouris(*camera);
 			moteur->display();
