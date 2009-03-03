@@ -1,7 +1,7 @@
 /*
  * Transform.h
  *
- *  Created on: 6 f�vr. 2009
+ *  Created on: 6 fevr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -60,6 +60,7 @@ public:
 
 	virtual inline Vector3 toLocalSpace(const Vector3& v) const {return getInverseMatrix() * v;}
 	virtual void multCurrentMatrix(void) const;
+//	virtual inline Vector3 operator*(const Vector3& x) const {return rotation * x + position;}
 
 protected:
 	Matrix4 getMatrix(void) const;

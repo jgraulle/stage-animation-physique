@@ -77,14 +77,16 @@ public :
 
 private :
 
-	static f32 TAILLE[BODYPART_COUNT][2];
-	static Vector3 POSITIONS[BODYPART_COUNT];
-	static const int INDEX_BVH[BODYPART_COUNT];
-	static const Quaternion ROTATIONS[BODYPART_COUNT];
-	static const btTransform CONTRAINTES_POSITIONS[JOINT_COUNT][2];
+	static const int INDEX_EXAMPLE1[BODYPART_COUNT];
+	static const int INDEX_WALK[BODYPART_COUNT];
+	static const int RAPPORT_HAUTEURS_RAYONS[BODYPART_COUNT];
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
 	static const f32 CONTRAINTES_ANGLES[JOINT_COUNT][3];
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
+	static f32 tailles[BODYPART_COUNT][2];
+	static Vector3 positions[BODYPART_COUNT];
+	static Quaternion rotations[BODYPART_COUNT];
+	static btTransform contraintesPositions[JOINT_COUNT][2];
 
 	btRigidBody * localCreateRigidBody(btScalar mass, const Transform & transform, int bodyPart, const Material & mat);
 	void bvhRecursif(int joinId, const Vector3 & accumulateur);
