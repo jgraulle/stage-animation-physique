@@ -18,6 +18,9 @@
 
 using namespace std;
 
+bool playPhysique = false;
+bool displayPhysique = false;
+
 btRigidBody::btRigidBodyConstructionInfo createRigidBodyInfo(btScalar mass, Transform & transform, btCollisionShape* collisionShape) {
 	btVector3 inertie;
 	collisionShape->calculateLocalInertia(mass, inertie);
@@ -70,6 +73,19 @@ void gestionSouris(Camera & camera) {
 	cranAnc = cran;
 }
 
+void gestionTouche(int touche, int etat) {
+	if (etat==GLFW_PRESS) {
+		switch (touche) {
+		case GLFW_KEY_SPACE:
+				playPhysique=!playPhysique;
+				break;
+		case 'D':
+			displayPhysique=!displayPhysique;
+			break;
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 	try {
 		// creation du monde
@@ -115,17 +131,21 @@ int main(int argc, char **argv) {
 		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
 		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), dynamicsWorld, monde3D);
 
+		glfwSetKeyCallback(gestionTouche);
+
 		// affichage du monde
 		do {
 			moteur->update();
-			dynamicsWorld->stepSimulation(moteur->getElapsed()*0.2);
+			if (playPhysique)
+				dynamicsWorld->stepSimulation(moteur->getElapsed()*0.2);
 			ragDoll1->update(moteur->getElapsed());
 			ragDoll2->update(moteur->getElapsed());
 			gestionSouris(*camera);
 			moteur->display();
 			glLoadIdentity();
 			moteur->getMonde3D()->getCamera()->positionner();
-//			dynamicsWorld->debugDrawWorld();
+			if (displayPhysique)
+				dynamicsWorld->debugDrawWorld();
 			moteur->swapBuffer();
 		} while (!glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED));
 
