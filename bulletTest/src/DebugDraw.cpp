@@ -10,7 +10,9 @@
 
 #include "../../moteurGraphique/src/MoteurGraphique.h"
 
-DebugDraw::DebugDraw() {}
+DebugDraw::DebugDraw()
+//: debugMode(DBG_DrawWireframe) {}
+: debugMode(DBG_DrawConstraints | DBG_DrawConstraintLimits) {}
 
 DebugDraw::~DebugDraw() {}
 
@@ -35,9 +37,31 @@ void DebugDraw::draw3dText(const btVector3& location,const char* textString) {
 	cout << textString;
 }
 
-void DebugDraw::setDebugMode(int debugMode) {}
+void DebugDraw::setDebugMode(int m) {
+	cout << "DebugDraw::setDebugMode" << m <<  endl;
+	debugMode = m;
+}
+
+void DebugDraw::addDebugMode(int m) {
+	cout << "DebugDraw::addDebugMode" << m <<  endl;
+	debugMode |= m;
+}
+
+void DebugDraw::remDebugMode(int m) {
+	cout << "DebugDraw::remDebugMode" << m <<  endl;
+	debugMode &= ~m;
+}
+
+void DebugDraw::modDebugMode(int m) {
+	cout << "DebugDraw::modDebugMode" << m <<  endl;
+	if (debugMode & m)
+		remDebugMode(m);
+	else
+		addDebugMode(m);
+}
 
 int	DebugDraw::getDebugMode() const {
-	return DBG_DrawWireframe | DBG_DrawConstraints;
+	return debugMode;
+	//return DBG_DrawWireframe | DBG_DrawConstraints;
 	//return DBG_DrawConstraints | DBG_DrawConstraintLimits;
 }

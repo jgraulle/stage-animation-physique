@@ -10,7 +10,10 @@
 #include "RagDoll.h"
 
 
+const Quaternion RagDoll::QUATERNION_MOINS_UNIT_Y = Quaternion(M_PI, Vector3::UNIT_Z);
+const Quaternion RagDoll::QUATERNION_UNIT_Y = Quaternion();
 
+// TODO importer depuis un fichier
 const int RagDoll::INDEX_EXAMPLE1[RagDoll::BODYPART_COUNT] = {
 	0,		// hanche
 	1,		// corps haut
@@ -41,18 +44,20 @@ const int RagDoll::INDEX_WALK[RagDoll::BODYPART_COUNT] = {
 
 const int RagDoll::RAPPORT_HAUTEURS_RAYONS[RagDoll::BODYPART_COUNT] = {
 	2,	// BODYPART_PELVIS hanche
-	4,	// BODYPART_SPINE corps haut
+	5,	// BODYPART_SPINE corps haut
 	1,	// BODYPART_HEAD tete
-	4,	// BODYPART_LEFT_UPPER_LEG jambe haut gauche
-	4,	// BODYPART_LEFT_LOWER_LEG jambe bas gauche
-	4,	// BODYPART_RIGHT_UPPER_LEG jambe haut droite
-	4,	// BODYPART_RIGHT_LOWER_LEG jambe bas droite
+	5,	// BODYPART_LEFT_UPPER_LEG jambe haut gauche
+	5,	// BODYPART_LEFT_LOWER_LEG jambe bas gauche
+	5,	// BODYPART_RIGHT_UPPER_LEG jambe haut droite
+	5,	// BODYPART_RIGHT_LOWER_LEG jambe bas droite
 	4,	// BODYPART_LEFT_UPPER_ARM bras haut gauche
 	4,	// BODYPART_LEFT_LOWER_ARM bras bas gauche
 	4,	// BODYPART_RIGHT_UPPER_ARM bras haut droite
 	4	// BODYPART_RIGHT_LOWER_ARM bras bas droite
 };
+// TODO fin importer depuis un fichier
 
+// constante qui definissent l'ensemble des contraintes d'une ragDoll
 const int RagDoll::CONTRAINTES_BODY[RagDoll::JOINT_COUNT][2] = {
 	{BODYPART_PELVIS, BODYPART_SPINE},
 	{BODYPART_SPINE, BODYPART_HEAD},
@@ -105,65 +110,23 @@ const bool RagDoll::CONTRAINTES_IS_CONE[RagDoll::JOINT_COUNT] = {
 	false
 };
 
-f32 RagDoll::tailles[RagDoll::BODYPART_COUNT][2] =
-{
-		{0.15, 0.20}, // BODYPART_PELVIS
-		{0.15, 0.28}, // BODYPART_SPINE
-		{0.10, 0.05}, // BODYPART_HEAD
-		{0.07, 0.45}, // BODYPART_LEFT_UPPER_LEG
-		{0.05, 0.37}, // BODYPART_LEFT_LOWER_LEG
-		{0.07, 0.45}, // BODYPART_RIGHT_UPPER_LEG
-		{0.05, 0.37}, // BODYPART_RIGHT_LOWER_LEG
-		{0.05, 0.33}, // BODYPART_LEFT_UPPER_ARM
-		{0.04, 0.25}, // BODYPART_LEFT_LOWER_ARM
-		{0.05, 0.33}, // BODYPART_RIGHT_UPPER_ARM
-		{0.04, 0.25}  // BODYPART_RIGHT_LOWER_ARM
-};
-
-Vector3 RagDoll::positions[RagDoll::BODYPART_COUNT] = {
-	Vector3(0.0f, 1.0f, 0.0f),		// BODYPART_PELVIS
-	Vector3(0.0f, 1.2f, 0.f),		// BODYPART_SPINE
-	Vector3(0.0f, 1.6f, 0.0f),		// BODYPART_HEAD
-	Vector3(-0.18f, 0.65f, 0.0f),
-	Vector3(-0.18f, 0.2f, 0.f),
-	Vector3(0.18f, 0.65f, 0.0f),
-	Vector3(0.18f, 0.2f, 0.0f),
-	Vector3(-0.35f, 1.45f, 0.0f),
-	Vector3(-0.7f, 1.45f, 0.0f),
-	Vector3(0.35f, 1.45f, 0.0f),
-	Vector3(0.7f, 1.45f, 0.0f)
-};
-
-Quaternion RagDoll::rotations[RagDoll::BODYPART_COUNT] =
-{
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion::IDENTITY,
-	Quaternion(M_PI_2, Vector3::UNIT_Z),
-	Quaternion(M_PI_2, Vector3::UNIT_Z),
-	Quaternion(-M_PI_2, Vector3::UNIT_Z),
-	Quaternion(-M_PI_2, Vector3::UNIT_Z)
-};
-
-btTransform RagDoll::contraintesPositions[RagDoll::JOINT_COUNT][2] = {
-	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.15f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.15f, 0.0f))},
-	{btTransform(btQuaternion(0,0,M_PI_2), btVector3(0.0f, 0.30f, 0.0f)), btTransform(btQuaternion(0,0,M_PI_2), btVector3(0.0f, -0.14f, 0.0f))},
-	{btTransform(btQuaternion(0,0,-M_PI_4*5), btVector3(-0.18f, -0.10f, 0.0f)), btTransform(btQuaternion(0,0,-M_PI_4*5), btVector3(0.0f, 0.225f, 0.0f))},
-	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.225f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.185f, 0.0f))},
-	{btTransform(btQuaternion(0,0,M_PI_4), btVector3(0.18f, -0.10f, 0.0f)), btTransform(btQuaternion(0,0,M_PI_4), btVector3(0.0f, 0.225f, 0.0f))},
-	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.225f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.185f, 0.0f))},
-	{btTransform(btQuaternion(0,0,M_PI), btVector3(-0.2f, 0.15f, 0.0f)), btTransform(btQuaternion(0,0,M_PI_2), btVector3(0.0f, -0.18f, 0.0f))},
-	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.18f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.14f, 0.0f))},
-	{btTransform(btQuaternion(0,0,0), btVector3(0.2f, 0.15f, 0.0f)), btTransform(btQuaternion(0,0,M_PI_2), btVector3(0.0f, -0.18f, 0.0f))},
-	{btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, 0.18f, 0.0f)), btTransform(btQuaternion(0,M_PI_2,0), btVector3(0.0f, -0.14f, 0.0f))}
-};
+Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
+	Quaternion rotations;
+	if (v.x!=0.0f or v.z!=0.0f)
+		return Vector3::UNIT_Y.getRotationTo(v);
+	// else {
+	if (v.y<0.0f)
+		return QUATERNION_MOINS_UNIT_Y;
+	//else
+	return QUATERNION_UNIT_Y;
+	//}
+}
 
 RagDoll::RagDoll (const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
 : name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D) {
+	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
+	scale = transform.getScale().x;
+
 	const int * indexBvh;
 	if (bvhFileName == "data/Example1.bvh")
 		indexBvh = INDEX_EXAMPLE1;
@@ -186,68 +149,66 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 	Vector3 offset;
 	joint_get_offset(frame, rootId, offset);
 
-	// lecture de la position des joints dans le bvh dans la position d'edition
+	// lecture de la position des extremite des os du bvh dans la position d'edition dans le repere de l'animation
+	vector<Os *> osList;
 	osList.resize(motion_frame_get_joints_n(frame), NULL);
-	bvhRecursif(rootId, offset);
+	bvhRecursif(osList, rootId, offset);
 	vector<Os *>::iterator it = osList.begin();
-	while (it!=osList.end()) {
-		if (*it!=NULL)
-			cout << (*it)->joint << " " << joint_get_name(frame, (*it)->joint) << " " << ((*it)->fin - (*it)->debut) << endl;
-		it++;
-	}
 
-	Quaternion q;
-	q.FromAngleAxis(M_PI, Vector3::UNIT_Z);
 	// creation des objets graphiques et physiques
+	Transform localTransformPart; f32 hauteur; f32 rayon;
+	Transform globalTransformRagDoll(transform.getPosition(), transform.getOrientation());
 	for (int part=0; part<BODYPART_COUNT; part++) {
+		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
 		Vector3 taille = osList[indexBvh[part]]->fin - osList[indexBvh[part]]->debut;
-		tailles[part][1] = taille.length();
-		tailles[part][0] = tailles[part][1]/RAPPORT_HAUTEURS_RAYONS[part];
-		positions[part] = (osList[indexBvh[part]]->debut + osList[indexBvh[part]]->fin)/2.0f;
-		if (taille.x!=0.0f or taille.z!=0.0f)
-			rotations[part] = Vector3::UNIT_Y.getRotationTo(taille);
-		else {
-			if (taille.y<0.0f)
-				rotations[part] = q;
-			else
-				rotations[part] = Quaternion();
-			cout << taille << endl;
-		}
+		hauteur = taille.length();
+		rayon = hauteur/RAPPORT_HAUTEURS_RAYONS[part];
+		// calcul de la position du centre de l'os dans le repere de l'animation
+		localTransformPart.setPosition((osList[indexBvh[part]]->debut + osList[indexBvh[part]]->fin)/2.0f);
+		// calcul de l'orientation de l'os
+		localTransformPart.setRotation(getOrientationOs(taille));
+		// creation de la forme physique et graphique
+		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
+		m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
 	}
-
-	// creation des objets graphiques et physiques
-	for (int part=0; part<BODYPART_COUNT; part++)
-		m_bodies[part] = localCreateRigidBody(1.0f, transform, part, mat);
 
 	// creation des jointures
-	f32 scale = transform.getScale().x;
-
-	// Now setup the constraints
+	btTransform pereTrans, filsTrans;
 	for (int joint=0; joint<JOINT_COUNT; joint++) {
-		contraintesPositions[joint][0] = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], btVector3(0.0f, tailles[CONTRAINTES_BODY[joint][0]][1], 0.0f)*scale/2.0f);
-		contraintesPositions[joint][1] = btTransform(CONTRAINTES_ORIENTATIONS[joint][1], btVector3(0.0f, -tailles[CONTRAINTES_BODY[joint][1]][1], 0.0f)*scale/2.0f);
+		// calcul de la position du point de jointure dans le repere de l'os fils
+		filsTrans = btTransform(CONTRAINTES_ORIENTATIONS[joint][1], btVector3(0.0f, -m_shapes[CONTRAINTES_BODY[joint][1]]->getHalfHeight(), 0.0f));
+		// calculer la position de l'os pere dans le repere de l'os pere par rapport a la position de l'os fils dans le repere de l'os fils
+		pereTrans = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], (m_bodies[CONTRAINTES_BODY[joint][0]]->getCenterOfMassTransform().inverse()(m_bodies[CONTRAINTES_BODY[joint][1]]->getCenterOfMassTransform()(filsTrans.getOrigin()))));
 		if (CONTRAINTES_IS_CONE[joint]) {
-//			if (joint==JOINT_LEFT_HIP) {
-				contraintesPositions[joint][1] = btTransform(CONTRAINTES_ORIENTATIONS[joint][1], btVector3(0.0f, -tailles[CONTRAINTES_BODY[joint][1]][1], 0.0f)*scale/2.0f);
-				// calculer la position de la 2eme par rapport a la premiere
-				contraintesPositions[joint][0] = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], (m_bodies[CONTRAINTES_BODY[joint][0]]->getCenterOfMassTransform().inverse()(m_bodies[CONTRAINTES_BODY[joint][1]]->getCenterOfMassTransform()(contraintesPositions[joint][1].getOrigin()))));
-			m_joints[joint] = new btConeTwistConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], contraintesPositions[joint][0], contraintesPositions[joint][1]);
+			// contrainte de type epaule, hanche : 3 degres de liberte
+			m_joints[joint] = new btConeTwistConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans);
 			((btConeTwistConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1], CONTRAINTES_LIMITES_ANGLES[joint][2]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
-//			}
 		} else {
-			m_joints[joint] = new btHingeConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], contraintesPositions[joint][0], contraintesPositions[joint][1]);
+			// constrainte de type genoux, coude :  1 seul degres de liberte
+			m_joints[joint] = new btHingeConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans);
 			((btHingeConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		}
 	}
 
+	// affichage de la bvh
 	Transform t = transform;
 	t.rotate(orientationEdition);
 	perso = new Perso(bvhFileName, mat, t);
 	stringstream buffer;
 	buffer << name << "-sequellette";
 	monde3D->add(buffer.str(), perso);
+
+
+	// TODO test
+/*	// test articulation de type genoux
+	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, 0.2, 0.3);
+	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->getHingeAngle();
+	((btConeTwistConstraint*)m_joints[joint])->enableMotor(true);
+	((btConeTwistConstraint*)m_joints[joint])->setMaxMotorImpulse(0.9);
+	((btConeTwistConstraint*)m_joints[joint])->setMotorTarget(btQuaternion(0.0, 0.0, 0.0));
+*/
 }
 
 RagDoll::~RagDoll () {
@@ -272,7 +233,7 @@ RagDoll::~RagDoll () {
 	}
 }
 
-void RagDoll::bvhRecursif(int joinId, const Vector3 & accumulateur) {
+void RagDoll::bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur) {
 	// pour tous les fils
 	int childId = joint_get_child(frame, joinId);
 	int nbrChild = 0;
@@ -281,12 +242,12 @@ void RagDoll::bvhRecursif(int joinId, const Vector3 & accumulateur) {
 		nbrChild++;
 		// lire la position de ce joint
 		joint_get_offset(frame, childId, offset);
-		offset = orientationEdition * offset;
+		offset = orientationEdition * offset * scale;
 
 		moyenne += accumulateur+offset;
 
 		// afficher tous les petits fils
-		bvhRecursif(childId, accumulateur+offset);
+		bvhRecursif(osList, childId, accumulateur+offset);
 
 		// passer au fils suivant
 		childId = joint_get_next(frame, childId);
@@ -297,29 +258,16 @@ void RagDoll::bvhRecursif(int joinId, const Vector3 & accumulateur) {
 	}
 }
 
-btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, const Transform & transform, int bodyPart, const Material & mat) {
-	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
-	f32 scale = transform.getScale().x;
-	// position de la partie dans le repere du ragDoll
-	Transform localTransformPart;
-	localTransformPart.setPosition(positions[bodyPart]*transform.getScale());
-	localTransformPart.setRotation(rotations[bodyPart]);
-	// position du ragDoll dans le repere du monde
-	Transform globalTransformRagDoll;
-	globalTransformRagDoll.setPosition(transform.getPosition());
-	globalTransformRagDoll.setRotation(transform.getOrientation());
-	// position de la partie dans le repere du monde
-	Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
-
+btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon, const Transform & globalTransformPart, int bodyPart, const Material & mat) {
 	// forme graphique
-	meshes[bodyPart] = new Capsule(tailles[bodyPart][0]*scale, tailles[bodyPart][1]*scale, 8, 4);
+	meshes[bodyPart] = new Capsule(rayon, hauteur, 8, 4);
 	objet3Ds[bodyPart] = new Objet3D(mat, meshes[bodyPart], globalTransformPart);
 	stringstream tampon;
 	tampon << name << bodyPart;
 	monde3D->add(tampon.str(), objet3Ds[bodyPart]);
 
 	// forme physique
-	m_shapes[bodyPart] = new btCapsuleShape(tailles[bodyPart][0]*scale, tailles[bodyPart][1]*scale);
+	m_shapes[bodyPart] = new btCapsuleShape(rayon, hauteur);
 	bool isDynamic = (mass != 0.f);
 
 	btVector3 localInertia(0,0,0);
@@ -342,4 +290,13 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, const Transform & tra
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
 	// TODO
+/*
+	// test articulation de type coude
+	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, 1.0, 1.0);
+	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->getHingeAngle();
+
+	// test articulation de type epaule
+	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->setMotorTarget(btQuaternion());
+//	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->getMotorFactor();
+*/
 }

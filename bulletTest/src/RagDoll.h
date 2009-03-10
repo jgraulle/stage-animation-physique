@@ -77,31 +77,34 @@ public :
 
 private :
 
+	static const Quaternion QUATERNION_UNIT_Y;
+	static const Quaternion QUATERNION_MOINS_UNIT_Y;
+
+	// TODO importer depuis un fichier
 	static const int INDEX_EXAMPLE1[BODYPART_COUNT];
 	static const int INDEX_WALK[BODYPART_COUNT];
 	static const int RAPPORT_HAUTEURS_RAYONS[BODYPART_COUNT];
+
+	// constante qui definissent l'ensemble des contraintes d'une ragDoll
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
 	static const btQuaternion CONTRAINTES_ORIENTATIONS[JOINT_COUNT][2];
 	static const f32 CONTRAINTES_LIMITES_ANGLES[JOINT_COUNT][3];
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
-	static f32 tailles[BODYPART_COUNT][2];
-	static Vector3 positions[BODYPART_COUNT];
-	static Quaternion rotations[BODYPART_COUNT];
-	static btTransform contraintesPositions[JOINT_COUNT][2];
 
-	btRigidBody * localCreateRigidBody(btScalar mass, const Transform & transform, int bodyPart, const Material & mat);
-	void bvhRecursif(int joinId, const Vector3 & accumulateur);
+	btRigidBody * localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon, const Transform & globalTransformPart, int bodyPart, const Material & mat);
+	void bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur);
+	static Quaternion getOrientationOs(const Vector3 &);
 
 	const string name;
 	// bvh
 	const string bvhFileName;
 	MOTION * motion;
 	MFRAME * frame;
-	vector<Os *> osList;
 	Perso * perso;
 	Quaternion orientationEdition;
+	f32 scale;
 	// physique
-	btCollisionShape * m_shapes[BODYPART_COUNT];
+	btCapsuleShape * m_shapes[BODYPART_COUNT];
 	btRigidBody * m_bodies[BODYPART_COUNT];
 	btTypedConstraint * m_joints[JOINT_COUNT];
 	btDiscreteDynamicsWorld * m_ownerWorld;
