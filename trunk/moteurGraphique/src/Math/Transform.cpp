@@ -161,6 +161,7 @@ void Transform::multCurrentMatrix(void) const {
 }
 
 Vector3 Transform::operator * (const Vector3 & v) const {
+	// TODO tester le scale
 	return (rotation * v + position) * scale;
 //	return getMatrix() * v;
 }

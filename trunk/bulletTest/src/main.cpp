@@ -20,6 +20,7 @@ using namespace std;
 
 bool playPhysique = false;
 bool displayPhysique = false;
+DebugDraw * debugDrawer;
 
 btRigidBody::btRigidBodyConstructionInfo createRigidBodyInfo(btScalar mass, Transform & transform, btCollisionShape* collisionShape) {
 	btVector3 inertie;
@@ -82,6 +83,15 @@ void gestionTouche(int touche, int etat) {
 		case 'D':
 			displayPhysique=!displayPhysique;
 			break;
+		case 'W':
+			debugDrawer->modDebugMode(btIDebugDraw::DBG_DrawWireframe);
+			break;
+		case 'C':
+			debugDrawer->modDebugMode(btIDebugDraw::DBG_DrawConstraints);
+			break;
+		case 'L':
+			debugDrawer->modDebugMode(btIDebugDraw::DBG_DrawConstraintLimits);
+			break;
 		}
 	}
 }
@@ -115,7 +125,7 @@ int main(int argc, char **argv) {
 		btAxisSweep3 * overlappingPairCache = new btAxisSweep3(btVector3(-10000,-10000,-10000), btVector3(10000,10000,10000), 1024);
 		btSequentialImpulseConstraintSolver * solver = new btSequentialImpulseConstraintSolver;
 		btDiscreteDynamicsWorld * dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
-		DebugDraw * debugDrawer = new DebugDraw();
+		debugDrawer = new DebugDraw();
 		dynamicsWorld->setDebugDrawer(debugDrawer);
 
 		// ajout du sol graphique
@@ -137,7 +147,7 @@ int main(int argc, char **argv) {
 		do {
 			moteur->update();
 			if (playPhysique)
-				dynamicsWorld->stepSimulation(moteur->getElapsed()*0.2);
+				dynamicsWorld->stepSimulation(moteur->getElapsed());
 			ragDoll1->update(moteur->getElapsed());
 			ragDoll2->update(moteur->getElapsed());
 			gestionSouris(*camera);

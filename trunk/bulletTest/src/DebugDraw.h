@@ -26,7 +26,14 @@ public:
 
 	virtual void setDebugMode(int debugMode);
 
+	virtual void addDebugMode(int debugMode);
+	virtual void remDebugMode(int debugMode);
+	virtual void modDebugMode(int debugMode);
+
 	virtual int	getDebugMode() const;
+
+private:
+	int debugMode;
 };
 
 #endif /* DEBUGDRAW_H_ */
