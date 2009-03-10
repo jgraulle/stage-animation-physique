@@ -160,3 +160,20 @@ void Transform::multCurrentMatrix(void) const {
 	glScalef(scale.x, scale.y, scale.z);
 }
 
+Vector3 Transform::operator * (const Vector3 & v) const {
+	return (rotation * v + position) * scale;
+//	return getMatrix() * v;
+}
+
+const Transform & Transform::operator *= (const Transform& t) {
+	position = *this * t.position;
+	rotation = this->getOrientation() * t.rotation;
+	scale = this->scale * t.scale;
+	return *this;
+}
+
+Transform Transform::operator * (const Transform & t) const {
+	Transform r = *this;
+	r *= t;
+	return r;
+}

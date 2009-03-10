@@ -81,7 +81,8 @@ private :
 	static const int INDEX_WALK[BODYPART_COUNT];
 	static const int RAPPORT_HAUTEURS_RAYONS[BODYPART_COUNT];
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
-	static const f32 CONTRAINTES_ANGLES[JOINT_COUNT][3];
+	static const btQuaternion CONTRAINTES_ORIENTATIONS[JOINT_COUNT][2];
+	static const f32 CONTRAINTES_LIMITES_ANGLES[JOINT_COUNT][3];
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
 	static f32 tailles[BODYPART_COUNT][2];
 	static Vector3 positions[BODYPART_COUNT];

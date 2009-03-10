@@ -60,18 +60,10 @@ public:
 
 	virtual inline Vector3 toLocalSpace(const Vector3 & v) const {return getInverseMatrix() * v;}
 	virtual void multCurrentMatrix(void) const;
-	virtual inline Vector3 operator * (const Vector3 & v) const {return getMatrix() * v;}	// TODO optimiser
-	virtual inline const Transform & operator *= (const Transform& t) {
-		position = *this * t.position;
-		rotation = this->getOrientation() * t.rotation;
-		scale = this->scale * t.scale;
-		return *this;
-	}
-	virtual inline Transform operator * (const Transform & t) const {
-		Transform r = *this;
-		r *= t;
-		return r;
-	}
+
+	virtual inline Vector3 operator * (const Vector3 & v) const;
+	virtual inline const Transform & operator *= (const Transform& t);
+	virtual inline Transform operator * (const Transform & t) const;
 
 protected:
 	Matrix4 getMatrix(void) const;

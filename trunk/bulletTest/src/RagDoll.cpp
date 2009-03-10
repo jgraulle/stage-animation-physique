@@ -42,7 +42,7 @@ const int RagDoll::INDEX_WALK[RagDoll::BODYPART_COUNT] = {
 const int RagDoll::RAPPORT_HAUTEURS_RAYONS[RagDoll::BODYPART_COUNT] = {
 	2,	// BODYPART_PELVIS hanche
 	4,	// BODYPART_SPINE corps haut
-	1, // BODYPART_HEAD tete
+	1,	// BODYPART_HEAD tete
 	4,	// BODYPART_LEFT_UPPER_LEG jambe haut gauche
 	4,	// BODYPART_LEFT_LOWER_LEG jambe bas gauche
 	4,	// BODYPART_RIGHT_UPPER_LEG jambe haut droite
@@ -66,7 +66,20 @@ const int RagDoll::CONTRAINTES_BODY[RagDoll::JOINT_COUNT][2] = {
 	{BODYPART_RIGHT_UPPER_ARM, BODYPART_RIGHT_LOWER_ARM}
 };
 
-const f32 RagDoll::CONTRAINTES_ANGLES[RagDoll::JOINT_COUNT][3] = {
+const btQuaternion RagDoll::CONTRAINTES_ORIENTATIONS[RagDoll::JOINT_COUNT][2] = {
+	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)},			// JOINT_PELVIS_SPINE
+	{btQuaternion(0,0,M_PI_2), btQuaternion(0,0,M_PI_2)},			// JOINT_SPINE_HEAD
+	{btQuaternion(0,0,-M_PI_4*1), btQuaternion(0,0,-M_PI_4*5)},		// JOINT_LEFT_HIP
+	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)},			// JOINT_LEFT_KNEE
+	{btQuaternion(0,0,M_PI_4*5), btQuaternion(0,0,M_PI_4)},			// JOINT_RIGHT_HIP
+	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)},			// JOINT_RIGHT_KNEE
+	{btQuaternion(0,0,0), btQuaternion(0,0,M_PI_2)},				// JOINT_LEFT_SHOULDER
+	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)},			// JOINT_LEFT_ELBOW
+	{btQuaternion(0,0,M_PI), btQuaternion(0,0,M_PI_2)},				// JOINT_RIGHT_SHOULDER
+	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)}			// JOINT_RIGHT_ELBOW
+};
+
+const f32 RagDoll::CONTRAINTES_LIMITES_ANGLES[RagDoll::JOINT_COUNT][3] = {
 	{-M_PI_4, M_PI_2, 0.0f},
 	{M_PI_4, M_PI_4, M_PI_2},
 	{M_PI_4, M_PI_4, 0},
@@ -97,14 +110,14 @@ f32 RagDoll::tailles[RagDoll::BODYPART_COUNT][2] =
 		{0.15, 0.20}, // BODYPART_PELVIS
 		{0.15, 0.28}, // BODYPART_SPINE
 		{0.10, 0.05}, // BODYPART_HEAD
-		{0.07, 0.45},
-		{0.05, 0.37},
-		{0.07, 0.45},
-		{0.05, 0.37},
-		{0.05, 0.33},
-		{0.04, 0.25},
-		{0.05, 0.33},
-		{0.04, 0.25}
+		{0.07, 0.45}, // BODYPART_LEFT_UPPER_LEG
+		{0.05, 0.37}, // BODYPART_LEFT_LOWER_LEG
+		{0.07, 0.45}, // BODYPART_RIGHT_UPPER_LEG
+		{0.05, 0.37}, // BODYPART_RIGHT_LOWER_LEG
+		{0.05, 0.33}, // BODYPART_LEFT_UPPER_ARM
+		{0.04, 0.25}, // BODYPART_LEFT_LOWER_ARM
+		{0.05, 0.33}, // BODYPART_RIGHT_UPPER_ARM
+		{0.04, 0.25}  // BODYPART_RIGHT_LOWER_ARM
 };
 
 Vector3 RagDoll::positions[RagDoll::BODYPART_COUNT] = {
@@ -205,20 +218,30 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 	// creation des objets graphiques et physiques
 	for (int part=0; part<BODYPART_COUNT; part++)
 		m_bodies[part] = localCreateRigidBody(1.0f, transform, part, mat);
-/*
+
+	// creation des jointures
+	f32 scale = transform.getScale().x;
+
 	// Now setup the constraints
 	for (int joint=0; joint<JOINT_COUNT; joint++) {
+		contraintesPositions[joint][0] = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], btVector3(0.0f, tailles[CONTRAINTES_BODY[joint][0]][1], 0.0f)*scale/2.0f);
+		contraintesPositions[joint][1] = btTransform(CONTRAINTES_ORIENTATIONS[joint][1], btVector3(0.0f, -tailles[CONTRAINTES_BODY[joint][1]][1], 0.0f)*scale/2.0f);
 		if (CONTRAINTES_IS_CONE[joint]) {
+//			if (joint==JOINT_LEFT_HIP) {
+				contraintesPositions[joint][1] = btTransform(CONTRAINTES_ORIENTATIONS[joint][1], btVector3(0.0f, -tailles[CONTRAINTES_BODY[joint][1]][1], 0.0f)*scale/2.0f);
+				// calculer la position de la 2eme par rapport a la premiere
+				contraintesPositions[joint][0] = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], (m_bodies[CONTRAINTES_BODY[joint][0]]->getCenterOfMassTransform().inverse()(m_bodies[CONTRAINTES_BODY[joint][1]]->getCenterOfMassTransform()(contraintesPositions[joint][1].getOrigin()))));
 			m_joints[joint] = new btConeTwistConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], contraintesPositions[joint][0], contraintesPositions[joint][1]);
-			((btConeTwistConstraint*)m_joints[joint])->setLimit(CONTRAINTES_ANGLES[joint][0], CONTRAINTES_ANGLES[joint][1], CONTRAINTES_ANGLES[joint][2]);
+			((btConeTwistConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1], CONTRAINTES_LIMITES_ANGLES[joint][2]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
+//			}
 		} else {
 			m_joints[joint] = new btHingeConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], contraintesPositions[joint][0], contraintesPositions[joint][1]);
-			((btHingeConstraint*)m_joints[joint])->setLimit(CONTRAINTES_ANGLES[joint][0], CONTRAINTES_ANGLES[joint][1]);
+			((btHingeConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		}
 	}
-*/
+
 	Transform t = transform;
 	t.rotate(orientationEdition);
 	perso = new Perso(bvhFileName, mat, t);

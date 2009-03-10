@@ -38,5 +38,6 @@ void DebugDraw::draw3dText(const btVector3& location,const char* textString) {
 void DebugDraw::setDebugMode(int debugMode) {}
 
 int	DebugDraw::getDebugMode() const {
-	return DBG_DrawWireframe;
+	return DBG_DrawWireframe | DBG_DrawConstraints;
+	//return DBG_DrawConstraints | DBG_DrawConstraintLimits;
 }
