@@ -59,16 +59,16 @@ const int RagDoll::RAPPORT_HAUTEURS_RAYONS[RagDoll::BODYPART_COUNT] = {
 
 // constante qui definissent l'ensemble des contraintes d'une ragDoll
 const int RagDoll::CONTRAINTES_BODY[RagDoll::JOINT_COUNT][2] = {
-	{BODYPART_PELVIS, BODYPART_SPINE},
-	{BODYPART_SPINE, BODYPART_HEAD},
-	{BODYPART_PELVIS, BODYPART_LEFT_UPPER_LEG},
-	{BODYPART_LEFT_UPPER_LEG, BODYPART_LEFT_LOWER_LEG},
-	{BODYPART_PELVIS, BODYPART_RIGHT_UPPER_LEG},
-	{BODYPART_RIGHT_UPPER_LEG, BODYPART_RIGHT_LOWER_LEG},
-	{BODYPART_SPINE, BODYPART_LEFT_UPPER_ARM},
-	{BODYPART_LEFT_UPPER_ARM, BODYPART_LEFT_LOWER_ARM},
-	{BODYPART_SPINE, BODYPART_RIGHT_UPPER_ARM},
-	{BODYPART_RIGHT_UPPER_ARM, BODYPART_RIGHT_LOWER_ARM}
+	{BODYPART_PELVIS, BODYPART_SPINE},					// JOINT_PELVIS_SPINE
+	{BODYPART_SPINE, BODYPART_HEAD},					// JOINT_SPINE_HEAD
+	{BODYPART_PELVIS, BODYPART_LEFT_UPPER_LEG},			// JOINT_LEFT_HIP
+	{BODYPART_LEFT_UPPER_LEG, BODYPART_LEFT_LOWER_LEG},	// JOINT_LEFT_KNEE
+	{BODYPART_PELVIS, BODYPART_RIGHT_UPPER_LEG},		// JOINT_RIGHT_HIP
+	{BODYPART_RIGHT_UPPER_LEG, BODYPART_RIGHT_LOWER_LEG},	// JOINT_RIGHT_KNEE
+	{BODYPART_SPINE, BODYPART_LEFT_UPPER_ARM},				// JOINT_LEFT_SHOULDER
+	{BODYPART_LEFT_UPPER_ARM, BODYPART_LEFT_LOWER_ARM},		// JOINT_LEFT_ELBOW
+	{BODYPART_SPINE, BODYPART_RIGHT_UPPER_ARM},				// JOINT_RIGHT_SHOULDER
+	{BODYPART_RIGHT_UPPER_ARM, BODYPART_RIGHT_LOWER_ARM}	// JOINT_RIGHT_ELBOW
 };
 
 const btQuaternion RagDoll::CONTRAINTES_ORIENTATIONS[RagDoll::JOINT_COUNT][2] = {
@@ -202,13 +202,11 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 
 
 	// TODO test
-/*	// test articulation de type genoux
-	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, 0.2, 0.3);
-	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->getHingeAngle();
-	((btConeTwistConstraint*)m_joints[joint])->enableMotor(true);
-	((btConeTwistConstraint*)m_joints[joint])->setMaxMotorImpulse(0.9);
-	((btConeTwistConstraint*)m_joints[joint])->setMotorTarget(btQuaternion(0.0, 0.0, 0.0));
-*/
+//	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, -0.2, 0.3);
+//	((btHingeConstraint*)m_joints[JOINT_RIGHT_KNEE])->enableAngularMotor(true, -0.2, 0.3);
+//	((btConeTwistConstraint*)m_joints[joint])->enableMotor(true);
+//	((btConeTwistConstraint*)m_joints[joint])->setMaxMotorImpulse(0.9);
+//	((btConeTwistConstraint*)m_joints[joint])->setMotorTarget(btQuaternion(0.0, 0.0, 0.0));
 }
 
 RagDoll::~RagDoll () {
@@ -290,13 +288,31 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
 	// TODO
-/*
-	// test articulation de type coude
+/*	// test articulation de type coude
 	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, 1.0, 1.0);
 	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->getHingeAngle();
 
 	// test articulation de type epaule
 	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->setMotorTarget(btQuaternion());
-//	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->getMotorFactor();
 */
+
+	// genoux
+	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_KNEE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_KNEE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
+
+	// jambes
+	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_HIP][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.05, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_HIP][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.05, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_HIP][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.05, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_HIP][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.05, btVector3(0,0,0));
+
+	// tronc
+	m_bodies[CONTRAINTES_BODY[JOINT_PELVIS_SPINE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_PELVIS_SPINE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
+
+	// tete
+	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.01, btVector3(0,0,0));
+	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.01, btVector3(0,0,0));
 }
