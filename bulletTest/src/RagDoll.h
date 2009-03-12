@@ -14,6 +14,7 @@
 #include "Perso.h"
 
 #include <btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
 #include <bvh.h>
 #include <MoteurGraphique.h>
 

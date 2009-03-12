@@ -169,7 +169,10 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
 		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
-		m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
+		if (part==BODYPART_HEAD)
+			m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
+		else
+			m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
 	}
 
 	// creation des jointures
@@ -199,14 +202,6 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 	stringstream buffer;
 	buffer << name << "-sequellette";
 	monde3D->add(buffer.str(), perso);
-
-
-	// TODO test
-//	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, -0.2, 0.3);
-//	((btHingeConstraint*)m_joints[JOINT_RIGHT_KNEE])->enableAngularMotor(true, -0.2, 0.3);
-//	((btConeTwistConstraint*)m_joints[joint])->enableMotor(true);
-//	((btConeTwistConstraint*)m_joints[joint])->setMaxMotorImpulse(0.9);
-//	((btConeTwistConstraint*)m_joints[joint])->setMotorTarget(btQuaternion(0.0, 0.0, 0.0));
 }
 
 RagDoll::~RagDoll () {
@@ -295,7 +290,7 @@ void RagDoll::update(f32 elapsed) {
 	// test articulation de type epaule
 	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->setMotorTarget(btQuaternion());
 */
-
+/*
 	// genoux
 	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
 	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
@@ -315,4 +310,69 @@ void RagDoll::update(f32 elapsed) {
 	// tete
 	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.01, btVector3(0,0,0));
 	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.01, btVector3(0,0,0));
+*/
+
+	btConeTwistConstraint * jointLeftHip = static_cast<btConeTwistConstraint*>(m_joints[JOINT_LEFT_HIP]);
+	btConeTwistConstraint * jointRightHip = static_cast<btConeTwistConstraint*>(m_joints[JOINT_RIGHT_HIP]);
+	btConeTwistConstraint * jointLeftShoulder = static_cast<btConeTwistConstraint*>(m_joints[JOINT_LEFT_SHOULDER]);
+	btConeTwistConstraint * jointRightShoulder = static_cast<btConeTwistConstraint*>(m_joints[JOINT_RIGHT_SHOULDER]);
+
+	btHingeConstraint * jointLeftKnee = static_cast<btHingeConstraint*>(m_joints[JOINT_LEFT_KNEE]);
+	btHingeConstraint * jointRightKnee = static_cast<btHingeConstraint*>(m_joints[JOINT_RIGHT_KNEE]);
+	btHingeConstraint * jointLeftElbow = static_cast<btHingeConstraint*>(m_joints[JOINT_LEFT_ELBOW]);
+	btHingeConstraint * jointRightElbow = static_cast<btHingeConstraint*>(m_joints[JOINT_RIGHT_ELBOW]);
+	btHingeConstraint * jointPelvisSpine = static_cast<btHingeConstraint*>(m_joints[JOINT_PELVIS_SPINE]);
+
+	static f32 vitesse = 0.5;
+	static f32 maxImpulseHinge = 2.0;
+	static f32 maxImpulseTwist = 5.0;
+
+	static f32 angle = 0;
+	angle += elapsed;
+	static bool sens = false;
+	if (angle>3.0) {
+		angle = 0.0;
+		sens = !sens;
+		if (sens) {
+			cout << "haut" << endl;
+			jointLeftHip->enableMotor(true);
+			jointLeftHip->setMaxMotorImpulse(maxImpulseTwist);
+			jointLeftHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, -M_PI_4));
+			jointRightHip->enableMotor(true);
+			jointRightHip->setMaxMotorImpulse(maxImpulseTwist);
+			jointRightHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, M_PI_4));
+			jointLeftShoulder->enableMotor(true);
+			jointLeftShoulder->setMaxMotorImpulse(maxImpulseTwist);
+			jointLeftShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, -M_PI_4));
+			jointRightShoulder->enableMotor(true);
+			jointRightShoulder->setMaxMotorImpulse(maxImpulseTwist);
+			jointRightShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, M_PI_4));
+
+			jointLeftKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
+			jointRightKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
+			jointLeftElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+			jointRightElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+			jointPelvisSpine->enableAngularMotor(true, vitesse, maxImpulseHinge);
+		} else {
+			cout << "bas" << endl;
+			jointLeftHip->enableMotor(true);
+			jointLeftHip->setMaxMotorImpulse(maxImpulseTwist);
+			jointLeftHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
+			jointRightHip->enableMotor(true);
+			jointRightHip->setMaxMotorImpulse(maxImpulseTwist);
+			jointRightHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
+			jointLeftShoulder->enableMotor(true);
+			jointLeftShoulder->setMaxMotorImpulse(maxImpulseTwist);
+			jointLeftShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
+			jointRightShoulder->enableMotor(true);
+			jointRightShoulder->setMaxMotorImpulse(maxImpulseTwist);
+			jointRightShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
+
+			jointLeftKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+			jointRightKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+			jointLeftElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
+			jointRightElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
+			jointPelvisSpine->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+		}
+	}
 }
