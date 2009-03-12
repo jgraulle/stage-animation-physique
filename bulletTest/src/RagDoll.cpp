@@ -55,6 +55,20 @@ const int RagDoll::RAPPORT_HAUTEURS_RAYONS[RagDoll::BODYPART_COUNT] = {
 	4,	// BODYPART_RIGHT_UPPER_ARM bras haut droite
 	4	// BODYPART_RIGHT_LOWER_ARM bras bas droite
 };
+
+const f32 RagDoll::POIDS[RagDoll::BODYPART_COUNT] = {
+	0.0,	// BODYPART_PELVIS hanche
+	0.0,	// BODYPART_SPINE corps haut
+	1.0,	// BODYPART_HEAD tete
+	1.0,	// BODYPART_LEFT_UPPER_LEG jambe haut gauche
+	1.0,	// BODYPART_LEFT_LOWER_LEG jambe bas gauche
+	1.0,	// BODYPART_RIGHT_UPPER_LEG jambe haut droite
+	1.0,	// BODYPART_RIGHT_LOWER_LEG jambe bas droite
+	1.0,	// BODYPART_LEFT_UPPER_ARM bras haut gauche
+	1.0,	// BODYPART_LEFT_LOWER_ARM bras bas gauche
+	0.5,	// BODYPART_RIGHT_UPPER_ARM bras haut droite
+	0.5		// BODYPART_RIGHT_LOWER_ARM bras bas droite
+};
 // TODO fin importer depuis un fichier
 
 // constante qui definissent l'ensemble des contraintes d'une ragDoll
@@ -84,17 +98,17 @@ const btQuaternion RagDoll::CONTRAINTES_ORIENTATIONS[RagDoll::JOINT_COUNT][2] = 
 	{btQuaternion(M_PI_2,0,0), btQuaternion(M_PI_2,0,0)}			// JOINT_RIGHT_ELBOW
 };
 
-const f32 RagDoll::CONTRAINTES_LIMITES_ANGLES[RagDoll::JOINT_COUNT][3] = {
-	{-M_PI_4, M_PI_2, 0.0f},
-	{M_PI_4, M_PI_4, M_PI_2},
-	{M_PI_4, M_PI_4, 0},
-	{0.0f, M_PI_2, 0.0f},
-	{M_PI_4, M_PI_4, 0.0f},
-	{0.0f, M_PI_2, 0.0f},
-	{M_PI_2, M_PI_2, 0.0f},
-	{-M_PI_2, 0.0f, 0.0f},
-	{M_PI_2, M_PI_2, 0},
-	{-M_PI_2, 0.0f, 0.0f}
+const btVector3 RagDoll::CONTRAINTES_LIMITES_ANGLES[RagDoll::JOINT_COUNT][2] = {
+	{btVector3(-M_PI_4, 0.0, 0.0),	btVector3(M_PI_2, 0.0, 0.0)},	//{-M_PI_4, M_PI_2, 0.0f},		// JOINT_PELVIS_SPINE
+	{btVector3(-M_PI_4, -M_PI_4, -M_PI_4),		btVector3(M_PI_4, M_PI_4, M_PI_4)},		//{M_PI_4, M_PI_4, M_PI_2},		// JOINT_SPINE_HEAD
+	{btVector3(-M_PI_4, -M_PI_4, -M_PI_4),		btVector3(M_PI_4, M_PI_4, M_PI_4)},		//{M_PI_4, M_PI_4, 0},			// JOINT_LEFT_HIP
+	{btVector3(0.0f, 0.0, 0.0),		btVector3(M_PI_2, 0.0, 0.0)},	//{0.0f, M_PI_2, 0.0f},			// JOINT_LEFT_KNEE
+	{btVector3(-M_PI_4, -M_PI_4, -M_PI_4),		btVector3(M_PI_4, M_PI_4, M_PI_4)},		//{M_PI_4, M_PI_4, 0.0f},		// JOINT_RIGHT_HIP
+	{btVector3(0.0f, 0.0, 0.0),		btVector3(M_PI_2, 0.0, 0.0)},	//{0.0f, M_PI_2, 0.0f},			// JOINT_RIGHT_KNEE
+	{btVector3(-M_PI_2, -M_PI_2, -M_PI_2),		btVector3(M_PI_2, M_PI_2, M_PI_2)},		//{M_PI_2, M_PI_2, 0.0f},		// JOINT_LEFT_SHOULDER
+	{btVector3(-M_PI_2, 0.0, 0.0),	btVector3(0.0f, 0.0, 0.0)},		//{-M_PI_2, 0.0f, 0.0f},		// JOINT_LEFT_ELBOW
+	{btVector3(-M_PI_2, -M_PI_2, -M_PI_2),		btVector3(M_PI_2, M_PI_2, M_PI_2)},		//{M_PI_2, M_PI_2, 0},			// JOINT_RIGHT_SHOULDER
+	{btVector3(-M_PI_2, 0.0, 0.0),	btVector3(0.0f, 0.0, 0.0)}		//{-M_PI_2, 0.0f, 0.0f}			// JOINT_RIGHT_ELBOW
 };
 
 const bool RagDoll::CONTRAINTES_IS_CONE[RagDoll::JOINT_COUNT] = {
@@ -123,7 +137,7 @@ Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
 }
 
 RagDoll::RagDoll (const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
-: name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D) {
+: name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(0.0), sens(true) {
 	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
 	scale = transform.getScale().x;
 
@@ -169,10 +183,7 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
 		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
-		if (part==BODYPART_HEAD)
-			m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
-		else
-			m_bodies[part] = localCreateRigidBody(0.5f, hauteur, rayon, globalTransformPart, part, mat);
+		m_bodies[part] = localCreateRigidBody(POIDS[part], hauteur, rayon, globalTransformPart, part, mat);
 	}
 
 	// creation des jointures
@@ -184,13 +195,16 @@ RagDoll::RagDoll (const string & name, const string & bvhFileName, const Materia
 		pereTrans = btTransform(CONTRAINTES_ORIENTATIONS[joint][0], (m_bodies[CONTRAINTES_BODY[joint][0]]->getCenterOfMassTransform().inverse()(m_bodies[CONTRAINTES_BODY[joint][1]]->getCenterOfMassTransform()(filsTrans.getOrigin()))));
 		if (CONTRAINTES_IS_CONE[joint]) {
 			// contrainte de type epaule, hanche : 3 degres de liberte
-			m_joints[joint] = new btConeTwistConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans);
-			((btConeTwistConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1], CONTRAINTES_LIMITES_ANGLES[joint][2]);
+			m_joints[joint] = new btGeneric6DofConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans, true);
+			static_cast<btGeneric6DofConstraint*>(m_joints[joint])->setAngularLowerLimit(CONTRAINTES_LIMITES_ANGLES[joint][0]);
+			static_cast<btGeneric6DofConstraint*>(m_joints[joint])->setAngularUpperLimit(CONTRAINTES_LIMITES_ANGLES[joint][1]);
+//			m_joints[joint] = new btConeTwistConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans);
+//			((btConeTwistConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1], CONTRAINTES_LIMITES_ANGLES[joint][2]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		} else {
 			// constrainte de type genoux, coude :  1 seul degres de liberte
 			m_joints[joint] = new btHingeConstraint(*m_bodies[CONTRAINTES_BODY[joint][0]], *m_bodies[CONTRAINTES_BODY[joint][1]], pereTrans, filsTrans);
-			((btHingeConstraint*)m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0], CONTRAINTES_LIMITES_ANGLES[joint][1]);
+			static_cast<btHingeConstraint*>(m_joints[joint])->setLimit(CONTRAINTES_LIMITES_ANGLES[joint][0][0], CONTRAINTES_LIMITES_ANGLES[joint][1][0]);
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		}
 	}
@@ -283,39 +297,15 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
 	// TODO
-/*	// test articulation de type coude
-	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->enableAngularMotor(true, 1.0, 1.0);
-	((btHingeConstraint*)m_joints[JOINT_LEFT_KNEE])->getHingeAngle();
+	static f32 vitesse = 1.0;
+	static f32 maxMotorForce = 300.0;
+	static f32 maxImpulseHinge = 20.0;
+//	static f32 maxImpulseTwist = 200.0;
 
-	// test articulation de type epaule
-	((btConeTwistConstraint*)m_joints[JOINT_LEFT_SHOULDER])->setMotorTarget(btQuaternion());
-*/
-/*
-	// genoux
-	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_KNEE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_KNEE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_KNEE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
-
-	// jambes
-	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_HIP][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.05, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_LEFT_HIP][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.05, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_HIP][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.05, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_RIGHT_HIP][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.05, btVector3(0,0,0));
-
-	// tronc
-	m_bodies[CONTRAINTES_BODY[JOINT_PELVIS_SPINE][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.1, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_PELVIS_SPINE][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.1, btVector3(0,0,0));
-
-	// tete
-	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][1]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*0.01, btVector3(0,0,0));
-	m_bodies[CONTRAINTES_BODY[JOINT_SPINE_HEAD][0]]->applyImpulse(btVector3(0.0, 1.0, 0.0)*-0.01, btVector3(0,0,0));
-*/
-
-	btConeTwistConstraint * jointLeftHip = static_cast<btConeTwistConstraint*>(m_joints[JOINT_LEFT_HIP]);
-	btConeTwistConstraint * jointRightHip = static_cast<btConeTwistConstraint*>(m_joints[JOINT_RIGHT_HIP]);
-	btConeTwistConstraint * jointLeftShoulder = static_cast<btConeTwistConstraint*>(m_joints[JOINT_LEFT_SHOULDER]);
-	btConeTwistConstraint * jointRightShoulder = static_cast<btConeTwistConstraint*>(m_joints[JOINT_RIGHT_SHOULDER]);
+	btGeneric6DofConstraint * jointLeftHip = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_LEFT_HIP]);
+	btGeneric6DofConstraint * jointRightHip = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_RIGHT_HIP]);
+//	btGeneric6DofConstraint * jointLeftShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_LEFT_SHOULDER]);
+//	btGeneric6DofConstraint * jointRightShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_RIGHT_SHOULDER]);
 
 	btHingeConstraint * jointLeftKnee = static_cast<btHingeConstraint*>(m_joints[JOINT_LEFT_KNEE]);
 	btHingeConstraint * jointRightKnee = static_cast<btHingeConstraint*>(m_joints[JOINT_RIGHT_KNEE]);
@@ -323,30 +313,23 @@ void RagDoll::update(f32 elapsed) {
 	btHingeConstraint * jointRightElbow = static_cast<btHingeConstraint*>(m_joints[JOINT_RIGHT_ELBOW]);
 	btHingeConstraint * jointPelvisSpine = static_cast<btHingeConstraint*>(m_joints[JOINT_PELVIS_SPINE]);
 
-	static f32 vitesse = 0.5;
-	static f32 maxImpulseHinge = 2.0;
-	static f32 maxImpulseTwist = 5.0;
-
-	static f32 angle = 0;
-	angle += elapsed;
-	static bool sens = false;
-	if (angle>3.0) {
-		angle = 0.0;
+	temps += elapsed;
+	if (temps>1.0) {
+		temps = 0.0;
 		sens = !sens;
+
 		if (sens) {
 			cout << "haut" << endl;
-			jointLeftHip->enableMotor(true);
-			jointLeftHip->setMaxMotorImpulse(maxImpulseTwist);
-			jointLeftHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, -M_PI_4));
-			jointRightHip->enableMotor(true);
-			jointRightHip->setMaxMotorImpulse(maxImpulseTwist);
-			jointRightHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, M_PI_4));
-			jointLeftShoulder->enableMotor(true);
-			jointLeftShoulder->setMaxMotorImpulse(maxImpulseTwist);
-			jointLeftShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, -M_PI_4));
-			jointRightShoulder->enableMotor(true);
-			jointRightShoulder->setMaxMotorImpulse(maxImpulseTwist);
-			jointRightShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, M_PI_4));
+			for (int axe=0; axe<3; axe++) {
+				jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+				jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
+				jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			}
+			for (int axe=0; axe<3; axe++) {
+				jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+				jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
+				jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			}
 
 			jointLeftKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
 			jointRightKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
@@ -355,19 +338,16 @@ void RagDoll::update(f32 elapsed) {
 			jointPelvisSpine->enableAngularMotor(true, vitesse, maxImpulseHinge);
 		} else {
 			cout << "bas" << endl;
-			jointLeftHip->enableMotor(true);
-			jointLeftHip->setMaxMotorImpulse(maxImpulseTwist);
-			jointLeftHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
-			jointRightHip->enableMotor(true);
-			jointRightHip->setMaxMotorImpulse(maxImpulseTwist);
-			jointRightHip->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
-			jointLeftShoulder->enableMotor(true);
-			jointLeftShoulder->setMaxMotorImpulse(maxImpulseTwist);
-			jointLeftShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
-			jointRightShoulder->enableMotor(true);
-			jointRightShoulder->setMaxMotorImpulse(maxImpulseTwist);
-			jointRightShoulder->setMotorTargetInConstraintSpace(btQuaternion(0.0, 0.0, 0.0));
-
+			for (int axe=0; axe<3; axe++) {
+				jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+				jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
+				jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			}
+			for (int axe=0; axe<3; axe++) {
+				jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+				jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
+				jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			}
 			jointLeftKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
 			jointRightKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
 			jointLeftElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);

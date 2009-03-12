@@ -85,11 +85,12 @@ private :
 	static const int INDEX_EXAMPLE1[BODYPART_COUNT];
 	static const int INDEX_WALK[BODYPART_COUNT];
 	static const int RAPPORT_HAUTEURS_RAYONS[BODYPART_COUNT];
+	static const f32 POIDS[BODYPART_COUNT];
 
 	// constante qui definissent l'ensemble des contraintes d'une ragDoll
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
 	static const btQuaternion CONTRAINTES_ORIENTATIONS[JOINT_COUNT][2];
-	static const f32 CONTRAINTES_LIMITES_ANGLES[JOINT_COUNT][3];
+	static const btVector3 CONTRAINTES_LIMITES_ANGLES[JOINT_COUNT][2];
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
 
 	btRigidBody * localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon, const Transform & globalTransformPart, int bodyPart, const Material & mat);
@@ -113,6 +114,9 @@ private :
 	Mesh * meshes[BODYPART_COUNT];
 	Objet3D * objet3Ds[BODYPART_COUNT];
 	Monde3D * monde3D;
+	// animation
+	f32 temps;
+	bool sens;
 };
 
 #endif /* RAGDOLL_H_ */

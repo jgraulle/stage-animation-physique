@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
-//		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D);
+		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D);
 		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-3.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), q, dynamicsWorld, monde3D);
 
 		glfwSetKeyCallback(gestionTouche);
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
 			moteur->update();
 			if (playPhysique)
 				dynamicsWorld->stepSimulation(moteur->getElapsed());
-//			ragDoll1->update(moteur->getElapsed());
+			ragDoll1->update(moteur->getElapsed());
 			ragDoll2->update(moteur->getElapsed());
 			gestionSouris(*camera);
 			moteur->display();
