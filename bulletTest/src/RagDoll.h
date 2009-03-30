@@ -81,12 +81,6 @@ private :
 	static const Quaternion QUATERNION_UNIT_Y;
 	static const Quaternion QUATERNION_MOINS_UNIT_Y;
 
-	// TODO importer depuis un fichier
-	static const int INDEX_EXAMPLE1[BODYPART_COUNT];
-	static const int INDEX_WALK[BODYPART_COUNT];
-	static const int RAPPORT_HAUTEURS_RAYONS[BODYPART_COUNT];
-	static const f32 POIDS[BODYPART_COUNT];
-
 	// constante qui definissent l'ensemble des contraintes d'une ragDoll
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
 	static const btQuaternion CONTRAINTES_ORIENTATIONS[JOINT_COUNT][2];
@@ -104,6 +98,9 @@ private :
 	MFRAME * frame;
 	Perso * perso;
 	Quaternion orientationEdition;
+	int bodyIndex[BODYPART_COUNT];
+	int rapportHauteursRayons[BODYPART_COUNT];
+	f32 poids[BODYPART_COUNT];
 	f32 scale;
 	// physique
 	btCapsuleShape * m_shapes[BODYPART_COUNT];

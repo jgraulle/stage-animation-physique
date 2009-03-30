@@ -191,7 +191,7 @@ void Monde3D::display() {
 	// Affichage de tous les objets 3D transparent //
 	/////////////////////////////////////////////////
 	// desactiver l'ecriture du test de profondeur
-	glDepthMask(GL_FALSE);
+//	glDepthMask(GL_FALSE);
 
 	// Affichage de tous les objets 3D transparent
 	for(	Objet3Ds::iterator it = objet3DsTransparent.begin();
@@ -206,7 +206,7 @@ void Monde3D::display() {
 			glPopMatrix();
 		}
 	}
-	glDepthMask(GL_TRUE);
+//	glDepthMask(GL_TRUE);
 }
 
 // mise a jour de tous les objets du Monde
