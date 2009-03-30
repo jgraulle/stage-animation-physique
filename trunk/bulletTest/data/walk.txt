@@ -1,0 +1,42 @@
+walk.bvh
+11
+BODYPART_PELVIS				upperback	11	2	2.0
+BODYPART_SPINE				Chest		12	2	2.0
+BODYPART_HEAD				Head		14	1	0.0
+BODYPART_LEFT_UPPER_LEG		LeftUpLeg	1	5	1.0
+BODYPART_LEFT_LOWER_LEG		LeftLowLeg	2	5	1.0
+BODYPART_RIGHT_UPPER_LEG	RightUpLeg	6	5	1.0
+BODYPART_RIGHT_LOWER_LEG 	RightLowLeg	7	5	1.0
+BODYPART_LEFT_UPPER_ARM		LeftUpArm	17	4	1.0
+BODYPART_LEFT_LOWER_ARM		LeftLowArm	18	4	1.0
+BODYPART_RIGHT_UPPER_ARM	RightUpArm	23	4	0.5
+BODYPART_RIGHT_LOWER_ARM	RightLowArm	24	4	0.5
+
+0 Hips
+1 LeftUpLeg
+2 LeftLowLeg
+3 LeftFoot
+4 ltoes
+5 Site
+6 RightUpLeg
+7 RightLowLeg
+8 RightFoot
+9 rtoes
+10 Site
+11 upperback
+12 Chest
+13 Neck
+14 Head
+15 Site
+16 Chest
+17 LeftUpArm
+18 LeftLowArm
+19 LeftHand
+20 lfingers
+21 Site
+22 Chest
+23 RightUpArm
+24 RightLowArm
+25 RightHand
+26 rfingers
+27 Site
