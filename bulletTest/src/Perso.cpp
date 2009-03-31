@@ -32,51 +32,54 @@ void Perso::display() const {
 	Disable texture(GL_TEXTURE_2D);
 	Disable profondeur(GL_DEPTH_TEST);
 	glPointSize(3.0f);
-	glPushMatrix();
 
 	// acces a la position du root
 	int rootId = motion_frame_get_root_joint(frame);
 	if (rootId==-1)
 		throw Erreur("le fichier '"+bvhFileName+"' n'a pas de root !");
-	display(rootId);
+	display(rootId, Transform::IDENTITY);
 
-	glPopMatrix();
 	glPointSize(1.0f);
 }
 
-void Perso::display(int joinId) const {
-	Vector3 offset, position, angleEuler;
+void Perso::display(int joinId, Transform global) const {
+	Vector3 temp, position = Vector3::ZERO;
+	Quaternion orientation = Quaternion::IDENTITY;
 	int bind[3];
 
 	glPushMatrix();
 
-	// construire la transformation locale
-	joint_get_offset(frame, joinId, offset);
-	glTranslatef(offset[0], offset[1], offset[2]);
-
+	// acces a la position
+	joint_get_offset(frame, joinId, temp);
 	joint_get_position(frame, joinId, position);
-	glTranslatef(position[0], position[1], position[2]);
+	position += temp;
 
-	joint_get_orientation(frame, joinId, angleEuler, bind);
+	// acces a l'orientation
+	joint_get_orientation(frame, joinId, temp, bind);
 	for (int i=0; i<3; i++) {
 		switch(bind[i]) {
 		case JOINT_XROT:
-			glRotatef(angleEuler[i], 1.0f, 0.0f, 0.0f);
+			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_X);
 			break;
 		case JOINT_YROT:
-			glRotatef(angleEuler[i], 0.0f, 1.0f, 0.0f);
+			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_Y);
 			break;
 		case JOINT_ZROT:
-			glRotatef(angleEuler[i], 0.0f, 0.0f, 1.0f);
+			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_Z);
 			break;
 		}
 	}
 
+	// application de la transformation
+	Transform local(position, orientation);
+
 	glBegin(GL_POINTS);
 	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
-	joint_get_position(frame, joinId, position);
-	glVertex3f(0.0f, 0.0f, 0.0f);
+	Vector3 point = local * Vector3::ZERO;
+	glVertex3f(point[0], point[1], point[2]);
 	glEnd();
+
+	local.multCurrentMatrix();
 
 	// pour tous les fils
 	int childId = joint_get_child(frame, joinId);
@@ -85,7 +88,7 @@ void Perso::display(int joinId) const {
 		nbrChild++;
 
 		// afficher tous les petits fils
-		display(childId);
+		display(childId, global);
 
 		// passer au fils suivant
 		childId = joint_get_next(frame, childId);
