@@ -79,6 +79,27 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
 	scale = transform.getScale().x;
 
+	// chargement du fichier bvh
+	if (motion_load_bvh(&motion, bvhFileName.c_str()) < 0)
+		throw ErreurFileNotFound(bvhFileName, "");
+	// initialisation de la structure frame
+	frame = motion_frame_init(NULL, motion);
+	// lecture du bvh en position d'edition
+	motion_get_frame(frame, motion, 0);
+	// acces a la position du root
+	int rootId = motion_frame_get_root_joint(frame);
+	if (rootId == -1)
+		throw Erreur("le fichier '" + bvhFileName + "' n'a pas de root !");
+	Vector3 offset;
+	joint_get_offset(frame, rootId, offset);
+
+	// lecture de la position des extremite des os du bvh dans la position d'edition dans le repere de l'animation
+	vector<Os *> osList;
+	osList.resize(motion_frame_get_joints_n(frame), NULL);
+	bvhRecursif(osList, rootId, offset);
+	vector<Os *>::iterator it = osList.begin();
+
+
 	// ouverture du fichier de description du bvh
 	string txtFileName = bvhFileName.substr(0, bvhFileName.size() - 3) + "txt";
 	ifstream fichier(txtFileName.c_str());
@@ -115,24 +136,18 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			o << "erreur de lecture du nom de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
-		cout << line << '\t';
+		cout << line << bvhNameIndex[line] << '\t';
+		// convertion du nom en index
+		bodyIndex[i] = bvhNameIndex[line];
 
-		// TODO convertir le nom en index automatiquement
-		// lire l'index dans le bvh
-		if (!(fichier >> bodyIndex[i])) {
-			ostringstream o;
-			o << "erreur de lecture de l'index de la part " << i << " dans le fichier '" << txtFileName << "' !";
-			throw Erreur(o.str());
-		}
-		cout << bodyIndex[i] << '\t';
-		// lire l'index dans le bvh
+		// lire le rayon
 		if (!(fichier >> rapportHauteursRayons[i])) {
 			ostringstream o;
 			o << "erreur de lecture du rayon de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
 		cout << rapportHauteursRayons[i] << '\t';
-		// lire l'index dans le bvh
+		// lire le poids
 		if (!(fichier >> poids[i])) {
 			ostringstream o;
 			o << "erreur de lecture du poids de la part " << i << " dans le fichier '" << txtFileName << "' !";
@@ -140,26 +155,6 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 		}
 		cout << poids[i] << endl;
 	}
-
-	// chargement du fichier bvh
-	if (motion_load_bvh(&motion, bvhFileName.c_str()) < 0)
-		throw ErreurFileNotFound(bvhFileName, "");
-	// initialisation de la structure frame
-	frame = motion_frame_init(NULL, motion);
-	// lecture du bvh en position d'edition
-	motion_get_frame(frame, motion, 0);
-	// acces a la position du root
-	int rootId = motion_frame_get_root_joint(frame);
-	if (rootId == -1)
-		throw Erreur("le fichier '" + bvhFileName + "' n'a pas de root !");
-	Vector3 offset;
-	joint_get_offset(frame, rootId, offset);
-
-	// lecture de la position des extremite des os du bvh dans la position d'edition dans le repere de l'animation
-	vector<Os *> osList;
-	osList.resize(motion_frame_get_joints_n(frame), NULL);
-	bvhRecursif(osList, rootId, offset);
-	vector<Os *>::iterator it = osList.begin();
 
 	// creation des objets graphiques et physiques
 	Transform localTransformPart;
@@ -260,6 +255,16 @@ RagDoll::~RagDoll() {
 
 void RagDoll::bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur) {
 	// pour tous les fils
+	string nom = joint_get_name(frame, joinId);
+	// chercher ce nom dans la table de hash
+	NameIndex::iterator itn = bvhNameIndex.find(nom);
+	// si cet objet existe deja
+	if (itn != bvhNameIndex.end())
+		// afficher un message d'avertissement
+		cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
+	else// si non => l'ajouter
+		bvhNameIndex.insert(make_pair(nom, joinId));
+
 	int childId = joint_get_child(frame, joinId);
 	int nbrChild = 0;
 	Vector3 offset, moyenne = Vector3(0.0f, 0.0f, 0.0f);
