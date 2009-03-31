@@ -22,7 +22,7 @@ public:
 
 	// affichage
 	virtual void display() const;
-	virtual void display(int joinId, const Vector3 &) const;
+	virtual void display(int joinId) const;
 
 	// fonction de mise a jour de l'objet
 	virtual void update(f32 elapsed);
@@ -31,6 +31,9 @@ private:
 	string bvhFileName;
 	MOTION * motion;
 	MFRAME * frame;
+	f32 tempsAnim;
+	int numFrame;
+	f32 tempsParFrame;
 };
 
 #endif /* PERSO_H_ */

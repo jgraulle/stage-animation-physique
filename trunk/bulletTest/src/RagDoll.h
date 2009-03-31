@@ -19,6 +19,7 @@
 #include <MoteurGraphique.h>
 
 #include <vector>
+#include <ext/hash_map>
 
 using namespace std;
 
@@ -91,6 +92,9 @@ private :
 	void bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur);
 	static Quaternion getOrientationOs(const Vector3 &);
 
+	// fonction de hash pour les string
+	struct HashString {size_t operator()(const std::string& x) const {return hash<const char*>()(x.c_str());}};
+
 	const string name;
 	// bvh
 	const string bvhFileName;
@@ -98,6 +102,8 @@ private :
 	MFRAME * frame;
 	Perso * perso;
 	Quaternion orientationEdition;
+	typedef hash_map<string, int, HashString> NameIndex;
+	NameIndex bvhNameIndex;
 	int bodyIndex[BODYPART_COUNT];
 	int rapportHauteursRayons[BODYPART_COUNT];
 	f32 poids[BODYPART_COUNT];
