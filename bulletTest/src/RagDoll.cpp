@@ -128,7 +128,6 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			o << "erreur de lecture du nom de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
-		cout << line << '\t';
 
 		// lire le nom du joint bvh
 		if (!(fichier >> line)) {
@@ -136,7 +135,6 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			o << "erreur de lecture du nom de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
-		cout << line << bvhNameIndex[line] << '\t';
 		// convertion du nom en index
 		bodyIndex[i] = bvhNameIndex[line];
 
@@ -146,14 +144,12 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			o << "erreur de lecture du rayon de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
-		cout << rapportHauteursRayons[i] << '\t';
 		// lire le poids
 		if (!(fichier >> poids[i])) {
 			ostringstream o;
 			o << "erreur de lecture du poids de la part " << i << " dans le fichier '" << txtFileName << "' !";
 			throw Erreur(o.str());
 		}
-		cout << poids[i] << endl;
 	}
 
 	// creation des objets graphiques et physiques

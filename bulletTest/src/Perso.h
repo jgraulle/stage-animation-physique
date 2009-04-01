@@ -11,6 +11,8 @@
 #include <MoteurGraphique.h>
 #include <bvh.h>
 
+using namespace std;
+
 class Perso: public Objet3D {
 public:
 
@@ -22,7 +24,7 @@ public:
 
 	// affichage
 	virtual void display() const;
-	virtual void display(int joinId, Transform) const;
+	virtual void display(int joinId, const Transform &) const;
 
 	// fonction de mise a jour de l'objet
 	virtual void update(f32 elapsed);
