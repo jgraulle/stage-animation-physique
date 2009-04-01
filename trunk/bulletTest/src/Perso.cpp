@@ -37,21 +37,19 @@ void Perso::display() const {
 	int rootId = motion_frame_get_root_joint(frame);
 	if (rootId==-1)
 		throw Erreur("le fichier '"+bvhFileName+"' n'a pas de root !");
-	display(rootId, Transform::IDENTITY);
+	display(rootId, Transform(Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE));
 
 	glPointSize(1.0f);
 }
 
-void Perso::display(int joinId, Transform global) const {
+void Perso::display(int joinId, const Transform & transParent) const {
 	Vector3 temp, position = Vector3::ZERO;
 	Quaternion orientation = Quaternion::IDENTITY;
 	int bind[3];
 
-	glPushMatrix();
-
 	// acces a la position
-	joint_get_offset(frame, joinId, temp);
-	joint_get_position(frame, joinId, position);
+	joint_get_offset(frame, joinId, position);
+	joint_get_position(frame, joinId, temp);
 	position += temp;
 
 	// acces a l'orientation
@@ -72,14 +70,14 @@ void Perso::display(int joinId, Transform global) const {
 
 	// application de la transformation
 	Transform local(position, orientation);
+	Transform global = transParent;
+	global *= local;
 
 	glBegin(GL_POINTS);
 	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
-	Vector3 point = local * Vector3::ZERO;
+	Vector3 point = global * Vector3::ZERO;
 	glVertex3f(point[0], point[1], point[2]);
 	glEnd();
-
-	local.multCurrentMatrix();
 
 	// pour tous les fils
 	int childId = joint_get_child(frame, joinId);
@@ -93,7 +91,6 @@ void Perso::display(int joinId, Transform global) const {
 		// passer au fils suivant
 		childId = joint_get_next(frame, childId);
 	}
-	glPopMatrix();
 }
 
 // fonction de mise a jour de l'objet
@@ -101,7 +98,6 @@ void Perso::update(f32 elapsed) {
 	tempsAnim += elapsed;
 	if (tempsAnim>motion_frame_get_time(frame)+tempsParFrame) {
 		numFrame++;
-		cout << numFrame << endl;
 		if (motion_get_frame(frame, motion, numFrame)!=0) {
 			numFrame = 0;
 			tempsAnim = 0.0;
