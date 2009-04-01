@@ -140,18 +140,24 @@ int main(int argc, char **argv) {
 
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
-//		RagDoll * ragDoll1 = new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D);
-		RagDoll * ragDoll2 = new RagDoll("perso2", "data/walk.bvh", mat, Transform(Vector3(-3.0,5.0,0.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), q, dynamicsWorld, monde3D);
+		list<RagDoll*> ragDolls;
+//		ragDolls.push_back(new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
+		for (int i=0; i<100; i++) {
+			ostringstream buf;
+			buf << "perso" << i << '.';
+			ragDolls.push_back(new RagDoll(buf.str(), "data/walk.bvh", mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), q, dynamicsWorld, monde3D));
+		}
 
 		glfwSetKeyCallback(gestionTouche);
 
 		// affichage du monde
 		do {
 			moteur->update();
-			if (playPhysique)
+			if (playPhysique) {
 				dynamicsWorld->stepSimulation(moteur->getElapsed());
-//			ragDoll1->update(moteur->getElapsed());
-			ragDoll2->update(moteur->getElapsed());
+				for (list<RagDoll*>::iterator it = ragDolls.begin(); it!=ragDolls.end(); it++)
+					(*it)->update(moteur->getElapsed());
+			}
 			gestionSouris(*camera);
 			moteur->display();
 			glLoadIdentity();
@@ -162,6 +168,7 @@ int main(int argc, char **argv) {
 		} while (!glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED));
 
 		delete dynamicsWorld;
+		// TODO delete de tous les elments proprement
 
 	} catch (Erreur e) {
 		cout << e.what() << endl;
