@@ -1,7 +1,7 @@
 /*
  * Transform.cpp
  *
- *  Created on: 6 f�vr. 2009
+ *  Created on: 6 fevr. 2009
  *      Author: jeremie GRAULLE
  */
 
@@ -133,25 +133,7 @@ Matrix4 Transform::getMatrix(void) const {
 	return mat;
 }
 
-Matrix4 Transform::getInverseMatrix(void) const {
-	Matrix4 mat(Matrix4::IDENTITY);
-	Matrix3 rotMat;
-	rotation.ToRotationMatrix(rotMat);
-	mat = rotMat;
-	mat[0][0] *= scale.x;
-	mat[0][1] *= scale.x;
-	mat[0][2] *= scale.x;
-	mat[1][0] *= scale.y;
-	mat[1][1] *= scale.y;
-	mat[1][2] *= scale.y;
-	mat[2][0] *= scale.z;
-	mat[2][1] *= scale.z;
-	mat[2][2] *= scale.z;
-	mat.setTrans(position);
-	return mat.inverse();
-}
-
-void Transform::multCurrentMatrix(void) const {
+void Transform::applyGL(void) const {
 	glTranslatef(position.x, position.y, position.z);
 	float a;
 	Vector3 axis;
@@ -177,4 +159,10 @@ Transform Transform::operator * (const Transform & t) const {
 	Transform r = *this;
 	r *= t;
 	return r;
+}
+
+Transform Transform::inverse(void) const  {
+	// TODO tester le scale
+	Quaternion ri = rotation.Inverse();
+	return Transform(ri * (-position), ri, scale);
 }

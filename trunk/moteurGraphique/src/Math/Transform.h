@@ -58,17 +58,16 @@ public:
 	virtual void rotate(f32 angle, const Vector3 & axe);
 	virtual void rotate(f32 angle, f32 axeX, f32 axeY, f32 axeZ);
 
-	virtual inline Vector3 toLocalSpace(const Vector3 & v) const {return getInverseMatrix() * v;}
-	virtual void multCurrentMatrix(void) const;
-
 	virtual inline Vector3 operator * (const Vector3 & v) const;
 	virtual inline const Transform & operator *= (const Transform& t);
 	virtual inline Transform operator * (const Transform & t) const;
 
-protected:
-	Matrix4 getMatrix(void) const;
-	Matrix4 getInverseMatrix(void) const;
+	virtual inline Transform inverse(void) const;
 
+	virtual void applyGL(void) const;
+	virtual Matrix4 getMatrix(void) const;
+
+protected:
 	Vector3 position;
 	Quaternion rotation;
 	Vector3 scale;

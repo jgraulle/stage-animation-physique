@@ -151,7 +151,7 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			throw Erreur(o.str());
 		}
 	}
-/*
+
 	// creation des objets graphiques et physiques
 	Transform localTransformPart;
 	f32 hauteur;
@@ -216,11 +216,12 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		}
 	}
-*/
+
 	// affichage de la bvh
 	Transform t = transform;
-	t.rotate(orientationEdition);
-	perso = new Perso(bvhFileName, mat, t);
+//	t.rotate(orientationEdition);
+	t.setScale(1.0, 1.0, 1.0);
+	perso = new Skeleton(bvhFileName, mat, t, orientationEdition, scale);
 	stringstream buffer;
 	buffer << name << "-sequellette";
 	monde3D->add(buffer.str(), perso);
@@ -258,8 +259,8 @@ void RagDoll::bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & acc
 	if (itn == bvhNameIndex.end())
 		bvhNameIndex.insert(make_pair(nom, joinId));
 		// afficher un message d'avertissement
-//TODO		else cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
-
+	else
+		cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
 
 	int childId = joint_get_child(frame, joinId);
 	int nbrChild = 0;
@@ -320,7 +321,7 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur,
 
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
-	// TODO
+	// TODO asservissement
 	static f32 vitesse = 1.0;
 	static f32 maxMotorForce = 300.0;
 	static f32 maxImpulseHinge = 20.0;
