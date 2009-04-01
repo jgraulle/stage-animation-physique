@@ -180,7 +180,7 @@ void Monde3D::display() {
 		if ((*it)->isDansLeMonde()) {
 			// placer l'objet dans le monde
 			glPushMatrix();
-			(*it)->getTransform().multCurrentMatrix();
+			(*it)->getTransform().applyGL();
 			// afficher l'objet
 			(*it)->display();
 			glPopMatrix();
@@ -200,7 +200,7 @@ void Monde3D::display() {
 		if ((*it)->isDansLeMonde()) {
 			glPushMatrix();
 			// placer l'objet dans le monde
-			(*it)->getTransform().multCurrentMatrix();
+			(*it)->getTransform().applyGL();
 			// afficher l'objet
 			(*it)->display();
 			glPopMatrix();

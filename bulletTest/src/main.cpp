@@ -141,10 +141,10 @@ int main(int argc, char **argv) {
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
 		list<RagDoll*> ragDolls;
-//		ragDolls.push_back(new RagDoll("perso1", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
-		for (int i=0; i<100; i++) {
+//		ragDolls.push_back(new RagDoll("perso.b.", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
+		for (int i=0; i<1; i++) {
 			ostringstream buf;
-			buf << "perso" << i << '.';
+			buf << "perso.a." << i << '.';
 			ragDolls.push_back(new RagDoll(buf.str(), "data/walk.bvh", mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), q, dynamicsWorld, monde3D));
 		}
 

@@ -11,7 +11,7 @@
 #define RAGDOLL_H_
 
 #include "TransformConv.h"
-#include "Perso.h"
+#include "Skeleton.h"
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
@@ -100,7 +100,7 @@ private :
 	const string bvhFileName;
 	MOTION * motion;
 	MFRAME * frame;
-	Perso * perso;
+	Skeleton * perso;
 	Quaternion orientationEdition;
 	typedef hash_map<string, int, HashString> NameIndex;
 	NameIndex bvhNameIndex;
