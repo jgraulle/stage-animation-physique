@@ -151,7 +151,7 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			throw Erreur(o.str());
 		}
 	}
-
+/*
 	// creation des objets graphiques et physiques
 	Transform localTransformPart;
 	f32 hauteur;
@@ -216,7 +216,7 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName,
 			m_ownerWorld->addConstraint(m_joints[joint], true);
 		}
 	}
-
+*/
 	// affichage de la bvh
 	Transform t = transform;
 	t.rotate(orientationEdition);
@@ -255,11 +255,11 @@ void RagDoll::bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & acc
 	// chercher ce nom dans la table de hash
 	NameIndex::iterator itn = bvhNameIndex.find(nom);
 	// si cet objet existe deja
-	if (itn != bvhNameIndex.end())
-		// afficher un message d'avertissement
-		cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
-	else// si non => l'ajouter
+	if (itn == bvhNameIndex.end())
 		bvhNameIndex.insert(make_pair(nom, joinId));
+		// afficher un message d'avertissement
+//TODO		else cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
+
 
 	int childId = joint_get_child(frame, joinId);
 	int nbrChild = 0;
