@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';
-			ragDolls.push_back(new RagDoll(buf.str(), "data/walk.bvh", mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0), Quaternion::IDENTITY, Vector3(0.1, 0.1, 0.1)), q, dynamicsWorld, monde3D));
+			ragDolls.push_back(new RagDoll(buf.str(), "data/walk.bvh", mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0), Quaternion::IDENTITY, Vector3(0.1f, 0.1f, 0.1f)), q, dynamicsWorld, monde3D));
 		}
 
 		glfwSetKeyCallback(gestionTouche);

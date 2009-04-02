@@ -9,7 +9,7 @@
 
 #include <GL/gl.h>
 
-Transform::Transform(Vector3 position, Quaternion rotation, Vector3 scale)
+Transform::Transform(const Vector3 & position, const Quaternion & rotation, const Vector3 & scale)
 : position(position), rotation(rotation), scale(scale) {}
 
 Transform::Transform(const Matrix4 & mat)
@@ -20,20 +20,20 @@ Transform::Transform(const Matrix4 & mat)
 	rotation.FromRotationMatrix(rot);
 }
 
-Transform::Transform(const Transform& t) {
+Transform::Transform(const Transform & t) {
 	position = t.getPosition();
 	scale = t.getScale();
 	rotation = t.getOrientation();
 }
 
-const Transform & Transform::operator =(const Transform t) {
+Transform & Transform::operator =(const Transform & t) {
 	position = t.getPosition();
 	scale = t.getScale();
 	rotation = t.getOrientation();
 	return *this;
 }
-
-const Transform::Transform Transform::IDENTITY = Transform::Transform(Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE);
+// TODO const Transform Transform::IDENTITY(Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE);
+const Transform Transform::IDENTITY(Vector3(0.0, 0.0, 0.0), Quaternion(1.0, 0.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0));
 
 void Transform::setScale(const Vector3& vScale) {
 	scale = vScale;
@@ -165,4 +165,9 @@ Transform Transform::inverse(void) const  {
 	// TODO tester le scale
 	Quaternion ri = rotation.Inverse();
 	return Transform(ri * (-position), ri, scale);
+}
+
+ostream & operator << ( ostream & o, const Transform & t) {
+    o << "[" << t.position << ", " << t.rotation << ", " << t.scale << "]";
+    return o;
 }

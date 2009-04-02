@@ -69,14 +69,9 @@ Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
 	//}
 }
 
-RagDoll::RagDoll(const string & name, const string & bvhFileName,
-		const Material & mat, const Transform & transform,
-		const Quaternion & orientationEdition,
-		btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D) :
-	name(name), bvhFileName(bvhFileName),
-			orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld),
-			monde3D(monde3D), temps(0.0), sens(true) {
-	assert(transform.getScale().x == transform.getScale().y == transform.getScale().z);
+RagDoll::RagDoll(const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
+: name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(0.0), sens(true) {
+	assert((transform.getScale().x == transform.getScale().y) && (transform.getScale().y== transform.getScale().z));
 	scale = transform.getScale().x;
 
 	// chargement du fichier bvh
