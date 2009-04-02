@@ -14,15 +14,19 @@
 #include "Matrix4.h"
 #include "../Type.h"
 
+#include <iostream>
+
+using namespace std;
+
 class Transform {
 public:
 
 	// constructeur
-	Transform(Vector3 position = Vector3::ZERO, Quaternion rotation = Quaternion::IDENTITY, Vector3 scale = Vector3::UNIT_SCALE);
+	Transform(const Vector3 & position = Vector3::ZERO, const Quaternion & rotation = Quaternion::IDENTITY, const Vector3 & scale = Vector3::UNIT_SCALE);
 	Transform(const Matrix4 & mat);
 	Transform(const Transform & t);
 
-	virtual const Transform& operator =(const Transform t);
+	virtual Transform & operator =(const Transform & t);
 
 	static const Transform IDENTITY;
 
@@ -66,6 +70,9 @@ public:
 
 	virtual void applyGL(void) const;
 	virtual Matrix4 getMatrix(void) const;
+
+    friend ostream & operator << ( ostream & o, const Transform & t);
+
 
 protected:
 	Vector3 position;
