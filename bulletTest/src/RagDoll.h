@@ -64,13 +64,7 @@ public :
 		JOINT_COUNT
 	};
 
-	struct Os {
-		const Vector3 debut, fin;
-		int joint;
-		Os(const Vector3 & debut, const Vector3 & fin, int joint) : debut(debut), fin(fin), joint(joint) {}
-	};
-
-	RagDoll(const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D);
+	RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Material & mat, const Transform & transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D);
 
 	virtual	~RagDoll();
 
@@ -89,21 +83,12 @@ private :
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
 
 	btRigidBody * localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon, const Transform & globalTransformPart, int bodyPart, const Material & mat);
-	void bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur);
 	static Quaternion getOrientationOs(const Vector3 &);
-
-	// fonction de hash pour les string
-	struct HashString {size_t operator()(const std::string& x) const {return hash<const char*>()(x.c_str());}};
 
 	const string name;
 	// bvh
-	const string bvhFileName;
-	MOTION * motion;
-	MFRAME * frame;
+	const SkeletonMesh * skeletonMesh;
 	Skeleton * perso;
-	Quaternion orientationEdition;
-	typedef hash_map<string, int, HashString> NameIndex;
-	NameIndex bvhNameIndex;
 	int bodyIndex[BODYPART_COUNT];
 	int rapportHauteursRayons[BODYPART_COUNT];
 	f32 poids[BODYPART_COUNT];
