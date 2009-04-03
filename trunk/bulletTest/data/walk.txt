@@ -1,6 +1,6 @@
 walk.bvh
 11
-BODYPART_PELVIS				upperback	2	1.0
+BODYPART_PELVIS				upperback	2	0.0
 BODYPART_SPINE				Chest		2	1.0
 BODYPART_HEAD				Head		1	1.0
 BODYPART_LEFT_UPPER_LEG		LeftUpLeg	5	1.0

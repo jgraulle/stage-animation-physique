@@ -98,6 +98,8 @@ private :
 	btCapsuleShape * m_shapes[BODYPART_COUNT];
 	btRigidBody * m_bodies[BODYPART_COUNT];
 	btTypedConstraint * m_joints[JOINT_COUNT];
+	btGeneric6DofConstraint * m_jointsGeneric6[JOINT_COUNT];
+	btHingeConstraint * m_jointsHinge[JOINT_COUNT];
 	btDiscreteDynamicsWorld * m_ownerWorld;
 	// graphique
 	Mesh * meshes[BODYPART_COUNT];

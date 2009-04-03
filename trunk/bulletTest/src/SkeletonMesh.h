@@ -23,7 +23,7 @@ public:
 	};
 
 	// constructeur
-	SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool translationRoot = true);
+	SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool transformationRoot = true, bool translationChildren = true);
 
 	// destructeur
 	virtual ~SkeletonMesh();
@@ -36,10 +36,12 @@ public:
 
 	// acceder a la position et la la transformation locale d'une articulation
 	virtual const Os * getOsPosition(int numFrame, int joinId) const;
+	virtual bool isOsPosition(int numFrame, int joinId) const {return osPos[numFrame][joinId]!=NULL;}
 	virtual const Transform & getJointsTransf(int numFrame, int joinId) const;
 
 	// acceder a la position d'un os dans la position d'edition
 	virtual const Os * getOsPosEdition(int joinId) const;
+	virtual bool isOsPosEdition(int joinId) const {return osPosEdition[joinId]!=NULL;}
 
 	// acceder au nom d'une articulation a partir de sont id
 	virtual const string & getJointName(int joinId) const;
@@ -57,11 +59,16 @@ private:
 	// fonction de hash pour les string
 	struct HashString {size_t operator()(const std::string& x) const {return hash<const char*>()(x.c_str());}};
 
+	// convertion d'angle d'euler de la bvh vers quaternion
+	static Quaternion bvhToQuater (f32 r[3], int bindings[3]);
+
 	string bvhFileName;
 	f32 tempsParFrame;
 	f32 dureeTotalAnimation;
 	int nbrTotalFrames;
 	int nbrJoints;
+	bool transformationRoot;
+	bool translationChildren;	 // TODO
 
 	vector<vector<Os*> > osPos;
 	vector<vector<Transform> > jointsTransf;
