@@ -69,37 +69,16 @@ Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
 	//}
 }
 
-RagDoll::RagDoll(const string & name, const string & bvhFileName, const Material & mat, const Transform & transform, const Quaternion & orientationEdition, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
-: name(name), bvhFileName(bvhFileName), orientationEdition(orientationEdition), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(0.0), sens(true) {
+RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Material & mat, const Transform & transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D)
+: name(name), skeletonMesh(bvhFileName), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(0.0), sens(true) {
 	assert((transform.getScale().x == transform.getScale().y) && (transform.getScale().y== transform.getScale().z));
 	scale = transform.getScale().x;
 
-	// chargement du fichier bvh
-	if (motion_load_bvh(&motion, bvhFileName.c_str()) < 0)
-		throw ErreurFileNotFound(bvhFileName, "");
-	// initialisation de la structure frame
-	frame = motion_frame_init(NULL, motion);
-	// lecture du bvh en position d'edition
-	motion_get_frame(frame, motion, 0);
-	// acces a la position du root
-	int rootId = motion_frame_get_root_joint(frame);
-	if (rootId == -1)
-		throw Erreur("le fichier '" + bvhFileName + "' n'a pas de root !");
-	Vector3 offset;
-	joint_get_offset(frame, rootId, offset);
-
-	// lecture de la position des extremite des os du bvh dans la position d'edition dans le repere de l'animation
-	vector<Os *> osList;
-	osList.resize(motion_frame_get_joints_n(frame), NULL);
-	bvhRecursif(osList, rootId, offset);
-	vector<Os *>::iterator it = osList.begin();
-
-
 	// ouverture du fichier de description du bvh
-	string txtFileName = bvhFileName.substr(0, bvhFileName.size() - 3) + "txt";
+	string txtFileName = skeletonMesh->getBvhFileName().substr(0, skeletonMesh->getBvhFileName().size() - 3) + "txt";
 	ifstream fichier(txtFileName.c_str());
 	if (fichier.fail())
-		throw ErreurFileNotFound(txtFileName.c_str(), "TODO");
+		throw ErreurFileNotFound(txtFileName.c_str(), "TODO");	// TODO donner le texte associe a l'erreur
 	string line;
 
 	// lecture du nom du fichier bvh
@@ -131,7 +110,7 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName, const Material
 			throw Erreur(o.str());
 		}
 		// convertion du nom en index
-		bodyIndex[i] = bvhNameIndex[line];
+		bodyIndex[i] = skeletonMesh->getJointIndex(line);
 
 		// lire le rayon
 		if (!(fichier >> rapportHauteursRayons[i])) {
@@ -155,13 +134,13 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName, const Material
 			transform.getOrientation());
 	for (int part = 0; part < BODYPART_COUNT; part++) {
 		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille = osList[bodyIndex[part]]->fin
-				- osList[bodyIndex[part]]->debut;
+		Vector3 taille = skeletonMesh->getOsPosEdition(bodyIndex[part])->fin
+				- skeletonMesh->getOsPosEdition(bodyIndex[part])->debut;
 		hauteur = taille.length();
 		rayon = hauteur / rapportHauteursRayons[part];
 		// calcul de la position du centre de l'os dans le repere de l'animation
-		localTransformPart.setPosition((osList[bodyIndex[part]]->debut
-				+ osList[bodyIndex[part]]->fin) / 2.0f);
+		localTransformPart.setPosition((skeletonMesh->getOsPosEdition(bodyIndex[part])->debut
+				+ skeletonMesh->getOsPosEdition(bodyIndex[part])->fin) / 2.0f);
 		// calcul de l'orientation de l'os
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
@@ -213,10 +192,7 @@ RagDoll::RagDoll(const string & name, const string & bvhFileName, const Material
 	}
 
 	// affichage de la bvh
-	Transform t = transform;
-//	t.rotate(orientationEdition);
-	t.setScale(1.0, 1.0, 1.0);
-	perso = new Skeleton(bvhFileName, mat, t, orientationEdition, scale);
+	perso = new Skeleton(skeletonMesh, mat, transform);
 	stringstream buffer;
 	buffer << name << "-sequellette";
 	monde3D->add(buffer.str(), perso);
@@ -235,49 +211,14 @@ RagDoll::~RagDoll() {
 	// Remove all bodies and shapes
 	for (i = 0; i < BODYPART_COUNT; ++i) {
 		m_ownerWorld->removeRigidBody(m_bodies[i]);
-
 		delete m_bodies[i]->getMotionState();
-
 		delete m_bodies[i];
 		m_bodies[i] = 0;
 		delete m_shapes[i];
 		m_shapes[i] = 0;
 	}
-}
 
-void RagDoll::bvhRecursif(vector<Os *> & osList, int joinId, const Vector3 & accumulateur) {
-	// pour tous les fils
-	string nom = joint_get_name(frame, joinId);
-	// chercher ce nom dans la table de hash
-	NameIndex::iterator itn = bvhNameIndex.find(nom);
-	// si cet objet existe deja
-	if (itn == bvhNameIndex.end())
-		bvhNameIndex.insert(make_pair(nom, joinId));
-		// afficher un message d'avertissement
-	else
-		cout << "attention : le joint '" + nom + "' est en double dans le fichier '" + bvhFileName + "'" <<  endl;
-
-	int childId = joint_get_child(frame, joinId);
-	int nbrChild = 0;
-	Vector3 offset, moyenne = Vector3(0.0f, 0.0f, 0.0f);
-	while (childId != -1) {
-		nbrChild++;
-		// lire la position de ce joint
-		joint_get_offset(frame, childId, offset);
-		offset = orientationEdition * offset * scale;
-
-		moyenne += accumulateur + offset;
-
-		// afficher tous les petits fils
-		bvhRecursif(osList, childId, accumulateur + offset);
-
-		// passer au fils suivant
-		childId = joint_get_next(frame, childId);
-	}
-
-	if (nbrChild >= 1) {
-		osList[joinId] = new Os(accumulateur, moyenne / nbrChild, joinId);
-	}
+	delete perso->getSkeletonMesh();
 }
 
 btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur,

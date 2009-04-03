@@ -10,6 +10,7 @@
 #include "TransformConv.h"
 #include "DebugDraw.h"
 #include "RagDoll.h"
+#include "SkeletonMesh.h"
 
 #include <iostream>
 #include <sstream>
@@ -138,14 +139,17 @@ int main(int argc, char **argv) {
 		btRigidBody * solPhysique = new btRigidBody(createRigidBodyInfo(0.0, solGraphique->getTransform(), new btBoxShape(btVector3(50.0, 5.0, 50.0)*SCALING)));
 		dynamicsWorld->addRigidBody(solPhysique);
 
+		// chargement des bvh
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
+		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f);
+
 		list<RagDoll*> ragDolls;
 //		ragDolls.push_back(new RagDoll("perso.b.", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';
-			ragDolls.push_back(new RagDoll(buf.str(), "data/walk.bvh", mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0), Quaternion::IDENTITY, Vector3(0.1f, 0.1f, 0.1f)), q, dynamicsWorld, monde3D));
+			ragDolls.push_back(new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0)), dynamicsWorld, monde3D));
 		}
 
 		glfwSetKeyCallback(gestionTouche);
@@ -168,6 +172,7 @@ int main(int argc, char **argv) {
 		} while (!glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED));
 
 		delete dynamicsWorld;
+		delete skeletonMeshA;
 		// TODO delete de tous les elments proprement
 
 	} catch (Erreur e) {
