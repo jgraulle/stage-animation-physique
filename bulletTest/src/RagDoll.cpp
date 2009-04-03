@@ -70,7 +70,8 @@ Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
 
 RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Material & mat,
 		const Transform & transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D) :
-	name(name), skeletonMesh(bvhFileName), transform(transform), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(0.0), sens(true) {
+	name(name), skeletonMesh(bvhFileName), transform(transform), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(
+			0.0), sens(true) {
 	assert((transform.getScale().x == transform.getScale().y) && (transform.getScale().y== transform.getScale().z));
 	scale = transform.getScale().x;
 
@@ -134,13 +135,13 @@ RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Ma
 	Transform globalTransformRagDoll(transform.getPosition(), transform.getOrientation());
 	for (int part = 0; part < BODYPART_COUNT; part++) {
 		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille =   skeletonMesh->getOsPosEdition(bodyIndex[part])->fin
-		                 - skeletonMesh->getOsPosEdition(bodyIndex[part])->debut;
+		Vector3 taille = skeletonMesh->getOsPosEdition(bodyIndex[part])->fin - skeletonMesh->getOsPosEdition(
+				bodyIndex[part])->debut;
 		hauteur = taille.length();
 		rayon = hauteur / rapportHauteursRayons[part];
 		// calcul de la position du centre de l'os dans le repere de l'animation
-		localTransformPart.setPosition(  (skeletonMesh->getOsPosEdition(bodyIndex[part])->debut
-				                        + skeletonMesh->getOsPosEdition(bodyIndex[part])->fin) / 2.0f);
+		localTransformPart.setPosition((skeletonMesh->getOsPosEdition(bodyIndex[part])->debut
+				+ skeletonMesh->getOsPosEdition(bodyIndex[part])->fin) / 2.0f);
 		// calcul de l'orientation de l'os
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
@@ -243,77 +244,81 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
 	// TODO asservissement
-/*	static f32 vitesse = 1.0;
-	static f32 maxMotorForce = 300.0;
-	static f32 maxImpulseHinge = 20.0;
-	//	static f32 maxImpulseTwist = 200.0;
+	/*	static f32 vitesse = 1.0;
+	 static f32 maxMotorForce = 300.0;
+	 static f32 maxImpulseHinge = 20.0;
+	 //	static f32 maxImpulseTwist = 200.0;
 
-	btGeneric6DofConstraint * jointLeftHip = static_cast<btGeneric6DofConstraint*> (m_joints[JOINT_LEFT_HIP]);
-	btGeneric6DofConstraint * jointRightHip = static_cast<btGeneric6DofConstraint*> (m_joints[JOINT_RIGHT_HIP]);
-	//	btGeneric6DofConstraint * jointLeftShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_LEFT_SHOULDER]);
-	//	btGeneric6DofConstraint * jointRightShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_RIGHT_SHOULDER]);
+	 btGeneric6DofConstraint * jointLeftHip = static_cast<btGeneric6DofConstraint*> (m_joints[JOINT_LEFT_HIP]);
+	 btGeneric6DofConstraint * jointRightHip = static_cast<btGeneric6DofConstraint*> (m_joints[JOINT_RIGHT_HIP]);
+	 //	btGeneric6DofConstraint * jointLeftShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_LEFT_SHOULDER]);
+	 //	btGeneric6DofConstraint * jointRightShoulder = static_cast<btGeneric6DofConstraint*>(m_joints[JOINT_RIGHT_SHOULDER]);
 
-	btHingeConstraint * jointLeftKnee = static_cast<btHingeConstraint*> (m_joints[JOINT_LEFT_KNEE]);
-	btHingeConstraint * jointRightKnee = static_cast<btHingeConstraint*> (m_joints[JOINT_RIGHT_KNEE]);
-	btHingeConstraint * jointLeftElbow = static_cast<btHingeConstraint*> (m_joints[JOINT_LEFT_ELBOW]);
-	btHingeConstraint * jointRightElbow = static_cast<btHingeConstraint*> (m_joints[JOINT_RIGHT_ELBOW]);
-	btHingeConstraint * jointPelvisSpine = static_cast<btHingeConstraint*> (m_joints[JOINT_PELVIS_SPINE]);
+	 btHingeConstraint * jointLeftKnee = static_cast<btHingeConstraint*> (m_joints[JOINT_LEFT_KNEE]);
+	 btHingeConstraint * jointRightKnee = static_cast<btHingeConstraint*> (m_joints[JOINT_RIGHT_KNEE]);
+	 btHingeConstraint * jointLeftElbow = static_cast<btHingeConstraint*> (m_joints[JOINT_LEFT_ELBOW]);
+	 btHingeConstraint * jointRightElbow = static_cast<btHingeConstraint*> (m_joints[JOINT_RIGHT_ELBOW]);
+	 btHingeConstraint * jointPelvisSpine = static_cast<btHingeConstraint*> (m_joints[JOINT_PELVIS_SPINE]);
 
-	temps += elapsed;
-	if (temps > 1.0) {
-		temps = 0.0;
-		sens = !sens;
+	 temps += elapsed;
+	 if (temps > 1.0) {
+	 temps = 0.0;
+	 sens = !sens;
 
-		if (sens) {
-			for (int axe = 0; axe < 3; axe++) {
-				jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
-				jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
-				jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
-			}
-			for (int axe = 0; axe < 3; axe++) {
-				jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
-				jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
-				jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
-			}
+	 if (sens) {
+	 for (int axe = 0; axe < 3; axe++) {
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+	 }
+	 for (int axe = 0; axe < 3; axe++) {
+	 jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+	 jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = vitesse;
+	 jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+	 }
 
-			jointLeftKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
-			jointRightKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
-			jointLeftElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
-			jointRightElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
-			jointPelvisSpine->enableAngularMotor(true, vitesse, maxImpulseHinge);
-		} else {
-			for (int axe = 0; axe < 3; axe++) {
-				jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
-				jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
-				jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
-			}
-			for (int axe = 0; axe < 3; axe++) {
-				jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
-				jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
-				jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
-			}
-			jointLeftKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
-			jointRightKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
-			jointLeftElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
-			jointRightElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
-			jointPelvisSpine->enableAngularMotor(true, -vitesse, maxImpulseHinge);
-		}
-	}
-*/
+	 jointLeftKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
+	 jointRightKnee->enableAngularMotor(true, vitesse, maxImpulseHinge);
+	 jointLeftElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+	 jointRightElbow->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+	 jointPelvisSpine->enableAngularMotor(true, vitesse, maxImpulseHinge);
+	 } else {
+	 for (int axe = 0; axe < 3; axe++) {
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
+	 jointLeftHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+	 }
+	 for (int axe = 0; axe < 3; axe++) {
+	 jointRightHip->getRotationalLimitMotor(axe)->m_enableMotor = true;
+	 jointRightHip->getRotationalLimitMotor(axe)->m_targetVelocity = -vitesse;
+	 jointRightHip->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+	 }
+	 jointLeftKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+	 jointRightKnee->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+	 jointLeftElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
+	 jointRightElbow->enableAngularMotor(true, vitesse, maxImpulseHinge);
+	 jointPelvisSpine->enableAngularMotor(true, -vitesse, maxImpulseHinge);
+	 }
+	 }
+	 */
 	// creation des objets graphiques et physiques
 	int numFrame = skeleton->getNumFrame();
 	Transform localTransformPart;
 	Transform globalTransformRagDoll(transform.getPosition(), transform.getOrientation());
 	for (int part = 0; part < BODYPART_COUNT; part++) {
 		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille =   skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin
-		                 - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
+		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin - skeletonMesh->getOsPosition(
+				numFrame, bodyIndex[part])->debut;
 		// calcul de la position du centre de l'os dans le repere de l'animation
-		localTransformPart.setPosition(  (skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
-				                        + skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f);
+		localTransformPart.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
+				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f);
 		// calcul de l'orientation de l'os
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
-		objet3Ds[part]->getTransform() = globalTransformRagDoll * localTransformPart;
+		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
+		// TODO bizare que je dois modifier egalement la position de la physique
+		objet3Ds[part]->getTransform() = globalTransformPart;
+		m_bodies[part]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(globalTransformPart.getOrientation()), TransformConv::graphToBt(globalTransformPart.getPosition())));
 	}
+
 }

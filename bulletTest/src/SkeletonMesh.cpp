@@ -7,7 +7,7 @@
 
 #include "SkeletonMesh.h"
 
-SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale)
+SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool translationRoot)
 : bvhFileName(bvhFileName), orientationEdition(orientationEdition), scale(scale) {
 	// chargement du fichier bvh
 	MOTION * motion;
@@ -58,13 +58,16 @@ SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdi
 		jointsTransf[numFrame].resize(motion_frame_get_joints_n(frame), Transform::IDENTITY);
 		// mettre a jour le tableau des os : pour tous les fils du root
 		motion_get_frame(frame, motion, numFrame);
-		int childId = joint_get_child(frame, rootId);
-		while (childId!=-1) {
-			// afficher tous les petits fils
-			Transform t1, t2;
-			calculJoinPos(numFrame, frame, childId, Transform::IDENTITY);
-			// passer au fils suivant
-			childId = joint_get_next(frame, childId);
+		if (translationRoot)
+			calculJoinPos(numFrame, frame, rootId, Transform::IDENTITY);
+		else {
+			int childId = joint_get_child(frame, rootId);
+			while (childId!=-1) {
+				// calcul de la position de chaque os de la frame courante
+				calculJoinPos(numFrame, frame, childId, Transform::IDENTITY);
+				// passer au fils suivant
+				childId = joint_get_next(frame, childId);
+			}
 		}
 	}
 	motion_frame_free(frame, true);

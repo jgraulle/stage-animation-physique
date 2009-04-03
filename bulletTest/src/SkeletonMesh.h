@@ -23,7 +23,7 @@ public:
 	};
 
 	// constructeur
-	SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale);
+	SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool translationRoot = true);
 
 	// destructeur
 	virtual ~SkeletonMesh();
