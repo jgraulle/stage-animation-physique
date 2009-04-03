@@ -7,8 +7,8 @@
 
 #include "SkeletonMesh.h"
 
-SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool translationRoot)
-: bvhFileName(bvhFileName), orientationEdition(orientationEdition), scale(scale) {
+SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool transformationRoot, bool translationChildren)
+: bvhFileName(bvhFileName), orientationEdition(orientationEdition), scale(scale), transformationRoot(transformationRoot), translationChildren(translationChildren) {
 	// chargement du fichier bvh
 	MOTION * motion;
 	if(motion_load_bvh(&motion, bvhFileName.c_str()) < 0)
@@ -48,7 +48,14 @@ SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdi
 	rootId = motion_frame_get_root_joint(frame);
 	if (rootId==-1)
 		throw Erreur("le fichier '"+bvhFileName+"' n'a pas de root !");
-	calculOsPosEdition(frame, rootId, Vector3::ZERO);
+	Vector3 rootPosition = Vector3::ZERO;
+	int childId = joint_get_child(frame, rootId);
+	while (childId!=-1) {
+		// calcul de la position de chaque os de la position d'edition
+		calculOsPosEdition(frame, childId, Vector3::ZERO);
+		// passer au fils suivant
+		childId = joint_get_next(frame, childId);
+	}
 
 	// calculer la position de chaque articulation de chaque frame
 	osPos.resize(nbrTotalFrames);
@@ -58,17 +65,29 @@ SkeletonMesh::SkeletonMesh(const string & bvhFileName, Quaternion orientationEdi
 		jointsTransf[numFrame].resize(motion_frame_get_joints_n(frame), Transform::IDENTITY);
 		// mettre a jour le tableau des os : pour tous les fils du root
 		motion_get_frame(frame, motion, numFrame);
-		if (translationRoot)
-			calculJoinPos(numFrame, frame, rootId, Transform::IDENTITY);
-		else {
-			int childId = joint_get_child(frame, rootId);
-			while (childId!=-1) {
-				// calcul de la position de chaque os de la frame courante
-				calculJoinPos(numFrame, frame, childId, Transform::IDENTITY);
-				// passer au fils suivant
-				childId = joint_get_next(frame, childId);
-			}
+		Transform rootTrans = Transform::IDENTITY;
+		if (transformationRoot) {
+			// position du root
+			Vector3 position;
+			joint_get_position(frame, rootId, position);
+			if (position==Vector3::ZERO)
+				joint_get_offset(frame, rootId, position);
+			rootTrans.setPosition(position);
+			// orientation du root
+			int bind[3];
+			Vector3 temp;
+			joint_get_orientation(frame, rootId, temp, bind);
+			Quaternion orientation = bvhToQuater(temp, bind);
+			rootTrans.setRotation(orientation);
 		}
+		int childId = joint_get_child(frame, rootId);
+		while (childId!=-1) {
+			// calcul de la position de chaque os de la frame courante
+			calculJoinPos(numFrame, frame, childId, rootTrans);
+			// passer au fils suivant
+			childId = joint_get_next(frame, childId);
+		}
+
 	}
 	motion_frame_free(frame, true);
 	motion_free(motion, true);
@@ -89,6 +108,7 @@ const Vector3 SkeletonMesh::calculOsPosEdition(MFRAME * frame, int joinId, const
 
 	// lire la position de ce joint
 	joint_get_offset(frame, joinId, offset);
+
 	offset = orientationEdition * offset * scale + accumulateur;
 
 	// pour tous les fils
@@ -102,39 +122,24 @@ const Vector3 SkeletonMesh::calculOsPosEdition(MFRAME * frame, int joinId, const
 		childId = joint_get_next(frame, childId);
 	}
 
-	if (nbrChild >= 1) {
+	if (nbrChild >= 1)
 		osPosEdition[joinId] = new Os(offset, moyenne / nbrChild, joinId);
-	}
 
 	return offset;
 }
 
 // calculer la position de chaque os dans la frame courante : parcours recursivif du skelete
 const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int joinId, const Transform & transParent) {
-	Vector3 temp, position = Vector3::ZERO, moyenne = Vector3::ZERO;
-	Quaternion orientation = Quaternion::IDENTITY;
-	int bind[3];
-
-	// acces a la position
-	joint_get_offset(frame, joinId, position);
-	joint_get_position(frame, joinId, temp);
-	position += temp;
+	Vector3 position;
+	joint_get_position(frame, joinId, position);
+	if (position==Vector3::ZERO)
+		joint_get_offset(frame, joinId, position);
 
 	// acces a l'orientation
+	int bind[3];
+	Vector3 temp;
 	joint_get_orientation(frame, joinId, temp, bind);
-	for (int i=0; i<3; i++) {
-		switch(bind[i]) {
-		case JOINT_XROT:
-			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_X);
-			break;
-		case JOINT_YROT:
-			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_Y);
-			break;
-		case JOINT_ZROT:
-			orientation = orientation * Quaternion(temp[i] * M_PI / 180.0f, Vector3::UNIT_Z);
-			break;
-		}
-	}
+	Quaternion orientation = bvhToQuater(temp, bind);
 
 	// application de la transformation
 	Transform * local = & jointsTransf[numFrame][joinId];
@@ -145,6 +150,7 @@ const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int join
 	position = orientationEdition * (global * Vector3::ZERO) * scale;
 
 	// pour tous les fils
+	Vector3 moyenne = Vector3::ZERO;
 	int childId = joint_get_child(frame, joinId);
 	int nbrChild = 0;
 	while (childId != -1) {
@@ -155,15 +161,38 @@ const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int join
 		childId = joint_get_next(frame, childId);
 	}
 
-	if (nbrChild >= 1) {
+	if (nbrChild >= 1)
 		osPos[numFrame][joinId] = new Os(position, moyenne / nbrChild, joinId);
-	}
 
 	return position;
 }
 
+// convertion d'angle d'euler de la bvh vers quaternion
+Quaternion SkeletonMesh::bvhToQuater(f32 r[3], int bindings[3]) {
+	Quaternion orientation = Quaternion::IDENTITY;
+	for (int i=0; i<3; i++) {
+		switch(bindings[i]) {
+		case JOINT_XROT:
+			orientation = orientation * Quaternion(r[i] * M_PI / 180.0f, Vector3::UNIT_X);
+			break;
+		case JOINT_YROT:
+			orientation = orientation * Quaternion(r[i] * M_PI / 180.0f, Vector3::UNIT_Y);
+			break;
+		case JOINT_ZROT:
+			orientation = orientation * Quaternion(r[i] * M_PI / 180.0f, Vector3::UNIT_Z);
+			break;
+		}
+	}
+	return orientation;
+}
+
 // acceder a la position d'une articulation dans la frame courante
 const SkeletonMesh::Os * SkeletonMesh::getOsPosition(int numFrame, int joinId) const {
+	if (osPosEdition[joinId]==NULL) {
+		ostringstream buf;
+		buf << "l'os " << joinId << " est un os NULL pour la frame " << numFrame << " de '" << bvhFileName << "' !";
+		throw Erreur(buf.str());
+	}
 	return osPos[numFrame][joinId];
 }
 const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const {
@@ -172,6 +201,11 @@ const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const 
 
 // acceder a la position d'un os dans la position d'edition
 const SkeletonMesh::Os * SkeletonMesh::getOsPosEdition(int joinId) const {
+	if (osPosEdition[joinId]==NULL) {
+		ostringstream buf;
+		buf << "l'os " << joinId << " est un os NULL pour '" << bvhFileName << "' !";
+		throw Erreur(buf.str());
+	}
 	return osPosEdition[joinId];
 }
 

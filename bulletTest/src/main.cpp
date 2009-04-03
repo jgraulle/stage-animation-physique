@@ -145,7 +145,6 @@ int main(int argc, char **argv) {
 		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, false);
 
 		list<RagDoll*> ragDolls;
-//		ragDolls.push_back(new RagDoll("perso.b.", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';

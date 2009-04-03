@@ -23,7 +23,7 @@ void Skeleton::display() const {
 	glBegin(GL_LINES);
 
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
-		if (skeletonMesh->getOsPosition(numFrame,joinId)!=NULL) {
+		if (skeletonMesh->isOsPosition(numFrame,joinId)) {
 			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->debut);
 			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->fin);
 		}
@@ -34,7 +34,7 @@ void Skeleton::display() const {
 	glPointSize(1.0f);
 	glBegin(GL_LINES);
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
-		if (skeletonMesh->getOsPosEdition(joinId)!=NULL) {
+		if (skeletonMesh->isOsPosEdition(joinId)) {
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->debut);
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->fin);
 		}
@@ -55,4 +55,5 @@ void Skeleton::update(f32 elapsed) {
 			tempsAnim = 0.0;
 		}
 	}
+	numFrame=0;
 }
