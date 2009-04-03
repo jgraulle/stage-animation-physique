@@ -160,7 +160,7 @@ const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int join
 }
 
 // acceder a la position d'une articulation dans la frame courante
-const SkeletonMesh::Os * SkeletonMesh::getJointPosition(int numFrame, int joinId) const {
+const SkeletonMesh::Os * SkeletonMesh::getOsPosition(int numFrame, int joinId) const {
 	return osPos[numFrame][joinId];
 }
 const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const {

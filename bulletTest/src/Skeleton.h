@@ -29,10 +29,11 @@ public:
 	// fonction de mise a jour de l'objet
 	virtual void update(f32 elapsed);
 
-	virtual const SkeletonMesh * getSkeletonMesh() {return bvhFileName;}
+	virtual const SkeletonMesh * getSkeletonMesh() {return skeletonMesh;}
+	virtual int getNumFrame() {return numFrame;}
 
 private:
-	const SkeletonMesh * bvhFileName;
+	const SkeletonMesh * skeletonMesh;
 	f32 tempsAnim;
 	int numFrame;
 };

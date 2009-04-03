@@ -88,7 +88,8 @@ private :
 	const string name;
 	// bvh
 	const SkeletonMesh * skeletonMesh;
-	Skeleton * perso;
+	Skeleton * skeleton;
+	const Transform transform;
 	int bodyIndex[BODYPART_COUNT];
 	int rapportHauteursRayons[BODYPART_COUNT];
 	f32 poids[BODYPART_COUNT];
