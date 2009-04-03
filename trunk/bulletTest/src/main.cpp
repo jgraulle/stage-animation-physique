@@ -142,14 +142,14 @@ int main(int argc, char **argv) {
 		// chargement des bvh
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
-		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f);
+		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, false);
 
 		list<RagDoll*> ragDolls;
 //		ragDolls.push_back(new RagDoll("perso.b.", "data/Example1.bvh", mat, Transform(Vector3(3.0,5.0,0.0), q, Vector3(0.1, 0.1, 0.1)), Quaternion::IDENTITY, dynamicsWorld, monde3D));
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';
-			ragDolls.push_back(new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0,5.0,(i/10.0)*3.0)), dynamicsWorld, monde3D));
+			ragDolls.push_back(new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0, 5.0, (i/10.0)*3.0)), dynamicsWorld, monde3D));
 		}
 
 		glfwSetKeyCallback(gestionTouche);
