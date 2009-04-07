@@ -23,7 +23,7 @@
 
 using namespace std;
 
-class RagDoll {
+class RagDoll : public Objet3D {
 public :
 	enum {
 		BODYPART_PELVIS = 0,
@@ -68,6 +68,8 @@ public :
 
 	virtual	~RagDoll();
 
+	// affichage
+	virtual void display() const;
 	// fonction de mise a jour du personnage
 	virtual void update(f32 elapsed);
 
@@ -89,7 +91,7 @@ private :
 	// bvh
 	const SkeletonMesh * skeletonMesh;
 	Skeleton * skeleton;
-	const Transform transform;
+	string skeletonName;
 	int bodyIndex[BODYPART_COUNT];
 	int rapportHauteursRayons[BODYPART_COUNT];
 	f32 poids[BODYPART_COUNT];

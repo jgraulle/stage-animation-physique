@@ -70,7 +70,7 @@ Quaternion RagDoll::getOrientationOs(const Vector3 & v) {
 
 RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Material & mat,
 		const Transform & transform, btDiscreteDynamicsWorld * m_ownerWorld, Monde3D * monde3D) :
-	name(name), skeletonMesh(bvhFileName), transform(transform), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(
+			Objet3D(mat, NULL, transform), name(name), skeletonMesh(bvhFileName), m_ownerWorld(m_ownerWorld), monde3D(monde3D), temps(
 			0.0), sens(true) {
 	assert((transform.getScale().x == transform.getScale().y) && (transform.getScale().y== transform.getScale().z));
 	scale = transform.getScale().x;
@@ -181,11 +181,8 @@ RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Ma
 		}
 	}
 
-	// affichage de la bvh
+	// creation du squelette de debug
 	skeleton = new Skeleton(skeletonMesh, mat, transform);
-	stringstream buffer;
-	buffer << name << "-sequellette";
-	monde3D->add(buffer.str(), skeleton);
 }
 
 RagDoll::~RagDoll() {
@@ -207,8 +204,7 @@ RagDoll::~RagDoll() {
 		delete m_shapes[i];
 		m_shapes[i] = 0;
 	}
-
-	delete skeleton->getSkeletonMesh();
+	delete skeleton;
 }
 
 btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon,
@@ -242,66 +238,108 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 	return body;
 }
 
+// affichage
+void RagDoll::display() const {
+	// le dessin des body est fait automatiquement car il on ete ajoute au monde
+
+	// dessiner le squelette de debug
+	skeleton->display();
+
+	// calcul de la tranformation du joint dans le repere global
+	btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
+	btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
+
+	// calcul de la direction de l'os dans l'animation dans le repere global
+	int numFrame = this->skeleton->getNumFrame();
+	Vector3 directionCible = this->getTransform().getOrientation() * (skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_LEFT_UPPER_LEG])->fin - skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_LEFT_UPPER_LEG])->debut);
+	btTransform jointFilsPereTransform = jointPereGlobalTransform.inverse() * jointFilsGlobalTransform;
+	Vector3 directionCourant = TransformConv::btToGraph(jointFilsPereTransform.getRotation()) * Vector3::UNIT_X;
+	Quaternion q = directionCourant.getRotationTo(directionCible);
+	f32 angles[3];
+	Matrix3 m;
+	q.ToRotationMatrix(m);
+	m.ToEulerAnglesXYZ(angles[0], angles[1], angles[2]);
+	cout << angles[0] << ", " << angles[1] << ", " << angles[2] << endl;
+
+	// DEBUT DEBUG
+	Transform RagDollGlobalInverseTransform = this->getTransform().inverse();
+	Transform jointPereLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereGlobalTransform);
+	Transform jointFilsLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointFilsGlobalTransform);
+
+	Disable lumiere(GL_LIGHTING);
+	Disable texture(GL_TEXTURE_2D);
+	Disable profondeur(GL_DEPTH_TEST);
+	glBegin(GL_LINES);
+	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
+	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_X);
+	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_X);
+	glColor4f(0.0f, 1.0f, 0.0f, 1.f);
+	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_Y);
+	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Y);
+	glColor4f(0.0f, 0.0f, 1.0f, 1.f);
+	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_Z);
+	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
+	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Z);
+	glEnd();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+}
+
 // fonction de mise a jour du personnage
 void RagDoll::update(f32 elapsed) {
 	// TODO asservissement
 	static f32 vitesse = 1.0;
-	static f32 maxMotorForce = 0.8;
-	static f32 maxImpulseHinge = 0.8;
+	static f32 maxMotorForce = 10.8;
+	static f32 maxImpulseHinge = 10.8;
 
-/*	// creation des objets graphiques et physiques
 	int numFrame = skeleton->getNumFrame();
-	Transform localTransformPart;
-	Transform globalTransformRagDoll(transform.getPosition(), transform.getOrientation());
-	for (int part = 0; part < BODYPART_COUNT; part++) {
+	// fixer la position du root
+	{
+		Transform localTransformPart;
+		Transform globalTransformRagDoll(this->getTransform().getPosition(), this->getTransform().getOrientation());
 		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin - skeletonMesh->getOsPosition(
-				numFrame, bodyIndex[part])->debut;
+		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->fin - skeletonMesh->getOsPosition(
+				numFrame, bodyIndex[BODYPART_PELVIS])->debut;
 		// calcul de la position du centre de l'os dans le repere de l'animation
-		localTransformPart.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
-				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f);
+		localTransformPart.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->debut
+				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->fin) / 2.0f);
 		// calcul de l'orientation de l'os
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
 		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
 		// TODO bizare que je dois modifier egalement la position de la physique
-		objet3Ds[part]->getTransform() = globalTransformPart;
-		m_bodies[part]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(globalTransformPart.getOrientation()), TransformConv::graphToBt(globalTransformPart.getPosition())));
+		objet3Ds[BODYPART_PELVIS]->getTransform() = globalTransformPart;
+		m_bodies[BODYPART_PELVIS]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(globalTransformPart.getOrientation()), TransformConv::graphToBt(globalTransformPart.getPosition())));
 	}
-*/
-/*
+
 	{
-		int numFrame = 0; // skeleton->getNumFrame()
-		// calcul de la position du centre de l'os de la jambe gauche dans l'animation dans le repere de l'animation
-		Vector3 posAnim = (skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_LEFT_UPPER_LEG])->debut + skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_LEFT_UPPER_LEG])->fin) / 2.0f;
-		// calculer de la position du centre de l'os courant dans le repere de l'animation
-		Vector3 posPhysi = transform.inverse() * TransformConv::btToGraph(m_bodies[BODYPART_LEFT_UPPER_LEG]->getWorldTransform().getOrigin());
-		// calculer la difference des 2 positions
-		Vector3 difference = posAnim - posPhysi;
-	//	cout << numFrame << " difference=" << difference << endl;
+		// asservir la jambe gauche
+
+		// calcul de la tranformation du joint dans le repere global
+		btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
+		btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
+
+		btTransform angleTransform = jointPereGlobalTransform.inverse() * jointFilsGlobalTransform;
+		f32 angles[3];
+		angleTransform.getBasis().getEulerYPR(angles[0], angles[1], angles[2]);
+//		cout << angles[0] << ", " << angles[1] << ", " << angles[2] << endl;
+
 		for (int axe = 0; axe < 3; axe++) {
+			f32 dif = m_jointsGeneric6[JOINT_LEFT_HIP]->getAngle(axe) - 0.0f;
+			dif = -dif;
 			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_enableMotor = true;
-			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_targetVelocity = difference[axe];
+			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_targetVelocity = dif;
 			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
 		}
 	}
-	{
-		int numFrame = 0; // skeleton->getNumFrame()
-		// calcul de la position du centre de l'os de la jambe gauche dans l'animation dans le repere de l'animation
-		Vector3 posAnim = (skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_RIGHT_UPPER_LEG])->debut + skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_RIGHT_UPPER_LEG])->fin) / 2.0f;
-		// calculer de la position du centre de l'os courant dans le repere de l'animation
-		Vector3 posPhysi = transform.inverse() * TransformConv::btToGraph(m_bodies[BODYPART_RIGHT_UPPER_LEG]->getWorldTransform().getOrigin());
-		// calculer la difference des 2 positions
-		Vector3 difference = posAnim - posPhysi;
-	//	cout << numFrame << " difference=" << difference << endl;
-		for (int axe = 0; axe < 3; axe++) {
-			m_jointsGeneric6[JOINT_RIGHT_HIP]->getRotationalLimitMotor(axe)->m_enableMotor = true;
-			m_jointsGeneric6[JOINT_RIGHT_HIP]->getRotationalLimitMotor(axe)->m_targetVelocity = -difference[axe];
-			m_jointsGeneric6[JOINT_RIGHT_HIP]->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
-		}
-	}
-*/
+
+	// asservir les autres membres en position 0
 	for (int jointId=0; jointId<JOINT_COUNT; jointId++) {
+		if (jointId!=JOINT_LEFT_HIP && jointId!=JOINT_RIGHT_HIP) {
 		if (CONTRAINTES_IS_CONE[jointId]) {
 			for (int axe = 0; axe < 3; axe++) {
 				f32 dif = m_jointsGeneric6[jointId]->getAngle(axe);
@@ -314,6 +352,7 @@ void RagDoll::update(f32 elapsed) {
 			f32 dif = m_jointsHinge[jointId]->getHingeAngle();
 			dif = -dif *5.0;
 			m_jointsHinge[jointId]->enableAngularMotor(true, dif, maxImpulseHinge);
+		}
 		}
 	}
 }

@@ -15,10 +15,12 @@
 
 class TransformConv : public btMotionState {
 public:
-	static Vector3 btToGraph (const btVector3 &);
-	static Quaternion btToGraph (const btQuaternion &);
-	static btVector3 graphToBt (const Vector3 &);
-	static btQuaternion graphToBt (const Quaternion &);
+	static Vector3 btToGraph(const btVector3 &);
+	static Quaternion btToGraph(const btQuaternion &);
+	static Transform btToGraph(const btTransform &);
+	static btVector3 graphToBt(const Vector3 &);
+	static btQuaternion graphToBt(const Quaternion &);
+	static btTransform graphToBt(const Transform &);
 
 	TransformConv(Transform * tranform);
 	virtual ~TransformConv();

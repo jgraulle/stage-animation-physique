@@ -7,20 +7,28 @@
 
 #include "TransformConv.h"
 
-Vector3 TransformConv::btToGraph (const btVector3 & v) {
+Vector3 TransformConv::btToGraph(const btVector3 & v) {
 	return Vector3(v.getX()/SCALING, v.getY()/SCALING, v.getZ()/SCALING);
 }
 
-Quaternion TransformConv::btToGraph (const btQuaternion & q) {
+Quaternion TransformConv::btToGraph(const btQuaternion & q) {
 	return Quaternion(q.getW(), q.getX(), q.getY(), q.getZ());
 }
 
-btVector3 TransformConv::graphToBt (const Vector3 & v) {
+Transform TransformConv::btToGraph(const btTransform & t) {
+	return Transform(btToGraph(t.getOrigin()), btToGraph(t.getRotation()));
+}
+
+btVector3 TransformConv::graphToBt(const Vector3 & v) {
 	return btVector3(v.x*SCALING, v.y*SCALING, v.z*SCALING);
 }
 
-btQuaternion TransformConv::graphToBt (const Quaternion & q) {
+btQuaternion TransformConv::graphToBt(const Quaternion & q) {
 	return btQuaternion(q.x, q.y, q.z, q.w);
+}
+
+btTransform TransformConv::graphToBt(const Transform & t) {
+	return btTransform(graphToBt(t.getOrientation()), graphToBt(t.getPosition()));
 }
 
 TransformConv::TransformConv(Transform * tranform) : tranform(tranform) {}

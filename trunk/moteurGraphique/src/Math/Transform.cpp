@@ -164,7 +164,7 @@ Transform Transform::operator * (const Transform & t) const {
 Transform Transform::inverse(void) const  {
 	// TODO tester le scale
 	Quaternion ri = rotation.Inverse();
-	return Transform(ri * (-position), ri, scale);
+	return Transform(ri * (-position), ri, Vector3(1.0f/scale.x, 1.0f/scale.y, 1.0f/scale.z));
 }
 
 ostream & operator << ( ostream & o, const Transform & t) {
