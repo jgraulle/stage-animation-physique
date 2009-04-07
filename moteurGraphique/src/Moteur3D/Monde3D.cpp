@@ -28,6 +28,7 @@ Monde3D::~Monde3D() {
 			it != objet3DsOpaque.end() ;
 			it++) {
 		delete (*it);
+		*it=NULL;
 	}
 	objet3DsOpaque.clear();
 	// Destruction des Objet3Ds transparent
@@ -35,6 +36,7 @@ Monde3D::~Monde3D() {
 			it != objet3DsTransparent.end() ;
 			it++) {
 		delete (*it);
+		*it=NULL;
 	}
 	objet3DsTransparent.clear();
 	// vidage de la liste des objets tries par nom
@@ -44,6 +46,7 @@ Monde3D::~Monde3D() {
 			it != lumieres.end();
 			it++) {
 		delete (*it).second;
+		it->second=NULL;
 	}
 	lumieres.clear();
 }

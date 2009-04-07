@@ -144,11 +144,12 @@ int main(int argc, char **argv) {
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
 		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, false);
 
-		list<RagDoll*> ragDolls;
+		list<string> nameRagDolls;
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';
-			ragDolls.push_back(new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0, 5.0, (i/10.0)*3.0)), dynamicsWorld, monde3D));
+			nameRagDolls.push_front(buf.str());
+			monde3D->add(*nameRagDolls.begin(), new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0, 5.0, (i/10.0)*3.0)), dynamicsWorld, monde3D));
 		}
 
 		glfwSetKeyCallback(gestionTouche);
@@ -158,8 +159,6 @@ int main(int argc, char **argv) {
 			moteur->update();
 			if (playPhysique) {
 				dynamicsWorld->stepSimulation(moteur->getElapsed());
-				for (list<RagDoll*>::iterator it = ragDolls.begin(); it!=ragDolls.end(); it++)
-					(*it)->update(moteur->getElapsed());
 			}
 			gestionSouris(*camera);
 			moteur->display();
@@ -170,10 +169,15 @@ int main(int argc, char **argv) {
 			moteur->swapBuffer();
 		} while (!glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED));
 
-		delete dynamicsWorld;
+		// destruction des ragDolls
+		for (list<string>::const_iterator it=nameRagDolls.begin(); it!=nameRagDolls.end(); it++)
+			monde3D->remove(*it);
+		// du monde physique
+		delete solPhysique;
+		delete dynamicsWorld;	// TODO corriger erreur de destruction
+		// destruction des squelettes
 		delete skeletonMeshA;
-		// TODO delete de tous les elments proprement
-
+		// TODO verifier fuite memoire
 	} catch (Erreur e) {
 		cout << e.what() << endl;
 	} catch (exception e) {

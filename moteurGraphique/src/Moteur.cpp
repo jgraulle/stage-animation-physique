@@ -35,7 +35,7 @@ Moteur::Moteur()
 	}
 	tailleEcran.set(800.0f, 600.0f);
 	glfwSetWindowTitle("MoteurGraphique");
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 //	glfwDisable(GLFW_MOUSE_CURSOR);
 	glClearColor(background.getR(), background.getV(), background.getB(), background.getA());
 	glEnable(GL_DEPTH_TEST);		// test de profondeur avec le z-buffer
@@ -47,7 +47,7 @@ Moteur::Moteur()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //	glEnable(GL_ALPHA_TEST);		// activer une fonction de test pour la transparence
 //	glAlphaFunc(GL_GREATER, 0.0);	// les objets completement transparent ne mettent pas a jour le z-buffer
-	// initialisation des manettes
+	// initialisation du generateur de nombre aleatoire
 	Random::init();
 	// creation des mondes
 	monde3D = new Monde3D(tailleEcran);

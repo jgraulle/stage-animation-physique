@@ -55,5 +55,6 @@ void Skeleton::update(f32 elapsed) {
 			tempsAnim = 0.0;
 		}
 	}
-	numFrame=0;
+	// TODO debug
+//	numFrame=119;
 }

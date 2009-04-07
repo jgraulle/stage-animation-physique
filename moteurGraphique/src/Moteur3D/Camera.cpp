@@ -7,6 +7,8 @@
 
 #include "Camera.h"
 
+#include "../Outils.h"
+
 #include <GL/gl.h>
 
 // constructeur
@@ -93,6 +95,16 @@ void Camera::positionner() {
     // tourner la camera
     glRotated((f32)getRotY(), 1.0, 0.0, 0.0);
     glRotated((f32)getRotX(), 0.0, 1.0, 0.0);
+
+	{
+		// afficher le centre de la camera
+		Disable lumiere(GL_LIGHTING);
+		Disable texture(GL_TEXTURE_2D);
+		Disable profondeur(GL_DEPTH_TEST);
+		glBegin(GL_POINTS);
+		glVertex3fv(Vector3::ZERO);
+		glEnd();
+	}
     // definir les coordonnes du point fixe
     glTranslated(-getCentreObser().x, -getCentreObser().y, -getCentreObser().z);
 }
