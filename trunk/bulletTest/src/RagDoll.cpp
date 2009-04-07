@@ -183,6 +183,10 @@ RagDoll::RagDoll(const string & name, const SkeletonMesh * bvhFileName, const Ma
 
 	// creation du squelette de debug
 	skeleton = new Skeleton(skeletonMesh, mat, transform);
+	ostringstream o;
+	o << name << "-skelette";
+	skeletonName = o.str();
+	monde3D->add(skeletonName, skeleton);
 }
 
 RagDoll::~RagDoll() {
@@ -204,6 +208,8 @@ RagDoll::~RagDoll() {
 		delete m_shapes[i];
 		m_shapes[i] = 0;
 	}
+	// TODO enlever les objet3D du monde graphique
+	monde3D->remove(skeletonName);
 	delete skeleton;
 }
 
@@ -240,10 +246,7 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 
 // affichage
 void RagDoll::display() const {
-	// le dessin des body est fait automatiquement car il on ete ajoute au monde
-
-	// dessiner le squelette de debug
-	skeleton->display();
+	// le dessin des body et du skelette est fait automatiquement car il on ete ajoute au monde
 
 	// calcul de la tranformation du joint dans le repere global
 	btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
@@ -298,24 +301,26 @@ void RagDoll::update(f32 elapsed) {
 
 	int numFrame = skeleton->getNumFrame();
 	// fixer la position du root
+	Transform globalTransformRagDoll(this->getTransform().getPosition(), this->getTransform().getOrientation());
+	Transform localTransformPart;
+	//	int part = BODYPART_PELVIS;
+	for (int part=0; part<BODYPART_COUNT; part++)
 	{
-		Transform localTransformPart;
-		Transform globalTransformRagDoll(this->getTransform().getPosition(), this->getTransform().getOrientation());
 		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->fin - skeletonMesh->getOsPosition(
-				numFrame, bodyIndex[BODYPART_PELVIS])->debut;
+		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin - skeletonMesh->getOsPosition(
+				numFrame, bodyIndex[part])->debut;
 		// calcul de la position du centre de l'os dans le repere de l'animation
-		localTransformPart.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->debut
-				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[BODYPART_PELVIS])->fin) / 2.0f);
+		localTransformPart.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
+				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f);
 		// calcul de l'orientation de l'os
 		localTransformPart.setRotation(getOrientationOs(taille));
 		// creation de la forme physique et graphique
 		Transform globalTransformPart = globalTransformRagDoll * localTransformPart;
 		// TODO bizare que je dois modifier egalement la position de la physique
-		objet3Ds[BODYPART_PELVIS]->getTransform() = globalTransformPart;
-		m_bodies[BODYPART_PELVIS]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(globalTransformPart.getOrientation()), TransformConv::graphToBt(globalTransformPart.getPosition())));
+		objet3Ds[part]->getTransform() = globalTransformPart;
+		m_bodies[part]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(globalTransformPart.getOrientation()), TransformConv::graphToBt(globalTransformPart.getPosition())));
 	}
-
+/*
 	{
 		// asservir la jambe gauche
 
@@ -355,4 +360,5 @@ void RagDoll::update(f32 elapsed) {
 		}
 		}
 	}
+*/
 }
