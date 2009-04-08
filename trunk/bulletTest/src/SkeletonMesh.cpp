@@ -131,8 +131,11 @@ const Vector3 SkeletonMesh::calculOsPosEdition(MFRAME * frame, int joinId, const
 // calculer la position de chaque os dans la frame courante : parcours recursivif du skelete
 const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int joinId, const Transform & transParent) {
 	Vector3 position;
-	joint_get_position(frame, joinId, position);
-	if (position==Vector3::ZERO)
+	if (translationChildren) {
+		joint_get_position(frame, joinId, position);
+		if (position==Vector3::ZERO)
+			joint_get_offset(frame, joinId, position);
+	} else
 		joint_get_offset(frame, joinId, position);
 
 	// acces a l'orientation
