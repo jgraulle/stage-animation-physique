@@ -35,8 +35,9 @@ public:
 	virtual int getNbrJoints() const {return nbrJoints;}
 
 	// acceder a la position et la la transformation locale d'une articulation
+	virtual bool isOsPosition(int numFrame, int joinId) const;
 	virtual const Os * getOsPosition(int numFrame, int joinId) const;
-	virtual bool isOsPosition(int numFrame, int joinId) const {return osPos[numFrame][joinId]!=NULL;}
+	virtual const Vector3 & getOsPosition(int numFrame, int joinId, bool debut) const;
 	virtual const Transform & getJointsTransf(int numFrame, int joinId) const;
 
 	// acceder a la position d'un os dans la position d'edition
@@ -68,7 +69,7 @@ private:
 	int nbrTotalFrames;
 	int nbrJoints;
 	bool transformationRoot;
-	bool translationChildren;	 // TODO
+	bool translationChildren;
 
 	vector<vector<Os*> > osPos;
 	vector<vector<Transform> > jointsTransf;

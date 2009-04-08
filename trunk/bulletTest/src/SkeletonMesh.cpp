@@ -190,20 +190,35 @@ Quaternion SkeletonMesh::bvhToQuater(f32 r[3], int bindings[3]) {
 }
 
 // acceder a la position d'une articulation dans la frame courante
+bool SkeletonMesh::isOsPosition(int numFrame, int joinId) const {
+	assert(numFrame>=0 && numFrame<nbrTotalFrames);
+	assert(joinId>=0 && joinId<nbrJoints);
+	return osPos[numFrame][joinId]!=NULL;
+}
 const SkeletonMesh::Os * SkeletonMesh::getOsPosition(int numFrame, int joinId) const {
-	if (osPosEdition[joinId]==NULL) {
-		ostringstream buf;
-		buf << "l'os " << joinId << " est un os NULL pour la frame " << numFrame << " de '" << bvhFileName << "' !";
-		throw Erreur(buf.str());
-	}
+	assert(numFrame>=0 && numFrame<nbrTotalFrames);
+	assert(joinId>=0 && joinId<nbrJoints);
+	assert(osPosEdition[joinId]!=NULL);
 	return osPos[numFrame][joinId];
 }
+const Vector3 & SkeletonMesh::getOsPosition(int numFrame, int joinId, bool debut) const {
+	assert(numFrame>=0 && numFrame<nbrTotalFrames);
+	assert(joinId>=0 && joinId<nbrJoints);
+	assert(osPosEdition[joinId]!=NULL);
+	if (debut)
+		return osPos[numFrame][joinId]->debut;
+	// else
+	return osPos[numFrame][joinId]->fin;
+}
 const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const {
+	assert(numFrame>=0 && numFrame<nbrTotalFrames);
+	assert(joinId>=0 && joinId<nbrJoints);
 	return jointsTransf[numFrame][joinId];
 }
 
 // acceder a la position d'un os dans la position d'edition
 const SkeletonMesh::Os * SkeletonMesh::getOsPosEdition(int joinId) const {
+	assert(joinId>=0 && joinId<nbrJoints);
 	if (osPosEdition[joinId]==NULL) {
 		ostringstream buf;
 		buf << "l'os " << joinId << " est un os NULL pour '" << bvhFileName << "' !";
@@ -214,6 +229,7 @@ const SkeletonMesh::Os * SkeletonMesh::getOsPosEdition(int joinId) const {
 
 // acceder au nom d'une articulation a partir de sont id
 const string & SkeletonMesh::getJointName(int joinId) const {
+	assert(joinId>=0 && joinId<nbrJoints);
 	return jointsNameById[joinId];
 }
 

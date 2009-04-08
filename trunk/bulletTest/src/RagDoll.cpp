@@ -27,18 +27,18 @@ const int RagDoll::CONTRAINTES_BODY[RagDoll::JOINT_COUNT][2] = { { BODYPART_PELV
 		{ BODYPART_RIGHT_UPPER_ARM, BODYPART_RIGHT_LOWER_ARM } // JOINT_RIGHT_ELBOW
 };
 
-const int RagDoll::BODY_ALIGNE[RagDoll::BODYPART_COUNT] = {
-		BODYPART_LEFT_UPPER_LEG, // BODYPART_PELVIS = 0,
-		BODYPART_LEFT_UPPER_ARM, // BODYPART_SPINE,
-		BODYPART_HEAD, // BODYPART_HEAD TODO trouver un autre point de repere pour la tete
-		BODYPART_LEFT_LOWER_LEG, // BODYPART_LEFT_UPPER_LEG,
-		BODYPART_LEFT_UPPER_LEG, // BODYPART_LEFT_LOWER_LEG,
-		BODYPART_RIGHT_LOWER_LEG, // BODYPART_RIGHT_UPPER_LEG,
-		BODYPART_RIGHT_UPPER_LEG, // BODYPART_RIGHT_LOWER_LEG,
-		BODYPART_LEFT_LOWER_ARM, // BODYPART_LEFT_UPPER_ARM,
-		BODYPART_LEFT_UPPER_ARM, // BODYPART_LEFT_LOWER_ARM,
-		BODYPART_RIGHT_LOWER_ARM, // BODYPART_RIGHT_UPPER_ARM,
-		BODYPART_RIGHT_UPPER_ARM // BODYPART_RIGHT_LOWER_ARM,
+const int RagDoll::BODY_ALIGNE[RagDoll::BODYPART_COUNT][4] = {
+		{BODYPART_PELVIS, true, BODYPART_LEFT_UPPER_LEG, true},				// BODYPART_PELVIS
+		{BODYPART_SPINE, true, BODYPART_LEFT_UPPER_ARM, true},				// BODYPART_SPINE
+		{BODYPART_HEAD, true, BODYPART_HEAD, true},							// BODYPART_HEAD TODO trouver un autre point de repere pour la tete
+		{BODYPART_LEFT_LOWER_LEG, true, BODYPART_LEFT_LOWER_LEG, false},	// BODYPART_LEFT_UPPER_LEG
+		{BODYPART_LEFT_UPPER_LEG, false, BODYPART_LEFT_UPPER_LEG, true},	// BODYPART_LEFT_LOWER_LEG
+		{BODYPART_RIGHT_LOWER_LEG, true, BODYPART_RIGHT_LOWER_LEG, false},	// BODYPART_RIGHT_UPPER_LEG
+		{BODYPART_RIGHT_UPPER_LEG, false, BODYPART_RIGHT_UPPER_LEG, true},	// BODYPART_RIGHT_LOWER_LEG
+		{BODYPART_LEFT_LOWER_ARM, false, BODYPART_LEFT_LOWER_ARM, true},	// BODYPART_LEFT_UPPER_ARM
+		{BODYPART_LEFT_UPPER_ARM, true, BODYPART_LEFT_UPPER_ARM, false},	// BODYPART_LEFT_LOWER_ARM
+		{BODYPART_RIGHT_LOWER_ARM, false, BODYPART_RIGHT_LOWER_ARM, true},	// BODYPART_RIGHT_UPPER_ARM
+		{BODYPART_RIGHT_UPPER_ARM, true, BODYPART_RIGHT_UPPER_ARM, false}	 // BODYPART_RIGHT_LOWER_ARM
 };
 
 const btQuaternion RagDoll::CONTRAINTES_ORIENTATIONS[RagDoll::JOINT_COUNT][2] = { { btQuaternion(M_PI_2,0, 0),
@@ -272,65 +272,55 @@ btRigidBody * RagDoll::localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayo
 void RagDoll::display() const {
 	// le dessin des body et du skelette est fait automatiquement car il on ete ajoute au monde
 
-	// calcul de la tranformation du joint dans le repere global
-	btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
-	btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
-
-	// calcul de la direction de l'os dans l'animation dans le repere global
-	int numFrame = this->skeleton->getNumFrame();
-	int part=BODYPART_LEFT_UPPER_LEG;
-	int partFils=BODYPART_LEFT_LOWER_LEG;
-	// calcul de la position du centre de l'os dans le repere de l'animation
-	Vector3 position = (skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
-			            + skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f;
-	// calcul du vecteur des y grace a la direction du membre
-	Vector3 vecY =   skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin
-	               - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
-	vecY.normalise();
-	// calcul du vecteur des x grace a la position du fils
-	Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[partFils])->fin
-	                     - skeletonMesh->getOsPosition(numFrame, bodyIndex[partFils])->debut;
-	vecDirFils.normalise();
-	Vector3 vecX = vecY.crossProduct(vecDirFils);
-	vecX.normalise();
-	// calcul du vecteur des z grace a un produit vectoriel
-	Vector3 vecZ = vecX.crossProduct(vecY);
-	vecZ.normalise();
-	// calcul de la rotation grace au constructeur de quaternion suivant les 3 axes
-	Quaternion q;
-	q.FromAxes(vecX, vecY, vecZ);
-	Transform partInRagDollTrans = Transform(position, q);
-
-	// DEBUT DEBUG
 	Transform RagDollGlobalInverseTransform = this->getTransform().inverse();
-	Transform jointPereLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereGlobalTransform);
-	Transform jointFilsLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointFilsGlobalTransform);
 
 	Disable lumiere(GL_LIGHTING);
 	Disable texture(GL_TEXTURE_2D);
 	Disable profondeur(GL_DEPTH_TEST);
 	glBegin(GL_LINES);
+/*
+	// calcul de la tranformation du joint dans le repere global
+	btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
+	btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
+	Transform jointPereLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereGlobalTransform);
+	Transform jointFilsLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointFilsGlobalTransform);
+
 	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
 	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_X);
 	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_X);
-	glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-	glVertex3fv(partInRagDollTrans * Vector3::UNIT_X);
 	glColor4f(0.0f, 1.0f, 0.0f, 1.f);
 	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_Y);
 	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Y);
-	glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-	glVertex3fv(partInRagDollTrans * Vector3::UNIT_Y);
 	glColor4f(0.0f, 0.0f, 1.0f, 1.f);
 	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_Z);
 	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Z);
-	glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-	glVertex3fv(partInRagDollTrans * Vector3::UNIT_Z);
+*/
+
+	// calcul de la direction de l'os dans l'animation dans le repere global
+	int part=BODYPART_LEFT_UPPER_ARM;
+	for (int part=0; part<BODYPART_COUNT; part++) {
+		Transform partInGlobalTrans = this->objet3Ds[part]->getTransform();
+
+		// DEBUT DEBUG
+		Transform partInRagDollTrans = RagDollGlobalInverseTransform * partInGlobalTrans;
+
+		glColor4f(1.0f, 0.0f, 0.0f, 1.f);
+		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
+		glVertex3fv(partInRagDollTrans * Vector3::UNIT_X);
+		glColor4f(0.0f, 1.0f, 0.0f, 1.f);
+		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
+		glVertex3fv(partInRagDollTrans * Vector3::UNIT_Y);
+		glColor4f(0.0f, 0.0f, 1.0f, 1.f);
+		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
+		glVertex3fv(partInRagDollTrans * Vector3::UNIT_Z);
+	}
+
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 }
@@ -344,27 +334,6 @@ void RagDoll::update(f32 elapsed) {
 
 	int numFrame = skeleton->getNumFrame();
 	Transform ragDollInGlobalTrans(this->getTransform().getPosition(), this->getTransform().getOrientation());
-/*
-	// fixer la position de chaque membre : methode qu'avec le vecteur directeur
-	Transform partInRagDollTrans;
-//	for (int part=0; part<BODYPART_COUNT; part++)
-	{
-	int part = BODYPART_PELVIS;
-		// calcul de la longueur et du rayon de l'os (distance entre les 2 extreminte de l'os)
-		Vector3 taille = skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin - skeletonMesh->getOsPosition(
-				numFrame, bodyIndex[part])->debut;
-		// calcul de la position du centre de l'os dans le repere de l'animation
-		partInRagDollTrans.setPosition((skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
-				+ skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f);
-		// calcul de l'orientation de l'os
-		partInRagDollTrans.setRotation(getOrientationOs(taille));
-		// creation de la forme physique et graphique
-		Transform PartInGlobalTrans = ragDollInGlobalTrans * partInRagDollTrans;
-		// TODO bizare que je dois modifier egalement la position de la physique
-		objet3Ds[part]->getTransform() = PartInGlobalTrans;
-		m_bodies[part]->setCenterOfMassTransform(btTransform(TransformConv::graphToBt(PartInGlobalTrans.getOrientation()), TransformConv::graphToBt(PartInGlobalTrans.getPosition())));
-	}
-*/
 
 	// fixer la position de chaque membre : methode utilisant la position du pere ou fils pour construire un plan
 	for (int part=0; part<BODYPART_COUNT; part++)
@@ -375,18 +344,16 @@ void RagDoll::update(f32 elapsed) {
 		    || part==BODYPART_LEFT_LOWER_LEG || part==BODYPART_RIGHT_LOWER_LEG
 		    || part==BODYPART_LEFT_LOWER_ARM || part==BODYPART_RIGHT_LOWER_ARM
 		   ) {
-			int partFils=BODY_ALIGNE[part];
 			// calcul de la position du centre de l'os dans le repere de l'animation
 			Vector3 position = (skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
-								+ skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f;
+					            + skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f;
 			// calcul du vecteur des y grace a la direction du membre
 			Vector3 vecY =   skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin
-						   - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
+			               - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
 			vecY.normalise();
 			// calcul du vecteur des x grace a la position du fils
-			Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[partFils])->debut
-						         - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
-			vecDirFils.normalise();
+			Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][0]], BODY_ALIGNE[part][1])
+			                     - skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][2]], BODY_ALIGNE[part][3]);
 			Vector3 vecX = vecY.crossProduct(vecDirFils);
 			vecX.normalise();
 			// calcul du vecteur des z grace a un produit vectoriel
@@ -394,7 +361,10 @@ void RagDoll::update(f32 elapsed) {
 			vecZ.normalise();
 			// calcul de la rotation grace au constructeur de quaternion suivant les 3 axes
 			Quaternion q;
-			q.FromAxes(vecX, vecY, vecZ);
+			if (part==BODYPART_PELVIS || part==BODYPART_SPINE)
+				q.FromAxes(-vecZ, vecY, vecX);
+			else
+				q.FromAxes(vecX, vecY, vecZ);
 			Transform partInRagDollTrans = Transform(position, q);
 			// positionner la forme graphique
 			Transform PartInGlobalTrans = ragDollInGlobalTrans * partInRagDollTrans;
