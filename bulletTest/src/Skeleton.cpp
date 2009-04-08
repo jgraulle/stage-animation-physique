@@ -44,7 +44,7 @@ void Skeleton::display() const {
 
 // fonction de mise a jour de l'objet
 void Skeleton::update(f32 elapsed) {
-	tempsAnim += elapsed/4.0f;
+	tempsAnim += elapsed;
 	// si le temps est plus grand que le temps de debut de la prochaine frame
 	if (tempsAnim>(numFrame+1)*skeletonMesh->getTempsParFrame()) {
 		// passer a la frame suivante

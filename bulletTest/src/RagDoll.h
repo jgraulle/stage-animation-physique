@@ -80,7 +80,7 @@ private :
 
 	// constante qui definissent l'ensemble des contraintes d'une ragDoll
 	static const int CONTRAINTES_BODY[JOINT_COUNT][2];
-	static const int BODY_ALIGNE[BODYPART_COUNT];
+	static const int BODY_ALIGNE[BODYPART_COUNT][4];
 	static const btQuaternion CONTRAINTES_ORIENTATIONS[JOINT_COUNT][2];
 	static const btVector3 CONTRAINTES_LIMITES_ANGLES[JOINT_COUNT][2];
 	static const bool CONTRAINTES_IS_CONE[JOINT_COUNT];
