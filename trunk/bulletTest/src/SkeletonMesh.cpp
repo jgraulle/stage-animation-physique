@@ -219,11 +219,7 @@ const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const 
 // acceder a la position d'un os dans la position d'edition
 const SkeletonMesh::Os * SkeletonMesh::getOsPosEdition(int joinId) const {
 	assert(joinId>=0 && joinId<nbrJoints);
-	if (osPosEdition[joinId]==NULL) {
-		ostringstream buf;
-		buf << "l'os " << joinId << " est un os NULL pour '" << bvhFileName << "' !";
-		throw Erreur(buf.str());
-	}
+	assert(osPosEdition[joinId]!=NULL);
 	return osPosEdition[joinId];
 }
 

@@ -12,6 +12,7 @@
 #include "RagDoll.h"
 #include "SkeletonMesh.h"
 
+#include "../../moteurGraphique/src/Math/Couleur.h"
 #include <iostream>
 #include <sstream>
 #include <GL/glfw.h>
@@ -100,6 +101,10 @@ void gestionTouche(int touche, int etat) {
 }
 
 int main(int argc, char **argv) {
+
+	Couleur * a = new Couleur(0,0,0,0);
+	Couleur * b = new Couleur(0,0,0,0);
+
 	try {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();

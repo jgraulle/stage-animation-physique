@@ -302,25 +302,6 @@ void RagDoll::display() const {
 	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Z);
 */
 
-	// calcul de la direction de l'os dans l'animation dans le repere global
-	int part=BODYPART_LEFT_UPPER_ARM;
-	for (int part=0; part<BODYPART_COUNT; part++) {
-		Transform partInGlobalTrans = this->objet3Ds[part]->getTransform();
-
-		// DEBUT DEBUG
-		Transform partInRagDollTrans = RagDollGlobalInverseTransform * partInGlobalTrans;
-
-		glColor4f(1.0f, 0.0f, 0.0f, 1.f);
-		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-		glVertex3fv(partInRagDollTrans * Vector3::UNIT_X);
-		glColor4f(0.0f, 1.0f, 0.0f, 1.f);
-		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-		glVertex3fv(partInRagDollTrans * Vector3::UNIT_Y);
-		glColor4f(0.0f, 0.0f, 1.0f, 1.f);
-		glVertex3fv(partInRagDollTrans * Vector3::ZERO);
-		glVertex3fv(partInRagDollTrans * Vector3::UNIT_Z);
-	}
-
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 }
@@ -341,8 +322,8 @@ void RagDoll::update(f32 elapsed) {
 		if (   part==BODYPART_PELVIS || part==BODYPART_SPINE
 			|| part==BODYPART_LEFT_UPPER_LEG || part==BODYPART_RIGHT_UPPER_LEG
 		    || part==BODYPART_LEFT_UPPER_ARM || part==BODYPART_RIGHT_UPPER_ARM
-		    || part==BODYPART_LEFT_LOWER_LEG || part==BODYPART_RIGHT_LOWER_LEG
-		    || part==BODYPART_LEFT_LOWER_ARM || part==BODYPART_RIGHT_LOWER_ARM
+//		    || part==BODYPART_LEFT_LOWER_LEG || part==BODYPART_RIGHT_LOWER_LEG
+//		    || part==BODYPART_LEFT_LOWER_ARM || part==BODYPART_RIGHT_LOWER_ARM
 		   ) {
 			// calcul de la position du centre de l'os dans le repere de l'animation
 			Vector3 position = (skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
@@ -373,18 +354,36 @@ void RagDoll::update(f32 elapsed) {
 		}
 	}
 
-/*
+
 	// asservir les articulations avec un seul degrees de liberte
 	for (int jointId=0; jointId<JOINT_COUNT; jointId++)	{
 		if (   jointId==JOINT_LEFT_KNEE || jointId==JOINT_RIGHT_KNEE
 		    || jointId==JOINT_LEFT_ELBOW || jointId==JOINT_RIGHT_ELBOW
 		   ) {
-			f32 dif = m_jointsHinge[jointId]->getHingeAngle();
-			dif = -dif *5.0;
+			int partPere = CONTRAINTES_BODY[jointId][0];
+			int partFils = CONTRAINTES_BODY[jointId][1];
+			// calcul du vecteur directeur du membre pere
+			Vector3 vecDirPere =   skeletonMesh->getOsPosition(numFrame, bodyIndex[partPere])->fin
+			                     - skeletonMesh->getOsPosition(numFrame, bodyIndex[partPere])->debut;
+			vecDirPere.normalisef();
+			// calcul du vecteur directeur du membre fils
+			Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[partFils])->fin
+						         - skeletonMesh->getOsPosition(numFrame, bodyIndex[partFils])->debut;
+			vecDirFils.normalisef();
+			// calcul de l'angle cible
+			f32 angleCible = acosf(vecDirPere.dotProduct(vecDirFils));
+			if (vecDirPere.crossProduct(vecDirFils).x<0.0f)
+				angleCible = -angleCible;
+
+			// calcul de la difference avec l'angle courant
+			f32 dif = angleCible - m_jointsHinge[jointId]->getHingeAngle();
+			// ajout d'un correcteur proportionnel
+			dif = dif*5.0f;
 			m_jointsHinge[jointId]->enableAngularMotor(true, dif, maxImpulseHinge);
 		}
 	}
-*/
+	cout << endl;
+
 /*
 	{
 		// asservir la jambe gauche
@@ -407,9 +406,10 @@ void RagDoll::update(f32 elapsed) {
 		}
 	}
 */
-/*
+
 	// asservir les autres membres en position 0
-	for (int jointId=0; jointId<JOINT_COUNT; jointId++) {
+//	for (int jointId=0; jointId<JOINT_COUNT; jointId++) {
+	int jointId = JOINT_SPINE_HEAD; {
 		if (CONTRAINTES_IS_CONE[jointId]) {
 			for (int axe = 0; axe < 3; axe++) {
 				f32 dif = m_jointsGeneric6[jointId]->getAngle(axe);
@@ -424,5 +424,5 @@ void RagDoll::update(f32 elapsed) {
 			m_jointsHinge[jointId]->enableAngularMotor(true, dif, maxImpulseHinge);
 		}
 	}
-*/
+
 }
