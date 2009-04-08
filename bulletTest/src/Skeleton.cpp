@@ -29,22 +29,22 @@ void Skeleton::display() const {
 		}
 	}
 
-	glEnd();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
-	glPointSize(1.0f);
-	glBegin(GL_LINES);
+/*	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
 		if (skeletonMesh->isOsPosEdition(joinId)) {
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->debut);
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->fin);
 		}
 	}
+*/
 	glEnd();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+	glPointSize(1.0f);
 }
 
 // fonction de mise a jour de l'objet
 void Skeleton::update(f32 elapsed) {
-	tempsAnim += elapsed;
+	tempsAnim += elapsed/4.0f;
 	// si le temps est plus grand que le temps de debut de la prochaine frame
 	if (tempsAnim>(numFrame+1)*skeletonMesh->getTempsParFrame()) {
 		// passer a la frame suivante
