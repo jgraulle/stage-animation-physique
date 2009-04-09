@@ -278,12 +278,14 @@ void RagDoll::display() const {
 	Disable texture(GL_TEXTURE_2D);
 	Disable profondeur(GL_DEPTH_TEST);
 	glBegin(GL_LINES);
-/*
+
 	// calcul de la tranformation du joint dans le repere global
-	btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
-	btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
-	Transform jointPereLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereGlobalTransform);
-	Transform jointFilsLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointFilsGlobalTransform);
+	btTransform jointPereInGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
+	btTransform jointFilsInGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
+	btTransform jointFilsInJointPereTrans = jointPereInGlobalTransform.inverse() * jointFilsInGlobalTransform;
+
+	Transform jointPereLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereInGlobalTransform);
+	Transform jointFilsLocalTransform = RagDollGlobalInverseTransform * TransformConv::btToGraph(jointPereInGlobalTransform * jointFilsInJointPereTrans);
 
 	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
 	glVertex3fv(jointPereLocalTransform * Vector3::ZERO);
@@ -300,10 +302,32 @@ void RagDoll::display() const {
 	glVertex3fv(jointPereLocalTransform * Vector3::UNIT_Z);
 	glVertex3fv(jointFilsLocalTransform * Vector3::ZERO);
 	glVertex3fv(jointFilsLocalTransform * Vector3::UNIT_Z);
-*/
 
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+}
+
+Quaternion RagDoll::getOrientationOs(int part) {
+	int numFrame = skeleton->getNumFrame();
+	// calcul du vecteur des y grace a la direction du membre
+	Vector3 vecY =   skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin
+	               - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
+	vecY.normalise();
+	// calcul du vecteur des x grace a la position du fils
+	Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][0]], BODY_ALIGNE[part][1])
+	                     - skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][2]], BODY_ALIGNE[part][3]);
+	Vector3 vecX = vecY.crossProduct(vecDirFils);
+	vecX.normalise();
+	// calcul du vecteur des z grace a un produit vectoriel
+	Vector3 vecZ = vecX.crossProduct(vecY);
+	vecZ.normalise();
+	// calcul de la rotation grace au constructeur de quaternion suivant les 3 axes
+	Quaternion q;
+	if (part==BODYPART_PELVIS || part==BODYPART_SPINE)
+		q.FromAxes(-vecZ, vecY, vecX);
+	else
+		q.FromAxes(vecX, vecY, vecZ);
+	return q;
 }
 
 // fonction de mise a jour du personnage
@@ -313,40 +337,22 @@ void RagDoll::update(f32 elapsed) {
 	static f32 maxMotorForce = 10.8;
 	static f32 maxImpulseHinge = 10.8;
 
-	int numFrame = skeleton->getNumFrame();
+	int numFrame = skeleton->getNumFrameSuivante();
 	Transform ragDollInGlobalTrans(this->getTransform().getPosition(), this->getTransform().getOrientation());
 
 	// fixer la position de chaque membre : methode utilisant la position du pere ou fils pour construire un plan
-	for (int part=0; part<BODYPART_COUNT; part++)
-	{
+	for (int part=0; part<BODYPART_COUNT; part++) {
 		if (   part==BODYPART_PELVIS || part==BODYPART_SPINE
-			|| part==BODYPART_LEFT_UPPER_LEG || part==BODYPART_RIGHT_UPPER_LEG
-		    || part==BODYPART_LEFT_UPPER_ARM || part==BODYPART_RIGHT_UPPER_ARM
+//			|| part==BODYPART_LEFT_UPPER_LEG || part==BODYPART_RIGHT_UPPER_LEG
+//		    || part==BODYPART_LEFT_UPPER_ARM || part==BODYPART_RIGHT_UPPER_ARM
 //		    || part==BODYPART_LEFT_LOWER_LEG || part==BODYPART_RIGHT_LOWER_LEG
 //		    || part==BODYPART_LEFT_LOWER_ARM || part==BODYPART_RIGHT_LOWER_ARM
 		   ) {
 			// calcul de la position du centre de l'os dans le repere de l'animation
 			Vector3 position = (skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut
 					            + skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin) / 2.0f;
-			// calcul du vecteur des y grace a la direction du membre
-			Vector3 vecY =   skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->fin
-			               - skeletonMesh->getOsPosition(numFrame, bodyIndex[part])->debut;
-			vecY.normalise();
-			// calcul du vecteur des x grace a la position du fils
-			Vector3 vecDirFils =   skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][0]], BODY_ALIGNE[part][1])
-			                     - skeletonMesh->getOsPosition(numFrame, bodyIndex[BODY_ALIGNE[part][2]], BODY_ALIGNE[part][3]);
-			Vector3 vecX = vecY.crossProduct(vecDirFils);
-			vecX.normalise();
-			// calcul du vecteur des z grace a un produit vectoriel
-			Vector3 vecZ = vecX.crossProduct(vecY);
-			vecZ.normalise();
-			// calcul de la rotation grace au constructeur de quaternion suivant les 3 axes
-			Quaternion q;
-			if (part==BODYPART_PELVIS || part==BODYPART_SPINE)
-				q.FromAxes(-vecZ, vecY, vecX);
-			else
-				q.FromAxes(vecX, vecY, vecZ);
-			Transform partInRagDollTrans = Transform(position, q);
+			Quaternion orientation = getOrientationOs(part);
+			Transform partInRagDollTrans = Transform(position, orientation);
 			// positionner la forme graphique
 			Transform PartInGlobalTrans = ragDollInGlobalTrans * partInRagDollTrans;
 			objet3Ds[part]->getTransform() = PartInGlobalTrans;
@@ -379,37 +385,67 @@ void RagDoll::update(f32 elapsed) {
 			f32 dif = angleCible - m_jointsHinge[jointId]->getHingeAngle();
 			// ajout d'un correcteur proportionnel
 			dif = dif*5.0f;
+			// activer l'asservissement en vitesse
 			m_jointsHinge[jointId]->enableAngularMotor(true, dif, maxImpulseHinge);
 		}
 	}
-	cout << endl;
 
-/*
-	{
-		// asservir la jambe gauche
+	// asservir les articulations avec 3 degrees de liberte
+	for (int jointId=0; jointId<JOINT_COUNT; jointId++)	{
+		if (   jointId==JOINT_RIGHT_HIP || jointId==JOINT_LEFT_HIP
+			|| jointId==JOINT_RIGHT_SHOULDER || jointId==JOINT_LEFT_SHOULDER
+		   ) {
+			f32 anglesCourant[3];
 
-		// calcul de la tranformation du joint dans le repere global
-		btTransform jointPereGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformA();
-		btTransform jointFilsGlobalTransform = m_jointsGeneric6[JOINT_LEFT_HIP]->getCalculatedTransformB();
+	/*		// calcul de l'angle courant methode 1
+			btMatrix3x3 jointPereInGlobalOrient = m_jointsGeneric6[jointId]->getCalculatedTransformA().getBasis();
+			btMatrix3x3 jointFilsInGlobalOrient = m_jointsGeneric6[jointId]->getCalculatedTransformB().getBasis();
+			btMatrix3x3 jointFilsInJointPereOrient = jointPereInGlobalOrient.inverse() * jointFilsInGlobalOrient;
+			jointFilsInJointPereOrient.getEulerYPR(anglesCourant[2], anglesCourant[1], anglesCourant[0]);
+	*/
+	/*		// calcul de l'angle courant methode 2
+			btMatrix3x3 partPereInRagDollOrient = m_bodies[CONTRAINTES_BODY[jointId][0]]->getCenterOfMassTransform().getBasis();
+			btMatrix3x3 partFilsInRagDollOrient = m_bodies[CONTRAINTES_BODY[jointId][1]]->getCenterOfMassTransform().getBasis();
+			btMatrix3x3 jointPereInRagDollOrient = partPereInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetA().getBasis();
+			btMatrix3x3 jointFilsInRagDollOrient = partFilsInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetB().getBasis();
+			btMatrix3x3 jointFilsInJointPereOrient = jointPereInRagDollOrient.inverse() * jointFilsInRagDollOrient;
+			jointFilsInJointPereOrient.getEulerYPR(anglesCourant[2], anglesCourant[1], anglesCourant[0]);
+	*/
 
-		btTransform angleTransform = jointPereGlobalTransform.inverse() * jointFilsGlobalTransform;
-		f32 angles[3];
-		angleTransform.getBasis().getEulerYPR(angles[0], angles[1], angles[2]);
-//		cout << angles[0] << ", " << angles[1] << ", " << angles[2] << endl;
+			// calcul de l'angle courant methode 3
+	/*		btMatrix3x3 partPereInRagDollOrient = btMatrix3x3(TransformConv::graphToBt(objet3Ds[CONTRAINTES_BODY[jointId][0]]->getTransform().getOrientation()));
+			btMatrix3x3 partFilsInRagDollOrient = btMatrix3x3(TransformConv::graphToBt(objet3Ds[CONTRAINTES_BODY[jointId][1]]->getTransform().getOrientation()));
+			btMatrix3x3 jointPereInRagDollOrient = partPereInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetA().getBasis();
+			btMatrix3x3 jointFilsInRagDollOrient = partFilsInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetB().getBasis();
+			btMatrix3x3 jointFilsInJointPereOrient = jointPereInRagDollOrient.inverse() * jointFilsInRagDollOrient;
+			jointFilsInJointPereOrient.getEulerYPR(anglesCourant[2], anglesCourant[1], anglesCourant[0]);
+	*/
+			// TODO calculer l'angle cible dans le repere du pere
+			btMatrix3x3 partPereInRagDollOrient = btMatrix3x3(TransformConv::graphToBt(getOrientationOs(CONTRAINTES_BODY[jointId][0])));
+			btMatrix3x3 partFilsInRagDollOrient = btMatrix3x3(TransformConv::graphToBt(getOrientationOs(CONTRAINTES_BODY[jointId][1])));
+			btMatrix3x3 jointPereInRagDollOrient = partPereInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetA().getBasis();
+			btMatrix3x3 jointFilsInRagDollOrient = partFilsInRagDollOrient * m_jointsGeneric6[jointId]->getFrameOffsetB().getBasis();
+			btMatrix3x3 jointFilsInJointPereOrient = jointPereInRagDollOrient.inverse() * jointFilsInRagDollOrient;
+			f32 anglesCible[3] = {0.1f, 0.2f, 0.3f};
+			jointFilsInJointPereOrient.getEulerYPR(anglesCible[2], anglesCible[1], anglesCible[0]);
 
-		for (int axe = 0; axe < 3; axe++) {
-			f32 dif = m_jointsGeneric6[JOINT_LEFT_HIP]->getAngle(axe) - 0.0f;
-			dif = -dif;
-			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_enableMotor = true;
-			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_targetVelocity = dif;
-			m_jointsGeneric6[JOINT_LEFT_HIP]->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			for (int axe = 0; axe < 3; axe++) {
+				// calcul de la difference avec l'angle courant
+				f32 dif = (-anglesCible[axe]) - m_jointsGeneric6[jointId]->getAngle(axe);
+				// ajout d'un correcteur proportionnel
+				dif = dif*5.0f;
+				// activer l'asservissement en vitesse
+				m_jointsGeneric6[jointId]->getRotationalLimitMotor(axe)->m_enableMotor = true;
+				m_jointsGeneric6[jointId]->getRotationalLimitMotor(axe)->m_targetVelocity = dif;
+				m_jointsGeneric6[jointId]->getRotationalLimitMotor(axe)->m_maxMotorForce = maxMotorForce;
+			}
 		}
 	}
-*/
+
 
 	// asservir les autres membres en position 0
 //	for (int jointId=0; jointId<JOINT_COUNT; jointId++) {
-	int jointId = JOINT_SPINE_HEAD; {
+	{ int jointId = JOINT_SPINE_HEAD;
 		if (CONTRAINTES_IS_CONE[jointId]) {
 			for (int axe = 0; axe < 3; axe++) {
 				f32 dif = m_jointsGeneric6[jointId]->getAngle(axe);

@@ -87,6 +87,7 @@ private :
 
 	btRigidBody * localCreateRigidBody(btScalar mass, f32 hauteur, f32 rayon, const Transform & globalTransformPart, int bodyPart, const Material & mat);
 	static Quaternion getOrientationOs(const Vector3 &);
+	Quaternion getOrientationOs(int part);
 
 	const string name;
 	// bvh
