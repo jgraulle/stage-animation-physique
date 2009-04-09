@@ -31,6 +31,7 @@ public:
 
 	virtual const SkeletonMesh * getSkeletonMesh() {return skeletonMesh;}
 	virtual int getNumFrame() {return numFrame;}
+	virtual int getNumFrameSuivante();
 
 private:
 	const SkeletonMesh * skeletonMesh;

@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 		// chargement des bvh
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
-		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, false, false);
+		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, true, false);
 
 		list<string> nameRagDolls;
 		for (int i=0; i<1; i++) {
