@@ -101,10 +101,6 @@ void gestionTouche(int touche, int etat) {
 }
 
 int main(int argc, char **argv) {
-
-	Couleur * a = new Couleur(0,0,0,0);
-	Couleur * b = new Couleur(0,0,0,0);
-
 	try {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
@@ -147,15 +143,19 @@ int main(int argc, char **argv) {
 		// chargement des bvh
 		Quaternion q = Quaternion::IDENTITY;
 		q.FromAngleAxis(-M_PI_2, Vector3::UNIT_Y);
-		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, true, false);
+		SkeletonMesh * skeletonMeshA = new SkeletonMesh("data/walk.bvh", q, 0.1f, false, false);
+		// TODO faire marcher le 2eme squelette
+		SkeletonMesh * skeletonMeshB = new SkeletonMesh("data/walk2.bvh", Quaternion::IDENTITY, 0.1f, false, false);
 
 		list<string> nameRagDolls;
 		for (int i=0; i<1; i++) {
 			ostringstream buf;
 			buf << "perso.a." << i << '.';
 			nameRagDolls.push_front(buf.str());
-			monde3D->add(*nameRagDolls.begin(), new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*3.0, 5.0, (i/10.0)*3.0)), dynamicsWorld, monde3D));
+			monde3D->add(*nameRagDolls.begin(), new RagDoll(buf.str(), skeletonMeshA, mat, Transform(Vector3((i%10)*10.0, 10.0, (i/10.0)*5.0)), dynamicsWorld, monde3D));
 		}
+		monde3D->add("perso.b", new RagDoll("perso.b", skeletonMeshB, mat, Transform(Vector3(10.0, 10.0, 10.0)), dynamicsWorld, monde3D));
+		nameRagDolls.push_front("perso.b");
 
 		glfwSetKeyCallback(gestionTouche);
 

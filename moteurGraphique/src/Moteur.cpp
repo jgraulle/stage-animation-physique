@@ -35,7 +35,7 @@ Moteur::Moteur()
 	}
 	tailleEcran.set(800.0f, 600.0f);
 	glfwSetWindowTitle("MoteurGraphique");
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 //	glfwDisable(GLFW_MOUSE_CURSOR);
 	glClearColor(background.getR(), background.getV(), background.getB(), background.getA());
 	glEnable(GL_DEPTH_TEST);		// test de profondeur avec le z-buffer
