@@ -95,7 +95,7 @@ private :
 	Skeleton * skeleton;
 	string skeletonName;
 	int bodyIndex[BODYPART_COUNT];
-	int rapportHauteursRayons[BODYPART_COUNT];
+	f32 rapportHauteursRayons[BODYPART_COUNT];
 	f32 poids[BODYPART_COUNT];
 	f32 scale;
 	// physique

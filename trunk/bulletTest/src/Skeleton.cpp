@@ -24,19 +24,29 @@ void Skeleton::display() const {
 
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
 		if (skeletonMesh->isOsPosition(numFrame,joinId)) {
+			if (skeletonMesh->getJointName(joinId)=="LeftHip" || skeletonMesh->getJointName(joinId)=="LeftUpLeg")
+				glColor4f(1.0f, 0.0f, 0.0f, 1.f);
+			else
+				glColor4f(0.3f, 0.0f, 0.0f, 1.f);
 			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->debut);
+			glColor4f(0.0f, 0.0f, 0.0f, 1.f);
 			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->fin);
 		}
 	}
 
-/*	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
 		if (skeletonMesh->isOsPosEdition(joinId)) {
+			if (skeletonMesh->getJointName(joinId)=="LeftHip" || skeletonMesh->getJointName(joinId)=="LeftUpLeg")
+				glColor4f(0.0f, 1.0f, 0.0f, 1.f);
+			else
+				glColor4f(0.0f, 0.3f, 0.0f, 1.f);
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->debut);
+			glColor4f(0.0f, 0.0f, 0.0f, 1.f);
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->fin);
 		}
 	}
-*/
+
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	glPointSize(1.0f);
@@ -55,8 +65,6 @@ void Skeleton::update(f32 elapsed) {
 			tempsAnim = 0.0;
 		}
 	}
-	// TODO debug
-//	numFrame=119;
 }
 
 int Skeleton::getNumFrameSuivante() {
