@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Declaration du nom du projet
-PROJECT(testBvh)
+PROJECT(bvhViewer)
 
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
@@ -74,7 +74,7 @@ LINK_DIRECTORIES(${MOTEUR_GRAPHIQUE_LIBRARY_DIR})
 FILE(GLOB_RECURSE source_files src/*)
 
 # Declaration de l'executable
-ADD_EXECUTABLE(test ${source_files})
+ADD_EXECUTABLE(bvhViewer ${source_files})
 
 # Ajout des librairies
-target_link_libraries(test ${BVH_LIBRARY_NAME} ${MOTEUR_GRAPHIQUE_LIBRARY_NAME} ${DEVIL_LIBRARY_NAME} ${ILU_LIBRARY_NAME} ${ILUT_LIBRARY_NAME} ${GLFW_LIBRARY_NAME} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+target_link_libraries(bvhViewer ${BVH_LIBRARY_NAME} ${MOTEUR_GRAPHIQUE_LIBRARY_NAME} ${DEVIL_LIBRARY_NAME} ${ILU_LIBRARY_NAME} ${ILUT_LIBRARY_NAME} ${GLFW_LIBRARY_NAME} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})

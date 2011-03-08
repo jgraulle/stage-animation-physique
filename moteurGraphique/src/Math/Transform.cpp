@@ -12,6 +12,9 @@
 Transform::Transform(const Vector3 & position, const Quaternion & rotation, const Vector3 & scale)
 : position(position), rotation(rotation), scale(scale) {}
 
+Transform::Transform(const Quaternion & rotation)
+: position(Vector3::ZERO), rotation(rotation), scale(Vector3::UNIT_SCALE) {}
+
 Transform::Transform(const Matrix4 & mat)
 : scale(Vector3::UNIT_SCALE) {
 	position = Vector3(mat[0][3], mat[1][3], mat[2][3]);
@@ -32,7 +35,7 @@ Transform & Transform::operator =(const Transform & t) {
 	rotation = t.getOrientation();
 	return *this;
 }
-// TODO const Transform Transform::IDENTITY(Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE);
+// probleme d'ordre d'initialisation si const Transform Transform::IDENTITY(Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE);
 const Transform Transform::IDENTITY(Vector3(0.0, 0.0, 0.0), Quaternion(1.0, 0.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0));
 
 void Transform::setScale(const Vector3& vScale) {

@@ -22,15 +22,33 @@ public:
 
 	// affichage
 	virtual void display() const;
-	virtual void display(int joinId, const Vector3 &) const;
+	virtual const Vector3 display(int joinId, const Transform & transParent) const;
 
 	// fonction de mise a jour de l'objet
 	virtual void update(f32 elapsed);
 
+	// passer a la frame suivante manuellement
+	virtual void nextFrame();
+	virtual void previousFrame();
+
+	// changer le mode d'affichage
+	virtual void changeTransformationRoot() {transformationRoot = !transformationRoot;}
+	virtual void changeTranslationChildren() {translationChildren = !translationChildren;}
+
 private:
+	// convertion d'angle d'euler de la bvh vers quaternion
+	static Quaternion bvhToQuater (f32 r[3], int bindings[3]);
+
 	string bvhFileName;
 	MOTION * motion;
 	MFRAME * frame;
+	int numFrame;
+	int nbrFrame;
+	f32 tempsCourant;
+	f32 vitesse;
+	f32 tempsParFrame;
+	bool transformationRoot;
+	bool translationChildren;
 };
 
 #endif /* PERSO_H_ */

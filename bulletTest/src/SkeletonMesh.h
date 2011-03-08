@@ -16,6 +16,8 @@ using namespace std;
 class SkeletonMesh {
 public:
 
+	enum Extremite {DEBUT = 0, FIN = 1};
+
 	struct Os {
 		Vector3 debut, fin;
 		int joint;
@@ -23,6 +25,8 @@ public:
 	};
 
 	// constructeur
+	// orientationEdition est utilise afin de faire une rotation du squelette en position d'édition.
+	// cela permet d'oriente le squelette toujours dans la meme direction
 	SkeletonMesh(const string & bvhFileName, Quaternion orientationEdition, f32 scale, bool transformationRoot = true, bool translationChildren = true);
 
 	// destructeur
@@ -36,12 +40,12 @@ public:
 
 	// acceder a la position et la la transformation locale d'une articulation
 	virtual bool isOsPosition(int numFrame, int joinId) const;
-	virtual const Os * getOsPosition(int numFrame, int joinId) const;
-	virtual const Vector3 & getOsPosition(int numFrame, int joinId, bool debut) const;
+	virtual const Os * getOs(int numFrame, int joinId) const;
+	virtual const Vector3 & getOsPosition(int numFrame, int joinId, Extremite extremite) const;
 	virtual const Transform & getJointsTransf(int numFrame, int joinId) const;
 
 	// acceder a la position d'un os dans la position d'edition
-	virtual const Os * getOsPosEdition(int joinId) const;
+	virtual const Vector3 & getOsPosEdition(int joinId, Extremite extremite) const;
 	virtual bool isOsPosEdition(int joinId) const {return osPosEdition[joinId]!=NULL;}
 
 	// acceder au nom d'une articulation a partir de sont id

@@ -10,6 +10,9 @@
 #include <MoteurGraphique.h>
 #include <GL/glfw.h>
 
+Perso * perso;
+bool update = true;
+
 // gestion du drag and drop de la souris
 void gestionSouris(Camera & camera) {
 	// coordonnee de la souris courrante
@@ -28,16 +31,16 @@ void gestionSouris(Camera & camera) {
 		}
 		// si le bouton droit est presse
 		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS) {
-			camera.moveCentreObser(Vector3((double)(x-sourisX)/10, 0.0, (double)(y-sourisY)/10));
+			camera.moveCentreObser(Vector3((double)(x-sourisX)*camera.getDistance()/200.0f, 0.0, (double)(y-sourisY)*camera.getDistance()/200.0f));
 		}
 		// si le bouton du milieu est presse
 		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)==GLFW_PRESS) {
-			camera.moveCentreObser(Vector3(0.0, (double)(sourisY-y)/10, 0.0));
+			camera.moveCentreObser(Vector3(0.0, (double)(sourisY-y)*camera.getDistance()/200.0f, 0.0));
 		}
 	}
 	// si la molette de la souris a tourne
 	if (cranAnc != cran) {
-		camera.addDistance((double)(cranAnc-cran));
+		camera.addDistance((double)(cranAnc-cran)*camera.getDistance()/5.0f);
 	}
 
 	// si une des touche fleche du clavier est presse
@@ -56,38 +59,59 @@ void gestionSouris(Camera & camera) {
 	cranAnc = cran;
 }
 
-int main() {
+void gestionTouche(int touche, int etat) {
+	if (etat==GLFW_PRESS) {
+		switch (touche) {
+		case 'R':
+			perso->changeTransformationRoot();
+			break;
+		case 'T':
+			perso->changeTranslationChildren();
+			break;
+		case 'U':
+			update = !update;
+			break;
+		case 'D':
+			perso->nextFrame();
+			break;
+		case 'Q':
+			perso->previousFrame();
+			break;
+		}
+	}
+}
+
+int main(int argc, char * argv[]) {
+	// verifier que le nom du bvh a ouvrir est bu en parametre
+	if (argc!=2) {
+		cerr << "usage : " << argv[0] << " fileName.bvh" << endl;
+		return -1;
+	}
+	const char * bvhFileName = argv[1];
+
 	try {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
+		moteur->setWindowName("bvhViewer");
 		Monde3D * monde3D = moteur->getMonde3D();
 
 		// camera
 		Camera * camera = monde3D->getCamera();
 		camera->setCentreObser(Vector3(0.0f, 0.0f, 0.0f));
 		Quaternion direction = Quaternion::IDENTITY;
-		camera->setDistance(10);
+		camera->setDistance(100.0);
 		camera->setRot(0.0, 0.0);
 
-		// ajout des lumieres
-		monde3D->add("lumiere0", new Lumiere(Vector3(10.0,10.0,10.0), Couleur::BLANC));
-
-		// chargement des ressources
-		ImagesManager::getInstance()->add("cube", new Image("data/cube.png"));
-		TexturesManager::getInstance()->add("cube", new Texture("cube", true));
-		Material mat("cube");
-		MeshManager::getInstance()->add("cube", new Cube());
-		MeshManager::getInstance()->add("sphere", new Sphere(16, 8));
-
 		// ajout des objets aux mondes
-		monde3D->add("cube", new Objet3D(mat, "cube", Transform(Vector3(-2.0,0.0,0.0))));
-		monde3D->add("sphere", new Objet3D(mat, "sphere", Transform(Vector3(2.0,0.0,0.0), Quaternion(), Vector3(1.0, 1.0, 1.0))));
-		monde3D->add("perso1", new Perso("data/Example1.bvh", mat, Transform(Vector3(-2.0,0.0,0.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
-		monde3D->add("perso2", new Perso("data/walk.bvh", mat, Transform(Vector3(2.0,0.0,0.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
+		perso = new Perso(bvhFileName, Material());
+		monde3D->add("perso", perso);
+
+		glfwSetKeyCallback(gestionTouche);
 
 		// affichage du monde
 		do {
-			moteur->update();
+			if (update)
+				moteur->update();
 			gestionSouris(*camera);
 			moteur->display();
 			moteur->swapBuffer();

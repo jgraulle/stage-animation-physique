@@ -146,11 +146,11 @@ const Vector3 SkeletonMesh::calculJoinPos(int numFrame, MFRAME * frame, int join
 
 	// application de la transformation
 	Transform * local = & jointsTransf[numFrame][joinId];
-	*local = Transform(position, orientation);
+	*local = Transform(position) * Transform(orientation);
 	Transform global = transParent * (*local);
 
 	// calculer la position de l'articulation dans le repere global
-	position = orientationEdition * (global * Vector3::ZERO) * scale;
+	position = orientationEdition * global.getPosition() * scale;
 
 	// pour tous les fils
 	Vector3 moyenne = Vector3::ZERO;
@@ -195,17 +195,17 @@ bool SkeletonMesh::isOsPosition(int numFrame, int joinId) const {
 	assert(joinId>=0 && joinId<nbrJoints);
 	return osPos[numFrame][joinId]!=NULL;
 }
-const SkeletonMesh::Os * SkeletonMesh::getOsPosition(int numFrame, int joinId) const {
+const SkeletonMesh::Os * SkeletonMesh::getOs(int numFrame, int joinId) const {
 	assert(numFrame>=0 && numFrame<nbrTotalFrames);
 	assert(joinId>=0 && joinId<nbrJoints);
 	assert(osPosEdition[joinId]!=NULL);
 	return osPos[numFrame][joinId];
 }
-const Vector3 & SkeletonMesh::getOsPosition(int numFrame, int joinId, bool debut) const {
+const Vector3 & SkeletonMesh::getOsPosition(int numFrame, int joinId, Extremite extremite) const {
 	assert(numFrame>=0 && numFrame<nbrTotalFrames);
 	assert(joinId>=0 && joinId<nbrJoints);
 	assert(osPosEdition[joinId]!=NULL);
-	if (debut)
+	if (extremite==DEBUT)
 		return osPos[numFrame][joinId]->debut;
 	// else
 	return osPos[numFrame][joinId]->fin;
@@ -217,10 +217,13 @@ const Transform & SkeletonMesh::getJointsTransf(int numFrame, int joinId) const 
 }
 
 // acceder a la position d'un os dans la position d'edition
-const SkeletonMesh::Os * SkeletonMesh::getOsPosEdition(int joinId) const {
+const Vector3 & SkeletonMesh::getOsPosEdition(int joinId, Extremite extremite) const {
 	assert(joinId>=0 && joinId<nbrJoints);
 	assert(osPosEdition[joinId]!=NULL);
-	return osPosEdition[joinId];
+	if (extremite==DEBUT)
+		return osPosEdition[joinId]->debut;
+	// else
+	return osPosEdition[joinId]->fin;
 }
 
 // acceder au nom d'une articulation a partir de sont id

@@ -17,6 +17,10 @@ Lumiere::Lumiere(const Vector3 & position, const Couleur & c, f32 attnConstant, 
 : position(position), ambientColor(AMBIENT_DEFAUT), diffuseColor(c), specularColor(c), direction(direction),
 angle(angle), exposant(exposant), attnConstant(attnConstant), attnLinear(attnLinear), attnQuadratic(attnQuadratic) {}
 
+Lumiere::Lumiere(const Vector3 & position, const Couleur & ambientColor, const Couleur & diffuseColor,  const Couleur & specularColor, f32 attnConstant, f32 attnLinear, f32 attnQuadratic, u8 exposant, f32 angle, const Vector3 & direction)
+: position(position), ambientColor(ambientColor), diffuseColor(diffuseColor), specularColor(specularColor), direction(direction),
+angle(angle), exposant(exposant), attnConstant(attnConstant), attnLinear(attnLinear), attnQuadratic(attnQuadratic) {}
+
 Lumiere::Lumiere(const Vector3 & position, const Quaternion & rotation)
 : position(position), ambientColor(AMBIENT_DEFAUT), diffuseColor(DIFFUSE_SPECULAR_DEFAUT), specularColor(DIFFUSE_SPECULAR_DEFAUT),
 angle(45.0f), exposant(0), attnConstant(1.0f), attnLinear(0.0f), attnQuadratic(0.0f) {

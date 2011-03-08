@@ -40,10 +40,20 @@ public:
 	// affiche le monde 2D et le monde 3D
 	virtual void display();
 
+	// nom de la fenetre
+	virtual const string & getWindowName() const {return windowName;}
+	virtual void setWindowName(const string & name);
+
+	// couleur de fond
+	virtual const Couleur & getBackgroundColor() const {return background;}
+	virtual void setBackgroundColor(const Couleur & c);
+
 private:
 	// constructeur en priver car singleton
 	Moteur();
 
+	// nom de la fenetre
+	string windowName;
 	// couleur de fond
 	Couleur background;
 	// monde par defaut

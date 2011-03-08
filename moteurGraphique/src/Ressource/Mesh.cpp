@@ -53,6 +53,29 @@ Mesh::Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], u16 faces[]
 	glEndList();
 }
 
+Mesh::Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], int faces[][3][3], int nbrFace) {
+	idDisplayList = glGenLists(1);
+	glNewList(idDisplayList, GL_COMPILE);
+	glBegin(GL_TRIANGLES);
+	for (int f=0; f<nbrFace; f++) {
+		for (int numVertex = 0; numVertex<3; numVertex++) {
+			int indexVertex = faces[f][0][numVertex];
+			glVertex3f(positions[indexVertex][0],
+			           positions[indexVertex][1],
+					   positions[indexVertex][2]);
+			indexVertex = faces[f][1][numVertex];
+			glNormal3f(normals[indexVertex][0],
+					   normals[indexVertex][1],
+					   normals[indexVertex][2]);
+			indexVertex = faces[f][2][numVertex];
+			glTexCoord2f(texCoords[indexVertex][0],
+						 texCoords[indexVertex][1]);
+		}
+	}
+	glEnd();
+	glEndList();
+}
+
 Mesh::Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vecteur2> texCoords, vector<Face> faces) {
 	idDisplayList = glGenLists(1);
 	glNewList(idDisplayList, GL_COMPILE);

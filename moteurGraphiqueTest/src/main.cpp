@@ -12,41 +12,6 @@
 #include <GL/glfw.h>
 
 #include "../../moteurGraphique/src/MoteurGraphique.h"
-#include "../../mocap/src/Bvh.h"
-#include "../../mocap/src/ActorRenderSkin.h"
-
-class Personnage: public Objet3D {
-public:
-	Personnage(Material material, const string fileName, Transform transform = Transform())
-	: Objet3D(material, NULL, transform), tempsAnim(0.0), numFrame(0) {
-		// chargement de la mocap
-		bvh = new Bvh(fileName);
-	    actorRenderSkin = new ActorRenderSkin(bvh->getMocapData(), bvh->getSkeletalData(), bvh->getSkinData());
-	    actorRenderFil = new ActorRenderFil(bvh->getMocapData(), bvh->getSkeletalData(), bvh->getSkinData());
-	}
-	virtual ~Personnage() {
-		delete actorRenderFil;
-		delete actorRenderSkin;
-		delete bvh;
-	}
-	virtual void update(f32 elapsed) {
-		tempsAnim += elapsed;
-		numFrame = int(tempsAnim*25.0);
-		if (numFrame>=bvh->getNbFrame()) {
-			numFrame = 0;
-			tempsAnim = 0.0f;
-		}
-	}
-	virtual void display() const {
-		actorRenderSkin->drawFrame(numFrame);
-	}
-private:
-	Bvh * bvh;
-	ActorRenderSkin * actorRenderSkin;
-	ActorRenderFil * actorRenderFil;
-	f32 tempsAnim;
-	int numFrame;
-};
 
 using namespace std;
 
@@ -100,7 +65,9 @@ int main(int argc, char **argv) {
 	try {
 		// creation du monde
 		Moteur * moteur = Moteur::getInstance();
+		moteur->setWindowName("moteurGraphiqueTest");
 		Monde3D * monde3D = moteur->getMonde3D();
+		Monde2D * monde2D = moteur->getMonde2D();
 
 		// camera
 		Camera * camera = monde3D->getCamera();
@@ -135,8 +102,7 @@ int main(int argc, char **argv) {
 			}
 		}
 		monde3D->add("testMesh", new Objet3D(mat, "testMesh", Transform(Vector3(4.0,0.0,0.0))));
-		monde3D->add("perso", new Personnage(mat, "data/carl_anim.smd", Transform(Vector3(4.0,0.0,2.0), Quaternion(), Vector3(0.1, 0.1, 0.1))));
-//		monde2D->add("care", 1, new Objet2D("cube.png", Vecteur2(100.0f, 100.0f), Vecteur2(100.0f, 100.0f)));
+		monde2D->add("care", 1, new Objet2D("cube", Vecteur2(100.0f, 100.0f), Vecteur2(100.0f, 100.0f)));
 
 		// affichage du monde
 		do {

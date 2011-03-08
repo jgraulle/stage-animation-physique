@@ -37,6 +37,7 @@
 #include "Ressource/Mesh/Sphere.h"
 #include "Ressource/Mesh/Cylinder.h"
 #include "Ressource/Mesh/Capsule.h"
+#include "Ressource/Mesh/Cone.h"
 
 #include "Erreur.h"
 #include "Outils.h"
