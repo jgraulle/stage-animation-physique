@@ -10,6 +10,7 @@
 #include "Objet3D/Objet3D.h"
 #include "../Erreur.h"
 #include "../Moteur.h"
+#include "../Outils.h"
 
 // constructeur avec definition de la taille de la zone visionner par la camera
 Monde3D::Monde3D(const Vecteur2 & tailleProjection) {
@@ -209,7 +210,18 @@ void Monde3D::display() {
 			glPopMatrix();
 		}
 	}
+
 //	glDepthMask(GL_TRUE);
+
+	/////////////////////////////////////////////////
+	// Affichage du centre de la camera            //
+	/////////////////////////////////////////////////
+	{
+		Disable lumiere(GL_LIGHTING);
+		Disable texture(GL_TEXTURE_2D);
+		Disable profondeur(GL_DEPTH_TEST);
+		camera.display();
+	}
 }
 
 // mise a jour de tous les objets du Monde

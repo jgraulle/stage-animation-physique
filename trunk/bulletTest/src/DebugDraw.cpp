@@ -8,14 +8,23 @@
 #include "DebugDraw.h"
 #include "TransformConv.h"
 
-#include "../../moteurGraphique/src/MoteurGraphique.h"
-
-DebugDraw::DebugDraw()
+DebugDraw::DebugDraw(btDiscreteDynamicsWorld * dynamicsWorld)
 //: debugMode(DBG_DrawWireframe) {}
-: debugMode(DBG_DrawConstraints | DBG_DrawConstraintLimits) {}
+: Objet3D(Material(), NULL), debugMode(DBG_DrawConstraints | DBG_DrawConstraintLimits),
+dynamicsWorld(dynamicsWorld) {
+	dynamicsWorld->setDebugDrawer(this);
+	retirerDuMonde();
+}
 
 DebugDraw::~DebugDraw() {}
 
+
+// Objet3D : affichage
+void DebugDraw::display() const {
+	dynamicsWorld->debugDrawWorld();
+}
+
+// btIDebugDraw
 void DebugDraw::drawLine(const btVector3& from,const btVector3& to,const btVector3& color) {
 	Disable lumiere(GL_LIGHTING);
 	Disable texture(GL_TEXTURE_2D);

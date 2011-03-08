@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Declaration du nom du projet
-PROJECT(testMoteurGraphique)
+PROJECT(moteurGraphiqueTest)
 
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
@@ -63,18 +63,11 @@ SET(MOTEUR_GRAPHIQUE_LIBRARY_DIR ../moteurGraphique/lib)
 INCLUDE_DIRECTORIES(${MOTEUR_GRAPHIQUE_INCLUDE})
 LINK_DIRECTORIES(${MOTEUR_GRAPHIQUE_LIBRARY_DIR})
 
-# recherche de mocap
-SET(MOCAP_INCLUDE ../mocap/src)
-SET(MOCAP_LIBRARY_NAME mocap)
-SET(MOCAP_LIBRARY_DIR ../mocap/lib)
-INCLUDE_DIRECTORIES(${MOCAP_INCLUDE})
-LINK_DIRECTORIES(${MOCAP_LIBRARY_DIR})
-
 # Generation de la liste des fichiers sources
 FILE(GLOB_RECURSE source_files src/*)
 
 # Declaration de l'executable
-ADD_EXECUTABLE(test ${source_files})
+ADD_EXECUTABLE(moteurGraphiqueTest ${source_files})
 
 # Ajout des librairies
-target_link_libraries(test ${MOCAP_LIBRARY_NAME} ${MOTEUR_GRAPHIQUE_LIBRARY_NAME} ${DEVIL_LIBRARY_NAME} ${ILU_LIBRARY_NAME} ${ILUT_LIBRARY_NAME} ${GLFW_LIBRARY_NAME} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+target_link_libraries(moteurGraphiqueTest ${MOTEUR_GRAPHIQUE_LIBRARY_NAME} ${DEVIL_LIBRARY_NAME} ${ILU_LIBRARY_NAME} ${ILUT_LIBRARY_NAME} ${GLFW_LIBRARY_NAME} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})

@@ -29,14 +29,17 @@ public:
 	// fonction de mise a jour de l'objet
 	virtual void update(f32 elapsed);
 
-	virtual const SkeletonMesh * getSkeletonMesh() {return skeletonMesh;}
-	virtual int getNumFrame() {return numFrame;}
-	virtual int getNumFrameSuivante();
+	virtual const SkeletonMesh * getSkeletonMesh() const {return skeletonMesh;}
+	virtual int getNumFrame() const {return numFrameCourant;}
+	virtual void setNumFrame(int numFrame);
+	virtual int getNumFrameSuivante() const;
+	virtual void setBorne(int numFrameDebut, int numFrameFin);
+	virtual void setVitesse(f32 vitesse);
 
 private:
 	const SkeletonMesh * skeletonMesh;
-	f32 tempsAnim;
-	int numFrame;
+	f32 tempsCourant, vitesse;
+	int numFrameCourant, numFrameDebut, numFrameFin;
 };
 
 #endif /* SKELETON_H_ */

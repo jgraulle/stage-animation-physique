@@ -23,7 +23,7 @@ Moteur * Moteur::getInstance() {
 
 // constructeur
 Moteur::Moteur()
-: background(0.0f,0.0f,0.0f,1.0f) {
+: windowName(""), background(0.0f,0.0f,0.0f,1.0f) {
 	// initialisation de la librairie devIL
 	ilInit();
 	// initialisation de la librairie GLFW
@@ -34,7 +34,7 @@ Moteur::Moteur()
 		exit(-1);
 	}
 	tailleEcran.set(800.0f, 600.0f);
-	glfwSetWindowTitle("MoteurGraphique");
+	glfwSetWindowTitle(windowName.c_str());
 	glfwSwapInterval(0);
 //	glfwDisable(GLFW_MOUSE_CURSOR);
 	glClearColor(background.getR(), background.getV(), background.getB(), background.getA());
@@ -67,9 +67,10 @@ const Vecteur2 & Moteur::getTailleEcran() const {
 }
 void Moteur::setTailleEcran(const Vecteur2 & t) {
 	tailleEcran = t;
-	monde2D->setTailleProjection(tailleEcran);
 	glfwSetWindowSize(int(t.getX()), int(t.getY()));
 	glViewport(0, 0, int(t.getX()), int(t.getY()));
+	monde2D->setTailleProjection(tailleEcran);
+	monde3D->setProjection(45.0f, 1.0f, 0.5f, 3000.0f);
 }
 
 // met a jour tous les elements
@@ -83,14 +84,14 @@ void Moteur::update() {
 		t0 = t;
 		frames = 0;
 		ostringstream oss;
-		oss << "moteur - " << fps;
+		oss << windowName << " - " << fps;
 		glfwSetWindowTitle(oss.str().c_str());
 	}
 	frames++;
 	elapsed = t-tAnc;
 	tAnc = t;
-	monde2D->update(elapsed);
-	monde3D->update(elapsed);
+	monde2D->update(getElapsed());
+	monde3D->update(getElapsed());
 }
 
 f32 Moteur::getElapsed() {
@@ -112,15 +113,31 @@ Monde3D * Moteur::getMonde3D() {
 
 // affiche le monde 2D et le monde 3D
 void Moteur::display() {
+	// redimentionner l'ecran
+	int width, height;
+	glfwGetWindowSize(&width, &height);
+	height = height > 0 ? height : 1;
+	setTailleEcran(Vecteur2(width, height));
+	// vider l'ecran
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	// afficher la 3d avant la 2D si non les pixel transparent de la 2D vont quand meme ecrire le z buffer
 	// du cout les objet 3D qui sont derriere ne vont pas passer le test du z buffer
 	// regle : afficher les objets transparent en dernier ou alors desactiver l'ecriture du z-buffer lors de leurs affichage
 	monde3D->display();
-//	monde2D->display();
+	monde2D->display();
 	// Affichage, s'il y a, des erreurs OpenGL
 	GLenum error = glGetError();
 	if(error != GL_NO_ERROR)
 		cout << "Erreur OpenGL : " << gluErrorString(error) << endl;
+}
+
+void Moteur::setWindowName(const string & name) {
+	windowName = name;
+	glfwSetWindowTitle(windowName.c_str());
+}
+
+void Moteur::setBackgroundColor(const Couleur & c) {
+	background = c;
+	glClearColor(background.getR(), background.getV(), background.getB(), background.getA());
 }

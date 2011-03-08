@@ -23,7 +23,7 @@ public:
 	virtual ~Camera();
 
 	// accesseur sur le centre d'observation
-	const Vector3 & getCentreObser();
+	const Vector3 & getCentreObser() const;
 
 	// reinitialiser le centre d'observation
 	void setCentreObser(const Vector3 &);
@@ -34,10 +34,10 @@ public:
 	void moveCentreObser(const Vector3 &);
 
 	// accesseur sur la rotation gauche-droite de la camera
-	f32 getRotX();
+	f32 getRotX() const;
 
 	// accesseur sur la rotation haut-bas de la camera
-	f32 getRotY();
+	f32 getRotY() const;
 
 	// reinitialiser la rotation de de la camera en degres
 	void setRot(f32 gaucheDroite, f32 hautBas);
@@ -53,7 +53,7 @@ public:
 	void addRotY(f32);
 
 	// accesseur sur la distance de la camera au centre d'observation
-	f32 getDistance();
+	f32 getDistance() const;
 
 	// reinitialiser la distance de la camera au centre d'observation
 	void setDistance(f32);
@@ -68,7 +68,10 @@ public:
 	// si negatif sera ramener a 0.0
 
 	// faire les transformations openGL necessaire pour bien placer la camera
-	void positionner();
+	void positionner() const;
+
+	// dessiner le centre de la camera
+	void display() const;
 
 private:
 	Vector3 centre;	// centre d'observation de la camera

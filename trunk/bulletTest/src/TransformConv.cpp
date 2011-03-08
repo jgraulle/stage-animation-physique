@@ -31,16 +31,19 @@ btTransform TransformConv::graphToBt(const Transform & t) {
 	return btTransform(graphToBt(t.getOrientation()), graphToBt(t.getPosition()));
 }
 
-TransformConv::TransformConv(Transform * tranform) : tranform(tranform) {}
+TransformConv::TransformConv(Transform * tranform) : tranform(tranform) {
+	btTrans.setOrigin(graphToBt(tranform->getPosition()));
+	btTrans.setRotation(graphToBt(tranform->getOrientation()));
+}
 
 TransformConv::~TransformConv() {}
 
 void TransformConv::getWorldTransform(btTransform & worldTrans) const {
-	worldTrans.setOrigin(graphToBt(tranform->getPosition()));
-	worldTrans.setRotation(graphToBt(tranform->getOrientation()));
+	worldTrans = btTrans;
 }
 
 void TransformConv::setWorldTransform(const btTransform & worldTrans) {
 	tranform->setPosition(btToGraph(worldTrans.getOrigin()));
 	tranform->setRotation(btToGraph(worldTrans.getRotation()));
+	btTrans = worldTrans;
 }

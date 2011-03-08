@@ -8,7 +8,10 @@
 #include "Skeleton.h"
 
 Skeleton::Skeleton(const SkeletonMesh * skeletonMesh, Material material, Transform transform)
-: Objet3D(material, NULL, transform), skeletonMesh(skeletonMesh), tempsAnim(0.0), numFrame(0) {}
+: Objet3D(material, NULL, transform), skeletonMesh(skeletonMesh),
+  tempsCourant(0.0), vitesse(1.0f), numFrameCourant(0), numFrameDebut(0) {
+	numFrameFin = skeletonMesh->getNbrTotalFrames()-1;
+}
 
 Skeleton::~Skeleton() {
 }
@@ -18,23 +21,17 @@ void Skeleton::display() const {
 	Disable lumiere(GL_LIGHTING);
 	Disable texture(GL_TEXTURE_2D);
 	Disable profondeur(GL_DEPTH_TEST);
-	glPointSize(3.0f);
-	glColor4f(1.0f, 0.0f, 0.0f, 1.f);
 	glBegin(GL_LINES);
-
+/*
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
-		if (skeletonMesh->isOsPosition(numFrame,joinId)) {
-			if (skeletonMesh->getJointName(joinId)=="LeftHip" || skeletonMesh->getJointName(joinId)=="LeftUpLeg")
-				glColor4f(1.0f, 0.0f, 0.0f, 1.f);
-			else
-				glColor4f(0.3f, 0.0f, 0.0f, 1.f);
-			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->debut);
-			glColor4f(0.0f, 0.0f, 0.0f, 1.f);
-			glVertex3fv(skeletonMesh->getOsPosition(numFrame,joinId)->fin);
+		if (skeletonMesh->isOsPosition(numFrameCourant,joinId)) {
+			glVertex3fv(skeletonMesh->getOsPosition(numFrameCourant,joinId, SkeletonMesh::DEBUT));
+			glVertex3fv(skeletonMesh->getOsPosition(numFrameCourant,joinId, SkeletonMesh::FIN));
 		}
 	}
-
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+*/
+/*
 	for (int joinId=0; joinId<skeletonMesh->getNbrJoints(); joinId++) {
 		if (skeletonMesh->isOsPosEdition(joinId)) {
 			if (skeletonMesh->getJointName(joinId)=="LeftHip" || skeletonMesh->getJointName(joinId)=="LeftUpLeg")
@@ -46,27 +43,49 @@ void Skeleton::display() const {
 			glVertex3fv(skeletonMesh->getOsPosEdition(joinId)->fin);
 		}
 	}
-
-	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
-	glPointSize(1.0f);
+*/
+	glEnd();
 }
 
 // fonction de mise a jour de l'objet
 void Skeleton::update(f32 elapsed) {
-	tempsAnim += elapsed/1.0f;
+	tempsCourant += elapsed*vitesse;
 	// si le temps est plus grand que le temps de debut de la prochaine frame
-	if (tempsAnim>(numFrame+1)*skeletonMesh->getTempsParFrame()) {
+	if (tempsCourant>(numFrameCourant-numFrameDebut+1)*skeletonMesh->getTempsParFrame()) {
 		// passer a la frame suivante
-		numFrame++;
-		if (numFrame>=skeletonMesh->getNbrTotalFrames()) {
+		numFrameCourant++;
+		if (numFrameCourant>=numFrameFin) {
 			// repartir a la frame 0 si derniere frame
-			numFrame = 0;
-			tempsAnim = 0.0;
+			numFrameCourant = numFrameDebut;
+			tempsCourant = 0.0;
 		}
 	}
 }
 
-int Skeleton::getNumFrameSuivante() {
-	return (numFrame+1) % skeletonMesh->getNbrTotalFrames();
+int Skeleton::getNumFrameSuivante() const {
+	if (numFrameCourant+1>=numFrameFin) {
+		return numFrameDebut;
+	}
+	return numFrameCourant+1;
+}
+
+void Skeleton::setNumFrame(int numFrame) {
+	if (numFrameDebut<=numFrame && numFrame<=numFrameFin) {
+		numFrameCourant = numFrame;
+		tempsCourant = (numFrameCourant-numFrameDebut)*skeletonMesh->getTempsParFrame();
+	}
+}
+
+void Skeleton::setBorne(int numFrameDebut, int numFrameFin) {
+	this->numFrameDebut = numFrameDebut;
+	this->numFrameFin = numFrameFin;
+	if (numFrameCourant<numFrameDebut || numFrameFin<numFrameCourant) {
+		numFrameCourant = numFrameDebut;
+		tempsCourant = 0.0;
+	}
+}
+
+void Skeleton::setVitesse(f32 vitesse) {
+	this->vitesse = vitesse;
 }

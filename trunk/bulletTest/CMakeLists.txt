@@ -59,11 +59,11 @@ INCLUDE_DIRECTORIES(${DEVIL_INCLUDE})
 # recherche de bullet
 IF (WIN32)
 	# TODO rechercher dossier minGW
-	SET(BULLET_INCLUDE C:/MinGW/include)
+	SET(BULLET_INCLUDE ../../bullet-2.74/src)
 	SET(BULLET_DYNAMICS_LIBRARY_NAME bulletdynamics)
 	SET(BULLET_COLLISION_LIBRARY_NAME bulletcollision)
-	SET(BULLET_MATH_LIBRARY_NAME bulletmath)
-	#SET(BULLET_LIBRARY_DIR C:/MinGW/lib)
+	SET(BULLET_MATH_LIBRARY_NAME linearMath)
+	SET(BULLET_LIBRARY_DIR ../../bullet-2.74/lib)
 ELSE (WIN32)
 	# TODO verifier que la lib est bien installe
 	SET(BULLET_INCLUDE /usr/include /usr/local/include)
@@ -72,7 +72,7 @@ ELSE (WIN32)
 	SET(BULLET_MATH_LIBRARY_NAME LinearMath)
 ENDIF (WIN32)
 INCLUDE_DIRECTORIES(${BULLET_INCLUDE})
-#link_directories(${BULLET_LIBRARY_DIR})
+link_directories(${BULLET_LIBRARY_DIR})
 
 # recherche de moteurGraphique
 SET(MOTEUR_GRAPHIQUE_INCLUDE ../moteurGraphique/src)
@@ -92,11 +92,11 @@ LINK_DIRECTORIES(${BVH_LIBRARY_DIR})
 FILE(GLOB_RECURSE source_files src/*)
 
 # Declaration de l'executable
-ADD_EXECUTABLE(test ${source_files})
+ADD_EXECUTABLE(bulletTest ${source_files})
 
 # Ajout des librairies
 target_link_libraries (
-	test
+	bulletTest
 	${BVH_LIBRARY_NAME} 
 	${BULLET_DYNAMICS_LIBRARY_NAME} ${BULLET_COLLISION_LIBRARY_NAME} ${BULLET_MATH_LIBRARY_NAME} 
 	${MOTEUR_GRAPHIQUE_LIBRARY_NAME}

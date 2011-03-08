@@ -10,7 +10,7 @@
 #include <GL/gl.h>
 
 Capsule::Capsule(float rayon, float hauteur, int slices, int stacks)
-: slices(slices), stacks(stacks) {
+: slices(slices), stacks(stacks), rayon(rayon), hauteur(hauteur) {
 	GLUquadric* quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 

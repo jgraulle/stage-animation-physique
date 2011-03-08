@@ -30,6 +30,7 @@ public:
 
 private:
 	Transform * tranform;
+	btTransform btTrans;
 };
 
 #endif /* TRANSFORMCONV_H_ */

@@ -15,9 +15,13 @@ public:
 	Capsule(float rayon, float hauteur, int slices, int stacks);
 	virtual ~Capsule();
 
+	float getRayon() {return rayon;}
+	float gethauteur() {return hauteur;}
+
 private:
 	int slices;
 	int stacks;
+	float rayon, hauteur;
 };
 
 #endif /* CAPSULE_H_ */

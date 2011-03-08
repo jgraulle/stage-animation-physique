@@ -28,6 +28,7 @@ public:
 	// construction d'une mesh quelconque, tout les tableaux peuvent etre libere apres utilisation
 	Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], Face faces[], int nbrFace);
 	Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], u16 faces[][3][3], int nbrFace);
+	Mesh(f32 positions[][3], f32 normals[][3], f32 texCoords[][2], int faces[][3][3], int nbrFace);
 	Mesh(vector<Vector3> positions, vector<Vector3> normals, vector<Vecteur2> texCoords, vector<Face> faces);
 	virtual ~Mesh();
 	virtual void display() const;

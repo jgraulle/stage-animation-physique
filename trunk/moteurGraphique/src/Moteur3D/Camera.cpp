@@ -7,7 +7,7 @@
 
 #include "Camera.h"
 
-#include "../Outils.h"
+#include "../Math/Couleur.h"
 
 #include <GL/gl.h>
 
@@ -19,7 +19,7 @@ Camera::Camera(const Vector3 & centreObservation, f32 rotX, f32 rotY, f32 distan
 Camera::~Camera() {}
 
 // accesseur sur le centre d'observation
-const Vector3 & Camera::getCentreObser() { return centre;}
+const Vector3 & Camera::getCentreObser() const { return centre;}
 
 // reinitialiser le centre d'observation
 void Camera::setCentreObser(const Vector3 & v) {centre = v;}
@@ -35,10 +35,10 @@ void Camera::moveCentreObser(const Vector3 & v) {
 }
 
 // accesseur sur la rotation gauche-droite de la camera
-f32 Camera::getRotX() {return rx;}
+f32 Camera::getRotX() const {return rx;}
 
 // accesseur sur la rotation haut-bas de la camera
-f32 Camera::getRotY() {return ry;}
+f32 Camera::getRotY() const {return ry;}
 
 // reinitialiser la rotation de de la camera
 void Camera::setRot(f32 gaucheDroite, f32 hautBas) {
@@ -71,7 +71,7 @@ void Camera::addRotY(f32 a) {
 }
 
 // accesseur sur la distance de la camera au centre d'observation
-f32 Camera::getDistance() {return dist;}
+f32 Camera::getDistance() const {return dist;}
 
 // reinitialiser la distance de la camera au centre d'observation
 void Camera::setDistance(f32 d) {
@@ -89,22 +89,21 @@ void Camera::addDistance(f32 d) {
 }
 
 // faire les transformations openGL necessaire pour bien placer la camera
-void Camera::positionner() {
+void Camera::positionner() const {
     // deplacer la camera a la distance du point fixe
     glTranslated(0.0, 0.0, -getDistance());
     // tourner la camera
     glRotated((f32)getRotY(), 1.0, 0.0, 0.0);
     glRotated((f32)getRotX(), 0.0, 1.0, 0.0);
 
-	{
-		// afficher le centre de la camera
-		Disable lumiere(GL_LIGHTING);
-		Disable texture(GL_TEXTURE_2D);
-		Disable profondeur(GL_DEPTH_TEST);
-		glBegin(GL_POINTS);
-		glVertex3fv(Vector3::ZERO);
-		glEnd();
-	}
     // definir les coordonnes du point fixe
     glTranslated(-getCentreObser().x, -getCentreObser().y, -getCentreObser().z);
+}
+
+// dessiner le centre de la camera
+void Camera::display() const {
+	glColor4fv(Couleur::BLANC.getData());
+	glBegin(GL_POINTS);
+	glVertex3fv(getCentreObser());
+	glEnd();
 }
